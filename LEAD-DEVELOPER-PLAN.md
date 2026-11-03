@@ -79,6 +79,9 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 
 ### Round 4 tasks
 
+- [x] Freeze the Phase 1 implementation sequence and identify the affected source-confirmation files.
+- [x] Confirm the first demo commodity set remains ambient only: ORS sachets and zinc 20 mg tablets.
+- [x] Define Scenario 1 acceptance: source confirmation, authorised release, simulated pickup, receipt, ledger update, reset, and replay are visible from one seed.
 - [ ] Define the controlled Scenario Lab contract: scenario, fixture version, event, role action, outcome, and reset.
 - [ ] Implement Scenario 1: an authorised ambient transfer with a deterministic replayable timeline.
 - [ ] Add fixture packs for safety-floor, shelf-mismatch, FEFO, rider-delay, refused-receipt, and demand-shock scenarios.
@@ -92,6 +95,59 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 - [ ] Create and verify a demo reset command.
 - [ ] Complete three consecutive successful rehearsals.
 - [ ] Prepare a recorded fallback demonstration.
+
+## Ready-to-start implementation queue
+
+Work this queue in order. Commit after each completed item and update this tracker in the same commit.
+
+### 1. Source-custodian authority correction
+
+**Status:** `[~]` Ready to implement
+
+**Files in scope:**
+
+- `apps/api/src/sms/repository.ts`
+- `apps/api/src/sms/service.ts`
+- `apps/api/src/sms/memory-repository.ts`
+- `apps/api/src/sms/supabase-repository.ts`
+- `supabase/migrations/20261103160000_sms_confirmation_engine.sql`, followed by a new forward-only corrective migration
+- `apps/api/test/sms.test.ts` and `apps/api/test/operations.test.ts`
+
+**Required change:** an offer may be confirmed or declined only by the designated source facility/custodian. The requester can create and view a request but cannot authorise the source's stock. A confirmed offer must still respect expiry and reserve stock exactly once.
+
+**Acceptance checks:**
+
+- Requester confirmation is rejected.
+- Source-custodian confirmation succeeds exactly once.
+- Concurrent duplicate confirmation is rejected.
+- Source decline, expiry, and reservation tests still pass.
+- `npm run test -w @supplai/api`, `npm run typecheck -w @supplai/api`, and the affected Supabase RPC test pass.
+
+### 2. Phase 1 safety data and order contract
+
+**Status:** `[ ]` Starts immediately after item 1
+
+- Add the minimal demo fields and states: controlled ambient formulary, source safety floor, batch, expiry, condition, source release, receipt/refusal, and exception event.
+- Expose one typed order-detail response with timeline, available role actions, evidence chips, and next accountable owner.
+- Add migration, typed contract, fixture/reset update, and regression tests together.
+
+### 3. Scenario Lab reference run
+
+**Status:** `[ ]` Starts immediately after item 2
+
+- Define `Scenario`, `FixtureVersion`, `ScenarioEvent`, `ScenarioRun`, `RoleAction`, and `ScenarioOutcome` contracts.
+- Build `authorised-ambient-transfer` as the reference deterministic run.
+- Add protected start, tick, read-run, replay, and reset endpoints.
+- Record only fictional identifiers and modelled outputs; no live message, rider, map, or medicine movement.
+
+### 4. Expo app shell and API seam
+
+**Status:** `[ ]` Starts when item 3 exposes stable contracts
+
+- Create `apps/mobile` with Expo and the facility/rider role switch.
+- Implement the facility request, order timeline, and receiving decision first.
+- Implement rider pickup, in-transit, and handover second.
+- Keep all UI actions on the shared typed API contract; do not duplicate workflow state in the app.
 
 ## Round 1: Foundation and contracts
 
