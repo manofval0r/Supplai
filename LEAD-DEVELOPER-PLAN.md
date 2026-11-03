@@ -1,8 +1,10 @@
 # Core Workflow Co-Developer Plan
 
+> **Product direction update, 3 November 2026:** Rounds 1–3 remain completed technical foundation work. Supplai is now being built as a visual facility PWA, LGA operations console, and rider PWA, with SMS/WhatsApp as secondary order-intake channels. The authoritative recovery plan is [MASTER-PRODUCT-PLAN.md](MASTER-PRODUCT-PLAN.md). This plan remains the progress tracker for the co-developer work you own.
+
 ## Goal
 
-Own the Supplai technical core and deliver a tested, deployed end-to-end demonstration. You and Akolo are equal co-developers with different component ownership. Four rounds are sufficient if scope remains controlled. Each round should end with working software, not disconnected components.
+Own the Supplai technical core and deliver a tested, deployed end-to-end demonstration. You and Akolo are equal co-developers with different component ownership. The original four foundation rounds are complete or superseded; the current product plan continues through six tracked rounds. Each round should end with working software, not disconnected components.
 
 ## Progress tracker
 
@@ -20,7 +22,9 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 | Round 1: Foundation and contracts    | `[x]`  | Workspace, database, contracts, and checks work from a clean setup | Verified locally and on Supabase on 2026-11-03. Fictional demo foundation is loaded. |
 | Round 2: SMS intake and confirmation | `[x]`  | One valid request reaches one confirmed reservation                | Verified locally and with a rolled-back live Supabase workflow on 2026-11-03.                |
 | Round 3: Dispatch, proof, and ledger | `[x]`  | A verified delivery writes two correct stock movements             | Verified locally and with a rolled-back live Supabase workflow on 2026-11-03.                |
-| Round 4: Integration and deployment  | `[ ]`  | Deployed scripted demo succeeds three consecutive times            |                                                                                              |
+| Round 4: Product reframe and experience foundation | `[~]`  | Safety-aware order model and shared PWA/console shell are agreed and buildable | Product strategy and delivery plan created on 2026-11-03; implementation has not started. |
+| Round 5: Role experiences and channel integration | `[ ]` | Facility, operations, rider, SMS, and WhatsApp-simulator paths share one order state | |
+| Round 6: Deployment and creative illustration | `[ ]` | Deployed scripted demo succeeds three consecutive times and supports screen recording | |
 
 ### Preflight
 
