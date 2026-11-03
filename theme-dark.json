@@ -1,0 +1,21 @@
+{
+  "canvas": "#16130F",
+  "canvas_sec": "#211C16",
+  "ink": "#EDE6D8",
+  "ink_faded": "#9A8F7E",
+  "accent": "#E07A5F",
+  "accent_light": "#F2A48B",
+  "border": "#3A322A",
+  "watermark_rgba": [0.9, 0.8, 0.7, 0.05],
+  "layout": {
+    "body_font": "Serif",
+    "body_size": 10.5,
+    "body_leading": 17,
+    "heading_align": "center",
+    "heading_decoration": "rules",
+    "header_style": "full",
+    "code_style": "bg",
+    "cover_style": "centered",
+    "page_decoration": "top-bar"
+  }
+}

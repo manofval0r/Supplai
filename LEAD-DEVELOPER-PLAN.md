@@ -1,0 +1,205 @@
+# Core Workflow Co-Developer Plan
+
+## Goal
+
+Own the Supplai technical core and deliver a tested, deployed end-to-end demonstration. You and Akolo are equal co-developers with different component ownership. Four rounds are sufficient if scope remains controlled. Each round should end with working software, not disconnected components.
+
+## Progress tracker
+
+Update this tracker whenever a task begins, is completed, or becomes blocked.
+
+- `[ ]` Not started
+- `[~]` In progress
+- `[x]` Completed
+- `[!]` Blocked
+
+### Overall progress
+
+| Round                                | Status | Completion condition                                               | Notes                                                                                        |
+| ------------------------------------ | ------ | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Round 1: Foundation and contracts    | `[x]`  | Workspace, database, contracts, and checks work from a clean setup | Verified locally and on Supabase on 2026-11-03. Fictional demo foundation is loaded. |
+| Round 2: SMS intake and confirmation | `[x]`  | One valid request reaches one confirmed reservation                | Verified locally and with a rolled-back live Supabase workflow on 2026-11-03.                |
+| Round 3: Dispatch, proof, and ledger | `[x]`  | A verified delivery writes two correct stock movements             | Verified locally and with a rolled-back live Supabase workflow on 2026-11-03.                |
+| Round 4: Integration and deployment  | `[ ]`  | Deployed scripted demo succeeds three consecutive times            |                                                                                              |
+
+### Preflight
+
+- [x] Configure a project-scoped Supabase MCP connection.
+- [x] Verify access to project `nigoztdsmxunmcxminmx`.
+- [x] Confirm the database has no existing application tables or migrations.
+- [x] Capture a clean security and performance advisor baseline.
+- [x] Apply migration `enable_pg_trgm`.
+- [x] Verify `pg_trgm` 1.6 is installed in the `extensions` schema.
+- [x] Confirm security and performance advisors remain clear after installation.
+
+### Round 1 tasks
+
+- [x] Verify the project-scoped Supabase MCP connection to project `nigoztdsmxunmcxminmx`.
+- [x] Initialize the TypeScript workspace.
+- [x] Create the Fastify API and shared packages.
+- [x] Configure Supabase PostgreSQL without requiring local Docker.
+- [x] Add environment validation.
+- [x] Create and deploy the initial database migrations.
+- [x] Add database constraints and fictional seed foundation.
+- [x] Publish shared API and dispatch contracts for Akolo.
+- [x] Configure formatting, type checking, tests, and CI commands.
+- [x] Verify build, formatting, linting, types, tests, compiled health response, and remote database state.
+
+### Round 2 tasks
+
+- [x] Implement the SMS simulator route.
+- [x] Define the canonical inbound SMS event.
+- [x] Implement the provider webhook boundary.
+- [x] Normalize Nigerian phone numbers.
+- [x] Add message logging and webhook idempotency.
+- [x] Parse medicine requests and confirmation replies.
+- [x] Implement ORS and zinc alias matching.
+- [x] Create and rank eligible matches.
+- [x] Enforce confirmation expiry.
+- [x] Protect reservations against concurrent confirmations.
+- [x] Pass duplicate, expiry, parser, matching, and concurrency tests.
+
+### Round 3 tasks
+
+- [x] Connect confirmed matches to the dispatch interface.
+- [x] Integrate the shared mock dispatch adapter boundary for Akolo.
+- [x] Generate and protect delivery proof codes.
+- [x] Enforce proof attempt and expiry rules.
+- [x] Complete transfers after receiver verification.
+- [x] Write paired stock movements transactionally.
+- [x] Rebuild cached stock from the movement ledger.
+- [x] Expose overview, transfer, and failure API routes.
+- [x] Add structured logging.
+- [x] Pass dispatch, proof, transaction, and ledger tests.
+
+### Round 4 tasks
+
+- [ ] Integrate Akolo's dashboard, fixtures, CSV tools, and failure views.
+- [ ] Connect the dashboard to live API routes.
+- [ ] Add demonstration authentication and rate limiting.
+- [ ] Configure demo-only routes safely.
+- [ ] Run the complete critical test suite.
+- [ ] Deploy the API, dashboard, and database.
+- [ ] Document setup, architecture, demo, fallback, and limitations.
+- [ ] Create and verify a demo reset command.
+- [ ] Complete three consecutive successful rehearsals.
+- [ ] Prepare a recorded fallback demonstration.
+
+## Round 1: Foundation and contracts
+
+### Build
+
+- Initialize the TypeScript workspace.
+- Create the Fastify API, React application location, and shared packages.
+- Configure PostgreSQL and Docker Compose.
+- Add environment validation and example environment variables.
+- Create migrations for facilities, drugs, aliases, stock, requests, matches, transfers, movements, riders, and message logs.
+- Enforce public-to-public transfer rules at database level.
+- Create shared API and dispatch contracts for Akolo.
+- Provide initial fixture shapes for dashboard development.
+- Configure formatting, type checking, testing, and CI commands.
+
+### Deliverable
+
+A clean checkout can install dependencies, start PostgreSQL, run migrations, seed the database, start the API, and compile shared contracts.
+
+### Completion checks
+
+- Migration up and down paths work.
+- Database constraints reject invalid transfer relationships.
+- API health check succeeds.
+- Akolo can import the shared contracts without copying types.
+
+## Round 2: SMS intake and confirmation engine
+
+### Build
+
+- Implement `POST /demo/sms`.
+- Define the canonical inbound SMS event.
+- Implement `POST /webhooks/sms/:provider` behind an adapter boundary.
+- Normalize Nigerian telephone numbers to E.164.
+- Log every inbound and outbound message.
+- Enforce idempotency using the provider message identifier.
+- Parse `NEED <medicine> <quantity>` messages.
+- Add ORS and zinc aliases and PostgreSQL trigram matching.
+- Create requests and rank eligible supplying facilities.
+- Parse confirmation and decline replies.
+- Apply the ten-minute confirmation expiry.
+- Prevent concurrent confirmations from creating more than one winning reservation.
+
+### Deliverable
+
+The simulator can create a request, send an offer, accept one valid shelf confirmation, and reject duplicates or expired replies.
+
+### Completion checks
+
+- Duplicate inbound event test passes.
+- Unknown sender behavior is explicit.
+- Ambiguous drug matches fail visibly.
+- Confirmation parser accepts agreed reply variants.
+- Concurrency test creates exactly one reservation.
+
+## Round 3: Dispatch, proof, and stock ledger
+
+### Build
+
+- Connect the confirmed match to the dispatch interface.
+- Integrate Akolo's mock dispatch adapter.
+- Generate a four-digit proof code at dispatch time.
+- Keep the proof code hidden from the rider.
+- Allow two incorrect proof attempts before locking the transfer.
+- Make the proof code single-use and time-limited.
+- Complete the transfer after valid receiver verification.
+- Write one negative supplier movement and one positive receiver movement in one transaction.
+- Rebuild cached stock levels from movements.
+- Expose overview, transfer, and failure API routes.
+- Add structured logging with request identifiers.
+
+### Deliverable
+
+The complete SMS simulator path ends in a verified delivery, correctly signed movements, updated stock, and dashboard-readable API responses.
+
+### Completion checks
+
+- Dispatch cannot occur without a valid confirmation.
+- The rider cannot self-confirm delivery.
+- Reusing a proof code fails.
+- A failed transaction writes neither movement.
+- Ledger signs and resulting balances are correct.
+
+## Round 4: Integration, deployment, and demonstration
+
+### Build
+
+- Integrate Akolo's dashboard, fixtures, CSV tools, and failure views.
+- Replace fixture-backed dashboard calls with API calls.
+- Add authentication appropriate for the demonstration.
+- Add rate limiting and safe error responses.
+- Ensure the demo-only SMS route is disabled by production configuration when necessary.
+- Run the full critical test suite.
+- Deploy the API, dashboard, and PostgreSQL database.
+- Write setup, architecture, demo, fallback, and limitation documentation.
+- Prepare a reset command that returns the demo to its initial state.
+- Rehearse the full scenario and capture stable demonstration data.
+
+### Deliverable
+
+A deployed, repeatable MVP that demonstrates request, confirmation, dispatch, delivery proof, ledger update, and dashboard reporting.
+
+### Completion checks
+
+- Clean-install instructions have been tested.
+- Deployment health checks succeed.
+- Demonstration reset works.
+- Full scripted demo succeeds at least three consecutive times.
+- The system has a recorded fallback demonstration if external hosting fails.
+
+## Work that remains outside these rounds
+
+- Paid SMS account activation
+- Live PHC onboarding
+- Real rider tracking
+- OpenLMIS real-time integration
+- Payments
+- Cold-chain products
+- Patient-level information

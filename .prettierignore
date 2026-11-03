@@ -1,0 +1,20 @@
+.pdfstudio/
+.taste-skill/
+artifacts/
+node_modules/
+dist/
+coverage/
+*.pdf
+*.pptx
+*.png
+*.jpg
+references/social-logistics-challenge-research.json
+
+# Existing research, deck, and generated presentation sources
+*.md
+*.html
+build-deck.js
+build-pptx.js
+verify-pptx.js
+assets/credits.json
+theme-dark.json

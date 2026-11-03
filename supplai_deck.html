@@ -1,0 +1,1586 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supplai — GBSN Social Logistics Challenge 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ==========================================================
+   SUPPLAI — GBSN Social Logistics Challenge 2026
+   Fixed 1600×900 stage. No reflow, no collisions.
+   ========================================================== */
+
+      :root {
+        --bg: #0a0908;
+        --surface: #121110;
+        --raise: #1b1917;
+        --raise2: #262321;
+        --ink: #f5efe5;
+        --ink2: #cfc2b4;
+        --muted: #96877a;
+        --gold: #e9ae63;
+        --clay: #c4704b;
+        --sage: #8fb39a;
+
+        --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+        --sans: 'Instrument Sans', 'Segoe UI', Helvetica, Arial, sans-serif;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        background: #050505;
+        overflow: hidden;
+      }
+      body {
+        font-family: var(--sans);
+        color: var(--ink2);
+        font-size: 18px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      #viewport {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+      }
+      #wrap {
+        position: relative;
+        overflow: hidden;
+      }
+      #stage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1600px;
+        height: 900px;
+        transform-origin: top left;
+        background: var(--bg);
+        overflow: hidden;
+      }
+
+      /* ---------- slide shell ---------- */
+      .slide {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.45s ease,
+          visibility 0s linear 0.45s;
+      }
+      .slide.on {
+        opacity: 1;
+        visibility: visible;
+        transition:
+          opacity 0.45s ease,
+          visibility 0s;
+      }
+      .a {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 0.8s var(--ease),
+          transform 0.8s var(--ease);
+        transition-delay: var(--d, 0s);
+      }
+      .slide.on .a {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .slide:not(.on) .a {
+        transition-delay: 0s;
+        transition-duration: 0.25s;
+      }
+
+      /* ---------- type ---------- */
+      h1,
+      h2,
+      h3 {
+        font-family: var(--serif);
+        color: var(--ink);
+        font-weight: 400;
+        font-optical-sizing: auto;
+      }
+      .display {
+        font-size: 158px;
+        line-height: 0.85;
+        letter-spacing: -0.046em;
+        font-weight: 500;
+      }
+      .h2 {
+        font-size: 60px;
+        line-height: 1.02;
+        letter-spacing: -0.028em;
+        max-width: 16ch;
+      }
+      .h3 {
+        font-size: 26px;
+        line-height: 1.24;
+        letter-spacing: -0.012em;
+        font-weight: 500;
+      }
+      .lead {
+        font-family: var(--serif);
+        font-size: 30px;
+        line-height: 1.32;
+        letter-spacing: -0.012em;
+        color: var(--ink);
+        font-weight: 300;
+      }
+      .body {
+        font-size: 18.5px;
+        line-height: 1.68;
+        color: var(--ink2);
+        font-weight: 300;
+      }
+      .body strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .small {
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: var(--muted);
+        font-weight: 400;
+      }
+
+      /* ---------- layout ---------- */
+      .split {
+        display: grid;
+        height: 100%;
+      }
+      .col-1-660 {
+        grid-template-columns: 1fr 660px;
+      }
+      .col-1-600 {
+        grid-template-columns: 1fr 600px;
+      }
+      .col-520-1 {
+        grid-template-columns: 520px 1fr;
+      }
+      .pane {
+        padding: 88px 84px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      figure.full {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+        background: var(--raise);
+      }
+      figure.full img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: sepia(0.18) saturate(0.72) contrast(1.06) brightness(0.86);
+      }
+      figcaption {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 22px 24px 20px;
+        font-size: 13px;
+        line-height: 1.45;
+        color: rgba(245, 239, 229, 0.78);
+        font-weight: 400;
+        /* neutral scrim: the one permitted exception, keeps the credit legible over the photo */
+        background: linear-gradient(
+          to top,
+          rgba(5, 4, 4, 0.96) 0%,
+          rgba(5, 4, 4, 0.82) 45%,
+          rgba(5, 4, 4, 0) 100%
+        );
+      } /* taste-skill-ignore */
+
+      /* ---------- 01 title ---------- */
+      .s1-copy {
+        padding: 0 66px 0 88px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .s1-rule {
+        width: 78px;
+        height: 3px;
+        background: var(--gold);
+        margin: 36px 0 32px;
+      }
+      .meta {
+        display: flex;
+        gap: 34px;
+        margin-top: 52px;
+        font-size: 13.5px;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .meta span {
+        position: relative;
+        padding-left: 17px;
+      }
+      .meta span::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 7px;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--gold);
+      }
+
+      /* ---------- 02 problem ---------- */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 44px;
+        margin-top: 64px;
+      }
+      .stat .n {
+        font-family: var(--serif);
+        font-size: 66px;
+        line-height: 1;
+        color: var(--gold);
+        letter-spacing: -0.035em;
+        font-weight: 500;
+      }
+      .stat .k {
+        font-size: 15px;
+        line-height: 1.5;
+        color: var(--muted);
+        margin-top: 16px;
+        max-width: 20ch;
+        font-weight: 400;
+      }
+
+      /* ---------- 03 paradox ---------- */
+      .s3-band {
+        position: relative;
+        height: 320px;
+        overflow: hidden;
+        background: var(--raise);
+      }
+      .s3-band img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: sepia(0.2) saturate(0.7) contrast(1.08) brightness(0.72);
+      }
+      .s3-body {
+        height: 580px;
+        display: grid;
+        grid-template-columns: 1fr 640px;
+        gap: 80px;
+        padding: 0 84px;
+        align-items: center;
+      }
+      .s3-left {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding: 66px 0;
+      }
+      .s3-close {
+        font-family: var(--serif);
+        font-size: 23px;
+        line-height: 1.38;
+        color: var(--ink);
+        font-weight: 300;
+        letter-spacing: -0.012em;
+        max-width: 26ch;
+      }
+      .face {
+        padding: 34px 38px;
+        background: var(--raise);
+      }
+      .face.alt {
+        background: var(--raise2);
+      }
+      .face .who {
+        font-size: 13px;
+        color: var(--gold);
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+      .face h3 {
+        font-size: 31px;
+        line-height: 1.14;
+      }
+      .face p {
+        font-size: 15.5px;
+        color: var(--muted);
+        margin-top: 14px;
+        line-height: 1.55;
+        font-weight: 300;
+      }
+      .gap-marker {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin: 22px 0;
+      }
+      .gap-marker .go {
+        font-family: var(--serif);
+        font-size: 26px;
+        color: var(--gold);
+        line-height: 1;
+      }
+      .gap-marker .txt {
+        font-family: var(--serif);
+        font-size: 19px;
+        color: var(--gold);
+        font-style: italic;
+        letter-spacing: -0.01em;
+      }
+
+      /* ---------- 04 failures ---------- */
+      .fail {
+        display: flex;
+        flex-direction: column;
+      }
+      .fail-item {
+        padding: 26px 0 26px 26px;
+        border-left: 3px solid rgba(233, 174, 99, 0.32);
+      }
+      .fail-item + .fail-item {
+        margin-top: 8px;
+      }
+      .fail-item h3 {
+        font-size: 24px;
+        line-height: 1.2;
+        margin-bottom: 8px;
+      }
+      .fail-item p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--muted);
+        font-weight: 300;
+        max-width: 52ch;
+      }
+      .pull {
+        font-family: var(--serif);
+        font-size: 34px;
+        line-height: 1.26;
+        letter-spacing: -0.018em;
+        color: var(--ink);
+        font-weight: 300;
+        max-width: 19ch;
+      }
+      .pull em {
+        color: var(--gold);
+        font-style: italic;
+      }
+
+      /* ---------- 05 flow ---------- */
+      .s5 {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 0 84px 76px;
+      }
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 30px;
+        list-style: none;
+        counter-reset: step;
+        margin-top: 48px;
+      }
+      .flow li {
+        counter-increment: step;
+        padding-top: 44px;
+        position: relative;
+      }
+      .flow li::before {
+        content: counter(step);
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-family: var(--serif);
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--gold);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: rgba(233, 174, 99, 0.14);
+      }
+      .flow h3 {
+        font-size: 21px;
+        line-height: 1.2;
+        margin-bottom: 9px;
+      }
+      .flow p {
+        font-size: 14.5px;
+        line-height: 1.52;
+        color: var(--muted);
+        font-weight: 300;
+      }
+      .s5-bottom {
+        display: grid;
+        grid-template-columns: 1fr 470px;
+        gap: 44px;
+        flex: 1;
+        min-height: 0;
+        margin-top: 44px;
+        align-items: stretch;
+      }
+      .mock {
+        background: var(--raise);
+        padding: 30px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow: hidden;
+      }
+      .mock .hd {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 500;
+        margin-top: 4px;
+      }
+      .bubble {
+        max-width: 66%;
+        padding: 14px 18px;
+        border-radius: 16px;
+        font-size: 15.5px;
+        line-height: 1.45;
+        font-weight: 400;
+      }
+      .bubble.in {
+        background: var(--raise2);
+        color: var(--ink2);
+        border-bottom-left-radius: 5px;
+      }
+      .bubble.out {
+        background: var(--gold);
+        color: #171009;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+        font-weight: 500;
+      }
+      .bubble.sys {
+        align-self: center;
+        max-width: 100%;
+        padding: 0;
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+        letter-spacing: 0.01em;
+      }
+      .bubble .ref {
+        display: block;
+        font-size: 13px;
+        opacity: 0.6;
+        margin-top: 7px;
+      }
+      .s5-fig {
+        overflow: hidden;
+        background: var(--raise);
+      }
+      .s5-fig img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 42%;
+        filter: sepia(0.18) saturate(0.7) contrast(1.06) brightness(0.9);
+      }
+
+      /* ---------- 06 why ---------- */
+      .why {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 52px;
+      }
+      .why-item {
+        padding-left: 24px;
+        border-left: 3px solid rgba(233, 174, 99, 0.28);
+      }
+      .why-item h3 {
+        font-size: 19px;
+        line-height: 1.25;
+        color: var(--gold);
+        font-weight: 500;
+        font-family: var(--sans);
+        letter-spacing: -0.005em;
+        margin-bottom: 8px;
+      }
+      .why-item p {
+        font-size: 16px;
+        line-height: 1.58;
+        color: var(--ink2);
+        font-weight: 300;
+        max-width: 44ch;
+      }
+      .quote-sage {
+        padding: 26px 30px;
+        background: var(--raise);
+        border-left: 3px solid var(--sage);
+      }
+      .quote-sage p {
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 1.42;
+        color: var(--ink);
+        font-weight: 300;
+      }
+
+      /* ---------- 07 stack ---------- */
+      .stack-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 20px;
+        flex: 1;
+        min-height: 0;
+        margin: 36px 0 0;
+      }
+      .stack-cell {
+        background: var(--surface);
+        padding: 36px 42px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .stack-cell .role {
+        font-size: 13px;
+        color: var(--gold);
+        font-weight: 500;
+      }
+      .stack-cell h3 {
+        font-size: 34px;
+        line-height: 1.1;
+        letter-spacing: -0.022em;
+      }
+      .stack-cell p {
+        font-size: 15.5px;
+        line-height: 1.56;
+        color: var(--muted);
+        font-weight: 300;
+        max-width: 38ch;
+        margin-top: 10px;
+      }
+      .buildline {
+        padding: 34px 0 0;
+      }
+      .buildline .lab {
+        font-size: 13px;
+        color: var(--gold);
+        font-weight: 500;
+        margin-bottom: 10px;
+      }
+      .buildline p {
+        font-family: var(--serif);
+        font-size: 26px;
+        line-height: 1.3;
+        color: var(--ink);
+        font-weight: 300;
+        max-width: 68ch;
+      }
+      .s7 {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 78px 84px 70px;
+      }
+
+      /* ---------- 08 economics ---------- */
+      .econ {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      .econ th {
+        text-align: left;
+        font-family: var(--sans);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        padding: 0 0 16px;
+      }
+      .econ th:first-child {
+        width: 34%;
+      }
+      .econ th:last-child {
+        width: 26%;
+      }
+      .econ th:last-child,
+      .econ td:last-child {
+        text-align: right;
+      }
+      .econ td {
+        padding: 26px 0;
+        vertical-align: top;
+        font-size: 16.5px;
+        line-height: 1.5;
+        color: var(--ink2);
+        font-weight: 300;
+      }
+      .econ td:nth-child(2) {
+        padding-right: 26px;
+      }
+      .econ tr + tr td {
+        border-top: 1px solid rgba(245, 239, 229, 0.07);
+      }
+      .econ td.name {
+        font-family: var(--serif);
+        font-size: 23px;
+        color: var(--ink);
+        font-weight: 400;
+        padding-right: 30px;
+        white-space: nowrap;
+      }
+      .econ td.price {
+        font-family: var(--serif);
+        font-size: 23px;
+        color: var(--gold);
+        white-space: nowrap;
+        font-weight: 400;
+      }
+      .econ td.price small {
+        display: block;
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-top: 4px;
+      }
+      .rule-note {
+        padding: 24px 28px;
+        background: var(--raise);
+        border-left: 3px solid var(--gold);
+        font-size: 15.5px;
+        line-height: 1.55;
+        color: var(--ink2);
+        font-weight: 300;
+      }
+      .rule-note b {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      /* ---------- 09 roadmap ---------- */
+      .tl {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        margin-top: 8px;
+      }
+      .tl-item {
+        padding-right: 30px;
+      }
+      .tl-item .dotmark {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--gold);
+        margin-bottom: 22px;
+      }
+      .tl-item .when {
+        font-family: var(--serif);
+        font-size: 26px;
+        color: var(--ink);
+        line-height: 1.2;
+        margin-bottom: 9px;
+      }
+      .tl-item .what {
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.5;
+        font-weight: 300;
+      }
+      .close-quote {
+        font-family: var(--serif);
+        font-size: 66px;
+        line-height: 1.14;
+        letter-spacing: -0.032em;
+        color: var(--ink);
+        font-weight: 300;
+        max-width: 22ch;
+      }
+      .close-quote em {
+        font-style: italic;
+        color: var(--gold);
+      }
+      .s9 {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 92px 84px 64px;
+      }
+
+      /* ---------- chrome ---------- */
+      .progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 3px;
+        background: var(--gold);
+        z-index: 60;
+        transition: width 0.5s var(--ease);
+      }
+      .nav {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(150, 135, 122, 0.38);
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        transition:
+          width 0.35s var(--ease),
+          background 0.35s var(--ease),
+          border-radius 0.35s var(--ease);
+      }
+      .dot.on {
+        width: 26px;
+        border-radius: 3px;
+        background: var(--gold);
+      }
+      .dot:hover {
+        background: rgba(233, 174, 99, 0.65);
+      }
+      .arrow {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 50%;
+        background: rgba(27, 25, 23, 0.8);
+        color: var(--ink2);
+        font-size: 17px;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 70;
+        display: grid;
+        place-items: center;
+        transition:
+          background 0.3s,
+          color 0.3s;
+      }
+      .arrow:hover {
+        background: var(--raise2);
+        color: var(--gold);
+      }
+      .arrow.prev {
+        left: 20px;
+      }
+      .arrow.next {
+        right: 20px;
+      }
+
+      /* ---------- print ---------- */
+      @page {
+        size: 1600px 900px;
+        margin: 0;
+      }
+
+      /* ---------- export mode (?export=1) — exact 1600×900, no chrome ---------- */
+      body.export #viewport {
+        position: static;
+        display: block;
+        gap: 0;
+      }
+      body.export #wrap {
+        width: 1600px !important;
+        height: 900px !important;
+        overflow: hidden;
+      }
+      body.export #stage {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: none !important;
+      }
+      body.export .nav,
+      body.export .arrow,
+      body.export .progress {
+        display: none !important;
+      }
+      body.export .a {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      body.export .slide {
+        transition: none !important;
+      }
+
+      @media print {
+        html,
+        body {
+          overflow: visible;
+          background: var(--bg);
+        }
+        #viewport {
+          position: static;
+          display: block;
+          gap: 0;
+        }
+        #wrap {
+          width: auto !important;
+          height: auto !important;
+          overflow: visible;
+        }
+        #stage {
+          position: static;
+          transform: none !important;
+          width: 1600px;
+          height: auto;
+          overflow: visible;
+        }
+        .slide {
+          position: relative;
+          opacity: 1 !important;
+          visibility: visible !important;
+          width: 1600px;
+          height: 900px;
+          page-break-after: always;
+          break-after: page;
+        }
+        .slide:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .a {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+        .nav,
+        .arrow,
+        .progress {
+          display: none !important;
+        }
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .a {
+          transition-duration: 0.01s !important;
+          transform: none !important;
+          opacity: 1 !important;
+        }
+        .slide {
+          transition-duration: 0.01s !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewport">
+      <div id="wrap">
+        <div id="stage">
+          <div class="progress" id="progress" style="width: 11.11%"></div>
+
+          <!-- ============ 01 · TITLE ============ -->
+          <section class="slide on" id="s1">
+            <div class="split col-1-660">
+              <div class="s1-copy">
+                <h1 class="display a" style="--d: 0.08s">Supplai</h1>
+                <div class="s1-rule a" style="--d: 0.2s"></div>
+                <p class="lead a" style="--d: 0.26s">
+                  A carton across the road<br />could save a life.
+                </p>
+                <p
+                  class="body a"
+                  style="--d: 0.36s; max-width: 34ch; margin-top: 24px"
+                >
+                  Peer-to-peer medicine sharing between Nigerian primary health
+                  centres. Confirmed on the shelf before a rider moves.
+                </p>
+                <div class="meta a" style="--d: 0.48s">
+                  <span>SDG 3.8 · Universal health coverage</span>
+                  <span>GBSN Social Logistics Challenge 2026</span>
+                  <span>Health track</span>
+                </div>
+              </div>
+              <figure class="full">
+                <img
+                  src="assets/mothers-wait-in-line-at-child-clinic.png"
+                  alt="Mothers waiting in line at a child clinic centre in Lagos, Nigeria, 1930"
+                />
+                <figcaption>
+                  Mothers waiting at a child clinic, Lagos, 1930. Vernon McKay,
+                  public domain, Wikimedia Commons.
+                </figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <!-- ============ 02 · PROBLEM ============ -->
+          <section class="slide" id="s2">
+            <div class="split col-1-600">
+              <div class="pane" style="justify-content: center">
+                <div>
+                  <h2 class="h2 a" style="--d: 0.06s">
+                    Two in three medicines never reach the shelf.
+                  </h2>
+                  <p
+                    class="body a"
+                    style="--d: 0.16s; margin-top: 30px; max-width: 44ch"
+                  >
+                    A Nigerian primary health centre orders every two months,
+                    records stock on paper, and waits over a fortnight for
+                    delivery. By the time the gap is noticed, the patient has
+                    already been turned away.
+                  </p>
+                </div>
+                <div class="stats a" style="--d: 0.28s">
+                  <div class="stat">
+                    <div class="n">36.2%</div>
+                    <div class="k">
+                      of essential medicines available at primary health centres
+                    </div>
+                  </div>
+                  <div class="stat">
+                    <div class="n">20,000</div>
+                    <div class="k">
+                      facilities still tracking stock on paper
+                    </div>
+                  </div>
+                  <div class="stat">
+                    <div class="n">14 days</div>
+                    <div class="k">
+                      order-to-delivery lag, the strongest stockout predictor
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <figure class="full">
+                <img
+                  src="assets/federal-medical-centre-epe-lagos-nigeria-reception.jpg"
+                  alt="Reception area at the Federal Medical Centre, Epe, Lagos, Nigeria"
+                />
+                <figcaption>
+                  Federal Medical Centre, Epe, Lagos. Hayatullahbusari, CC BY-SA
+                  4.0, Wikimedia Commons.
+                </figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <!-- ============ 03 · SURPLUS PARADOX ============ -->
+          <section class="slide" id="s3">
+            <div class="s3-band">
+              <img
+                src="assets/2005-market-lagos-nigeria-12129000.jpg"
+                alt="A market street in Lagos, Nigeria, 2005"
+              />
+              <figcaption>
+                A market street in Lagos, 2005. Zouzou Wizman, CC BY 2.0,
+                Wikimedia Commons.
+              </figcaption>
+            </div>
+            <div class="s3-body">
+              <div class="s3-left">
+                <div>
+                  <h2
+                    class="h2 a"
+                    style="--d: 0.06s; font-size: 54px; max-width: 13ch"
+                  >
+                    The medicine is usually nearby.
+                  </h2>
+                  <p
+                    class="body a"
+                    style="--d: 0.16s; margin-top: 28px; max-width: 38ch"
+                  >
+                    Government guidance already recommends redistribution
+                    between neighbouring facilities. Nothing executes it at the
+                    public tier, where the phones are basic and the records are
+                    paper.
+                  </p>
+                </div>
+                <p class="s3-close a" style="--d: 0.34s">
+                  The stock exists. What is missing is a mechanism.
+                </p>
+              </div>
+              <div class="a" style="--d: 0.26s">
+                <div class="face">
+                  <div class="who">Clinic A</div>
+                  <h3>Stocked out</h3>
+                  <p>
+                    Essential medicines absent. A child waits, or is sent home
+                    with a prescription the family cannot fill.
+                  </p>
+                </div>
+                <div class="gap-marker">
+                  <div class="go">&#8594;</div>
+                  <div class="txt">four kilometres</div>
+                </div>
+                <div class="face alt">
+                  <div class="who">Clinic B</div>
+                  <h3>Surplus, expiring</h3>
+                  <p>
+                    Thirty-one units on the shelf. Records say forty. Come March
+                    they are written off as wastage.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 04 · WHY SYSTEMS FAIL ============ -->
+          <section class="slide" id="s4">
+            <div class="split col-520-1">
+              <figure class="full">
+                <img
+                  src="assets/aerial-view-of-a-busy-tomato-market.jpg"
+                  alt="Aerial view of a busy tomato market in Lagos, Nigeria"
+                />
+                <figcaption>
+                  Aerial view of a busy market, Lagos. Ayorinde Ogundele, CC
+                  BY-SA 4.0, Wikimedia Commons.
+                </figcaption>
+              </figure>
+              <div class="pane">
+                <h2
+                  class="h2 a"
+                  style="--d: 0.06s; font-size: 52px; max-width: 13ch"
+                >
+                  Three failures, one cause: delay.
+                </h2>
+                <div class="fail a" style="--d: 0.18s">
+                  <div class="fail-item">
+                    <h3>Paper records</h3>
+                    <p>
+                      Bin cards updated by hand, rarely per transaction. The
+                      shelf and the ledger drift apart every week.
+                    </p>
+                  </div>
+                  <div class="fail-item">
+                    <h3>Bimonthly ordering</h3>
+                    <p>
+                      A gap that opens on day three is not acted on until the
+                      next order cycle, and then takes two more weeks.
+                    </p>
+                  </div>
+                  <div class="fail-item">
+                    <h3>Stale inventory data</h3>
+                    <p>
+                      System records run 70–87% accurate. A clinic promises
+                      drugs its own database says are in stock, and they are
+                      already gone.
+                    </p>
+                  </div>
+                </div>
+                <p class="pull a" style="--d: 0.34s">
+                  The failure is not ignorance. It is <em>latency</em>.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 05 · SOLUTION ============ -->
+          <section class="slide" id="s5">
+            <div class="s5">
+              <div style="padding-top: 80px">
+                <h2
+                  class="h2 a"
+                  style="--d: 0.06s; font-size: 54px; max-width: 20ch"
+                >
+                  Six steps from an empty shelf to a stocked one.
+                </h2>
+                <ol class="flow a" style="--d: 0.16s">
+                  <li>
+                    <h3>Report</h3>
+                    <p>
+                      The nurse texts the drug name and quantity to a shortcode.
+                    </p>
+                  </li>
+                  <li>
+                    <h3>Match</h3>
+                    <p>Names are fuzzy-matched against a standard drug list.</p>
+                  </li>
+                  <li>
+                    <h3>Find</h3>
+                    <p>
+                      Nearby facilities holding that drug as surplus are
+                      located.
+                    </p>
+                  </li>
+                  <li>
+                    <h3>Confirm</h3>
+                    <p>Each checks the physical shelf and replies yes or no.</p>
+                  </li>
+                  <li>
+                    <h3>Deliver</h3>
+                    <p>A contracted rider moves the stock the same day.</p>
+                  </li>
+                  <li>
+                    <h3>Record</h3>
+                    <p>
+                      Both stock records update from the confirmed transfer.
+                    </p>
+                  </li>
+                </ol>
+              </div>
+              <div class="s5-bottom">
+                <div class="mock a" style="--d: 0.28s">
+                  <div class="hd">Ikotun PHC · 09:14</div>
+                  <div class="bubble in">NEED OXY 20</div>
+                  <div class="hd">Isolo PHC · 09:15</div>
+                  <div class="bubble in">
+                    Supplai: Ikotun PHC needs 20 oxytocin 10IU. Do you have them
+                    ON THE SHELF now? Reply YES 20 / NO<span class="ref"
+                      >Ref 4471</span
+                    >
+                  </div>
+                  <div class="hd">Isolo PHC · 09:19</div>
+                  <div class="bubble out">YES 20</div>
+                  <div class="bubble sys">
+                    Rider assigned 09:31 · delivered 10:02 · code 8842 · both
+                    records updated
+                  </div>
+                </div>
+                <figure class="s5-fig">
+                  <img
+                    src="assets/okada-rider-called-passenger.jpg"
+                    alt="A motorcycle taxi rider in Nigeria"
+                  />
+                </figure>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 06 · WHY IT WINS ============ -->
+          <section class="slide" id="s6">
+            <div class="split col-1-660">
+              <div class="pane" style="justify-content: center">
+                <div>
+                  <h2
+                    class="h2 a"
+                    style="--d: 0.06s; font-size: 54px; max-width: 14ch"
+                  >
+                    A real gap, not a crowded space.
+                  </h2>
+                  <p
+                    class="body a"
+                    style="--d: 0.16s; margin-top: 28px; max-width: 40ch"
+                  >
+                    Four players serve private pharmacies, hospital networks, or
+                    donated stock. None runs a peer-to-peer exchange between
+                    public primary health centres on basic phones.
+                  </p>
+                </div>
+                <div
+                  class="quote-sage a"
+                  style="--d: 0.28s; margin-top: 40px; max-width: 52ch"
+                >
+                  <p>
+                    OpenLMIS is already in Nigeria. It is credited with saving
+                    850,000 vaccine doses from expiry. We connect to it — we do
+                    not replace it.
+                  </p>
+                </div>
+              </div>
+              <div
+                class="pane"
+                style="padding-left: 0; justify-content: center"
+              >
+                <div class="why a" style="--d: 0.14s">
+                  <div class="why-item">
+                    <h3>Confirm before dispatch</h3>
+                    <p>
+                      The receiving clinic checks the shelf, not the database.
+                      The stale-record failure mode disappears.
+                    </p>
+                  </div>
+                  <div class="why-item">
+                    <h3>Basic phones only</h3>
+                    <p>
+                      No smartphone, no app, no data bundle. A feature phone and
+                      a shortcode are enough.
+                    </p>
+                  </div>
+                  <div class="why-item">
+                    <h3>Public sector first</h3>
+                    <p>
+                      Designed for the 20,000 facilities that commercial
+                      logistics has no reason to serve.
+                    </p>
+                  </div>
+                  <div class="why-item">
+                    <h3>Light infrastructure</h3>
+                    <p>
+                      Existing riders, existing nurses, existing records. No new
+                      buildings, no cold fleet.
+                    </p>
+                  </div>
+                  <div class="why-item">
+                    <h3>Paid by the private tier</h3>
+                    <p>
+                      Pharmacies subscribe for the same network. Their fees
+                      cover the riders.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 07 · OPEN SOURCE STACK ============ -->
+          <section class="slide" id="s7">
+            <div class="s7">
+              <h2
+                class="h2 a"
+                style="--d: 0.06s; font-size: 54px; max-width: 20ch"
+              >
+                We build the connecting layer, not the whole system.
+              </h2>
+              <div class="stack-grid a" style="--d: 0.18s">
+                <div class="stack-cell">
+                  <div class="role">Inventory</div>
+                  <div>
+                    <h3>OpenBoxes / OpenLMIS</h3>
+                    <p>
+                      Stock records and requisitions. Already deployed in
+                      Nigeria and proven at national scale.
+                    </p>
+                  </div>
+                </div>
+                <div class="stack-cell">
+                  <div class="role">Dispatch</div>
+                  <div>
+                    <h3>Fleetbase</h3>
+                    <p>
+                      Rider assignment, live tracking, and proof of delivery
+                      with a signed code.
+                    </p>
+                  </div>
+                </div>
+                <div class="stack-cell">
+                  <div class="role">Messaging</div>
+                  <div>
+                    <h3>Africa's Talking</h3>
+                    <p>
+                      USSD, SMS and WhatsApp gateway. Reverse-billed shortcode,
+                      so the nurse pays nothing.
+                    </p>
+                  </div>
+                </div>
+                <div class="stack-cell">
+                  <div class="role">Matching</div>
+                  <div>
+                    <h3>RxNorm · pg_trgm</h3>
+                    <p>
+                      Fuzzy drug-name matching against a standard vocabulary.
+                      Handles misspelling and brand names.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="buildline a" style="--d: 0.3s">
+                <div class="lab">Our build</div>
+                <p>
+                  the matching, routing and confirmation logic that connects all
+                  four.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 08 · ECONOMICS ============ -->
+          <section class="slide" id="s8">
+            <div class="split" style="grid-template-columns: 1fr 800px">
+              <div class="pane" style="justify-content: center">
+                <div>
+                  <h2
+                    class="h2 a"
+                    style="--d: 0.06s; font-size: 52px; max-width: 15ch"
+                  >
+                    We never sell the medicine.
+                  </h2>
+                  <p
+                    class="body a"
+                    style="--d: 0.16s; margin-top: 26px; max-width: 40ch"
+                  >
+                    We charge for moving it and for seeing it. That single rule
+                    keeps public stock out of commerce and keeps the model
+                    defensible to a regulator.
+                  </p>
+                </div>
+                <div
+                  class="rule-note a"
+                  style="--d: 0.26s; margin-top: 44px; max-width: 46ch"
+                >
+                  One rider covers about 176 deliveries a month at ₦1,000 each.
+                  <b>Fifteen to eighteen pharmacy subscribers</b> fund that
+                  rider, so public clinic transfers cost the clinic nothing.
+                </div>
+                <p
+                  class="small a"
+                  style="--d: 0.36s; margin-top: 28px; max-width: 44ch"
+                >
+                  Pilot is grant-funded for six months. The LGA line is only
+                  charged once the dashboard has shown them a stockout they did
+                  not already know about.
+                </p>
+              </div>
+              <div
+                class="pane"
+                style="padding-left: 0; justify-content: center"
+              >
+                <table class="econ a" style="--d: 0.14s">
+                  <thead>
+                    <tr>
+                      <th>Payer</th>
+                      <th>What they buy</th>
+                      <th>Monthly</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="name">Pharmacies</td>
+                      <td>
+                        Network access, surplus sourcing, delivery credits
+                      </td>
+                      <td class="price">₦12,000<small>the engine</small></td>
+                    </tr>
+                    <tr>
+                      <td class="name">LGA health</td>
+                      <td>
+                        Live stockout dashboard, unmet-need alerts, audit trail
+                      </td>
+                      <td class="price">₦150,000<small>per LGA</small></td>
+                    </tr>
+                    <tr>
+                      <td class="name">Public clinics</td>
+                      <td>Transfers, confirmation, records</td>
+                      <td class="price">Free<small>always</small></td>
+                    </tr>
+                    <tr>
+                      <td class="name">Riders</td>
+                      <td>Paid per verified delivery, instantly</td>
+                      <td class="price">₦1,000<small>per drop</small></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ 09 · ROADMAP ============ -->
+          <section class="slide" id="s9">
+            <div class="s9">
+              <div>
+                <h2
+                  class="h2 a"
+                  style="--d: 0.06s; font-size: 52px; max-width: 19ch"
+                >
+                  The next six weeks.
+                </h2>
+                <div class="tl a" style="--d: 0.16s; margin-top: 56px">
+                  <div class="tl-item">
+                    <div class="dotmark"></div>
+                    <div class="when">1 Nov</div>
+                    <div class="what">Registration opens</div>
+                  </div>
+                  <div class="tl-item">
+                    <div class="dotmark"></div>
+                    <div class="when">15 Nov</div>
+                    <div class="what">Submission deadline</div>
+                  </div>
+                  <div class="tl-item">
+                    <div class="dotmark"></div>
+                    <div class="when">1–2 Dec</div>
+                    <div class="what">Finals</div>
+                  </div>
+                  <div class="tl-item">
+                    <div class="dotmark"></div>
+                    <div class="when">7 Dec</div>
+                    <div class="what">Winner announced</div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p class="close-quote a" style="--d: 0.28s">
+                  A carton across the road could save a life.
+                  <em>Let us move it.</em>
+                </p>
+                <p
+                  class="small a"
+                  style="--d: 0.4s; margin-top: 40px; max-width: 74ch"
+                >
+                  Pictures: Wikimedia Commons contributors (Ogundele, McKay,
+                  Aishatu98, Hayatullahbusari, Wizman), used under CC BY, CC
+                  BY-SA, CC0 and public domain. Shown as atmosphere of the
+                  subject's world; none presented as the team's own.
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="nav" id="nav">
+        <button class="dot on" data-i="0" aria-label="Slide 1"></button>
+        <button class="dot" data-i="1" aria-label="Slide 2"></button>
+        <button class="dot" data-i="2" aria-label="Slide 3"></button>
+        <button class="dot" data-i="3" aria-label="Slide 4"></button>
+        <button class="dot" data-i="4" aria-label="Slide 5"></button>
+        <button class="dot" data-i="5" aria-label="Slide 6"></button>
+        <button class="dot" data-i="6" aria-label="Slide 7"></button>
+        <button class="dot" data-i="7" aria-label="Slide 8"></button>
+        <button class="dot" data-i="8" aria-label="Slide 9"></button>
+      </div>
+    </div>
+
+    <button class="arrow prev" id="prev" aria-label="Previous slide">
+      &#8592;
+    </button>
+    <button class="arrow next" id="next" aria-label="Next slide">
+      &#8594;
+    </button>
+
+    <script>
+      (function () {
+        var stage = document.getElementById('stage');
+        var wrap = document.getElementById('wrap');
+        var slides = Array.prototype.slice.call(
+          document.querySelectorAll('.slide'),
+        );
+        var dots = Array.prototype.slice.call(
+          document.querySelectorAll('.dot'),
+        );
+        var prog = document.getElementById('progress');
+        var i = 0,
+          total = slides.length;
+        var EXPORT = /[?&]export(=1)?(&|$)/.test(location.search);
+        if (EXPORT) document.body.classList.add('export');
+
+        function fit() {
+          if (EXPORT) return;
+          var vh = window.innerHeight - 62;
+          var vw = window.innerWidth - 140;
+          var s = Math.min(vw / 1600, vh / 900);
+          s = Math.max(s, 0.12);
+          stage.style.transform = 'scale(' + s + ')';
+          wrap.style.width = 1600 * s + 'px';
+          wrap.style.height = 900 * s + 'px';
+        }
+        window.addEventListener('resize', fit);
+        fit();
+
+        function go(n) {
+          if (n < 0) n = 0;
+          if (n > total - 1) n = total - 1;
+          if (n === i && slides[n].classList.contains('on')) return;
+          slides.forEach(function (s, k) {
+            s.classList.toggle('on', k === n);
+          });
+          dots.forEach(function (d, k) {
+            d.classList.toggle('on', k === n);
+          });
+          prog.style.width = ((n + 1) / total) * 100 + '%';
+          i = n;
+          if (location.hash !== '#' + (n + 1))
+            history.replaceState(null, '', '#' + (n + 1));
+        }
+
+        dots.forEach(function (d) {
+          d.addEventListener('click', function () {
+            go(parseInt(d.dataset.i, 10));
+          });
+        });
+        document.getElementById('prev').addEventListener('click', function () {
+          go(i - 1);
+        });
+        document.getElementById('next').addEventListener('click', function () {
+          go(i + 1);
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+            e.preventDefault();
+            go(i + 1);
+          }
+          if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            e.preventDefault();
+            go(i - 1);
+          }
+          if (e.key === 'Home') {
+            e.preventDefault();
+            go(0);
+          }
+          if (e.key === 'End') {
+            e.preventDefault();
+            go(total - 1);
+          }
+          if (e.key >= '1' && e.key <= '9') {
+            go(parseInt(e.key, 10) - 1);
+          }
+          if (e.key === 'f' || e.key === 'F') {
+            if (!document.fullscreenElement)
+              document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
+          }
+        });
+
+        var x0 = null;
+        stage.addEventListener(
+          'touchstart',
+          function (e) {
+            x0 = e.touches[0].clientX;
+          },
+          { passive: true },
+        );
+        stage.addEventListener(
+          'touchend',
+          function (e) {
+            if (x0 === null) return;
+            var dx = e.changedTouches[0].clientX - x0;
+            if (Math.abs(dx) > 50) go(dx < 0 ? i + 1 : i - 1);
+            x0 = null;
+          },
+          { passive: true },
+        );
+
+        var start = parseInt((location.hash || '#1').slice(1), 10);
+        if (isNaN(start) || start < 1 || start > total) start = 1;
+        slides.forEach(function (s) {
+          s.classList.remove('on');
+        });
+        go(start - 1);
+      })();
+    </script>
+  </body>
+</html>

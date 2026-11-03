@@ -1,0 +1,29 @@
+node_modules/
+node_modules.legacy/
+package-lock.legacy.json
+.env
+.env.*
+!.env.example
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+
+# Local tooling and generated review artifacts
+.pdfstudio/
+.taste-skill/
+artifacts/
+qa/
+pdfqa-*.jpg
+check_p*.png
+span_check.txt
+stack_trace.txt
+report.pdf
+dev-handover.pdf
+supplai_deck.pptx
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

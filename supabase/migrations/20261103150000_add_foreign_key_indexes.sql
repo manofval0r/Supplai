@@ -1,0 +1,13 @@
+create index drug_alias_drug_id_idx on public.drug_alias (drug_id);
+create index facility_lga_id_idx on public.facility (lga_id);
+create index match_drug_id_idx on public.match (drug_id);
+create index match_facility_id_idx on public.match (facility_id);
+create index message_log_request_id_idx on public.message_log (request_id);
+create index request_drug_id_idx on public.request (drug_id);
+create index rider_lga_id_idx on public.rider (lga_id);
+create index stock_level_drug_id_idx on public.stock_level (drug_id);
+create index stock_movement_drug_id_idx on public.stock_movement (drug_id);
+create index transfer_drug_id_idx on public.transfer (drug_id);
+create index transfer_from_facility_id_idx on public.transfer (from_facility_id);
+create index transfer_rider_id_idx on public.transfer (rider_id);
+create index transfer_to_facility_id_idx on public.transfer (to_facility_id);
