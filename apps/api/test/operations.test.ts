@@ -21,7 +21,7 @@ async function confirmedWorkflow(repository: InMemorySmsRepository) {
   await sms.process({
     provider: 'demo',
     providerMessageId: 'confirm',
-    from: '+2348010000001',
+    from: '+2348010000002',
     body: `CONFIRM ${offer.requestReference!}`,
     receivedAt,
   });
@@ -131,7 +131,7 @@ describe('dispatch, proof, and ledger', () => {
       method: 'POST',
       url: '/demo/sms',
       payload: {
-        from: '08010000001',
+        from: '08010000002',
         body: `CONFIRM ${requestReference}`,
         providerMessageId: 'e2e-confirm',
       },

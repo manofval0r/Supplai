@@ -42,12 +42,17 @@ export class SmsService {
           `No eligible stock found for ${parsed.medicine}.`,
           'unmatched',
         );
-      const text = `${created.match.facilityName} can supply ${created.match.quantity}. Reply CONFIRM ${created.reference} within 10 minutes.`;
+      await this.repository.recordOutbound(
+        created.match.sourcePhone,
+        `Stock request ${created.reference}: confirm ${created.match.quantity} units are releasable. Reply CONFIRM ${created.reference} or DECLINE ${created.reference} within 10 minutes.`,
+        created.reference,
+      );
+      const text = `${created.reference} sent to ${created.match.facilityName} for source-stock confirmation.`;
       return this.reply(event.from, text, 'offered', created.reference);
     }
 
     const outcome = await this.repository.respondToOffer({
-      phone: event.from,
+      actorPhone: event.from,
       reference: parsed.reference,
       accept: parsed.kind === 'confirm',
       now: new Date(event.receivedAt),

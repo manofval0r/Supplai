@@ -35,7 +35,7 @@ describe('SMS parsing and normalization', () => {
 });
 
 describe('SMS workflow', () => {
-  it('creates an offer, confirms once, and rejects a concurrent duplicate', async () => {
+  it('requires the selected source custodian to confirm an offer', async () => {
     const repository = new InMemorySmsRepository();
     const service = new SmsService(repository);
     const offer = await service.process({
@@ -47,9 +47,18 @@ describe('SMS workflow', () => {
     });
     expect(offer.status).toBe('offered');
 
+    const requesterAttempt = await service.process({
+      provider: 'demo',
+      providerMessageId: 'requester-confirm',
+      from: '+2348010000001',
+      body: `CONFIRM ${offer.requestReference!}`,
+      receivedAt,
+    });
+    expect(requesterAttempt.status).toBe('invalid');
+
     const event = {
       provider: 'demo',
-      from: '+2348010000001',
+      from: '+2348010000002',
       body: `CONFIRM ${offer.requestReference!}`,
       receivedAt,
     };
@@ -61,6 +70,14 @@ describe('SMS workflow', () => {
       'confirmed',
       'invalid',
     ]);
+    expect(repository.outbound).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          phone: '+2348010000002',
+          body: expect.stringContaining(`CONFIRM ${offer.requestReference!}`),
+        }),
+      ]),
+    );
   });
 
   it('rejects duplicate provider messages and expired confirmations', async () => {
@@ -78,6 +95,7 @@ describe('SMS workflow', () => {
     const expired = await service.process({
       ...event,
       providerMessageId: 'later',
+      from: '+2348010000002',
       body: `CONFIRM ${offer.requestReference!}`,
       receivedAt: '2026-11-03T12:11:00.000Z',
     });

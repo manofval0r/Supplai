@@ -29,7 +29,7 @@ interface FacilityStock {
 }
 
 interface Offer {
-  phone: string;
+  sourcePhone: string;
   reference: string;
   match: SupplyMatch;
   state: 'offered' | 'confirmed' | 'declined';
@@ -150,11 +150,12 @@ export class InMemorySmsRepository
     const match: SupplyMatch = {
       id: `MATCH-${reference}`,
       facilityName: supplier.name,
+      sourcePhone: supplier.phone,
       quantity: input.quantity,
       expiresAt: new Date(input.now.getTime() + 10 * 60_000).toISOString(),
     };
     this.offers.set(reference, {
-      phone: input.phone,
+      sourcePhone: supplier.phone,
       reference,
       match,
       state: 'offered',
@@ -167,13 +168,13 @@ export class InMemorySmsRepository
   }
 
   respondToOffer(input: {
-    phone: string;
+    actorPhone: string;
     reference: string;
     accept: boolean;
     now: Date;
   }): Promise<ConfirmationResult> {
     const offer = this.offers.get(input.reference);
-    if (!offer || offer.phone !== input.phone)
+    if (!offer || offer.sourcePhone !== input.actorPhone)
       return Promise.resolve('not_found');
     if (offer.state !== 'offered') return Promise.resolve('already_closed');
     if (input.now >= new Date(offer.match.expiresAt))

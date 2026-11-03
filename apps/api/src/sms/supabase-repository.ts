@@ -16,6 +16,7 @@ interface RpcRequestRow {
   request_reference: string;
   match_id: string;
   facility_name: string;
+  source_phone: string;
   quantity_offered: number;
   expires_at: string;
 }
@@ -77,7 +78,7 @@ export class SupabaseSmsRepository
     rawText: string;
     now: Date;
   }) {
-    const response = await this.request('/rest/v1/rpc/create_sms_request_v2', {
+    const response = await this.request('/rest/v1/rpc/create_sms_request_v3', {
       method: 'POST',
       body: JSON.stringify({
         p_phone: input.phone,
@@ -94,6 +95,7 @@ export class SupabaseSmsRepository
           match: {
             id: row.match_id,
             facilityName: row.facility_name,
+            sourcePhone: row.source_phone,
             quantity: row.quantity_offered,
             expiresAt: row.expires_at,
           },
@@ -102,7 +104,7 @@ export class SupabaseSmsRepository
   }
 
   async respondToOffer(input: {
-    phone: string;
+    actorPhone: string;
     reference: string;
     accept: boolean;
     now: Date;
@@ -110,7 +112,7 @@ export class SupabaseSmsRepository
     const response = await this.request('/rest/v1/rpc/respond_to_sms_offer', {
       method: 'POST',
       body: JSON.stringify({
-        p_phone: input.phone,
+        p_phone: input.actorPhone,
         p_reference: input.reference,
         p_accept: input.accept,
         p_now: input.now.toISOString(),

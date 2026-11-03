@@ -3,6 +3,7 @@ import type { InboundSmsEvent } from '@supplai/contracts';
 export interface SupplyMatch {
   id: string;
   facilityName: string;
+  sourcePhone: string;
   quantity: number;
   expiresAt: string;
 }
@@ -25,7 +26,7 @@ export interface SmsRepository {
     now: Date;
   }): Promise<{ reference: string; match: SupplyMatch } | null>;
   respondToOffer(input: {
-    phone: string;
+    actorPhone: string;
     reference: string;
     accept: boolean;
     now: Date;
