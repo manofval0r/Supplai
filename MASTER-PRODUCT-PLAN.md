@@ -11,25 +11,25 @@
 
 Build **Supplai as an LGA-authorised emergency medicine-response control tower**, not as an SMS stock marketplace.
 
-The primary product is a responsive web application that behaves like three role-specific apps:
+The primary product is one Expo Android application with two role-specific mobile experiences, plus a web operations console:
 
-1. **Facility app** for a PHC custodian to raise, approve, and receive an urgent exception order.
+1. **Facility app** for a PHC custodian to raise, confirm, and receive an urgent exception order.
 2. **Operations web console** for an LGA/pharmacist to see, authorise, and resolve exceptions.
 3. **Rider app** for pickup, in-transit tracking, and documented handover.
 
-SMS and WhatsApp are secondary entry and notification channels. A message creates the same canonical order as the facility app, and the complete state appears when the user next opens the app or web console. This is the right analogy: a request can start in a low-connectivity channel, but the system of record and visible experience live in the product.
+The facility and rider flows live in the same role-based Expo project to protect time and budget. SMS and WhatsApp are secondary entry and notification channels. A message creates the same canonical order as the native app, and the complete state appears when the user next opens the app or web console. This is the right analogy: a request can start in a low-connectivity channel, but the system of record and visible experience live in the product.
 
 ## The non-negotiable eligibility gate
 
 There is a material conflict to resolve immediately. The live GBSN page says entrants should **not** use generative AI to develop, write, analyse, or substantially modify their submission, and says undisclosed or inappropriate use can affect eligibility. It also requires a written report plus a creative illustration, approximately three minutes or an equivalent non-video format. [GBSN, *The Social Logistics Challenge*](https://gbsn.org/slc/)
 
 Your statement that AI has been allowed may reflect a written organiser clarification, but the public rules currently say the opposite. The fact that the idea is human-led does not, by itself, resolve that conflict.
+**Farid's first task is to preserve the organiser's confirmation from the live meeting and follow the required AI-crediting guidance before submission.** The organiser confirmed that AI-assisted material may be used, provided the AI used to generate the report is credited appropriately. Until the exact credit wording is recorded:
 
-**Farid's first task is to obtain or preserve the organiser's written approval before any AI-assisted material is submitted.** Until then:
-
-- Treat this file, generated code suggestions, and AI-produced wording as internal working material only.
+- Treat this file, generated code suggestions, and AI-produced wording as working material that must still be reviewed and verified by the team.
 - Recreate and verify all contest-facing analysis, prose, visuals, and claims yourselves from your own notes and sources.
 - Keep a dated human research log, interview notes, source register, sketches, design decisions, and Git history.
+- Credit any AI used to generate the report according to the organiser's instructions.
 - Do not claim a live pilot, partner, legal approval, or delivery integration unless it is real and documented.
 
 This is a protection for the team, not a reason to slow down the prototype.
@@ -59,7 +59,7 @@ The foundation is good. The product surface and real-world operating model are n
 | Area | What exists now | What must change before the creative illustration |
 | --- | --- | --- |
 | API and database | Fastify, Supabase schema, typed contracts, SMS normalisation, request/match/reservation flow, mock dispatch, delivery proof, append-only movement ledger, tests | Keep this as the system core and evolve it rather than rebuilding it. |
-| Web and mobile UX | A dashboard workspace with a README and a contract example, but no Vite/React screen, no routing, no PWA, and no visual system | Build the facility, operations, and rider experiences now. Judges must be able to see and understand the system without reading code. |
+| Web and mobile UX | A dashboard workspace with a README and a contract example, but no operations screen, Expo app, routing, or visual system | Build the Expo facility/rider and React operations experiences now. Judges must be able to see and understand the system without reading code. |
 | Product position | The repository describes Supplai as SMS-first medicine stock coordination | Reposition it as LGA-authorised emergency exception management. Messaging becomes a bridge into the workflow. |
 | Clinical and regulatory safety | Current records model medicine and quantity, but not batch, expiry, condition, safety stock, programme restrictions, authorised people, source pickup proof, refusal, recall, or quarantine paths | Add only the minimum fields and states needed to show a responsible ambient-medicine pilot. Do not portray a demo as approval to move real stock. |
 | Delivery | `MockDispatchAdapter` and demo endpoints provide a valid simulation seam | Integrate a rider UI and simulated live tracking. Label the carrier connection as simulated unless a real partner is integrated and verified. |
@@ -67,6 +67,26 @@ The foundation is good. The product surface and real-world operating model are n
 | Security | Supabase RLS is closed to browser users and the server handles privileged access | Replace visible four-digit proof-only UX with authenticated role actions plus a short-lived one-time code. Rate-limit demo endpoints before deployment. |
 
 The current architecture is not wasted work. It is the transaction engine beneath the product we now need to make visible.
+
+## Review reconciliation: what the Claude review changes
+
+The review is useful, but not every point is new or equally evidenced. The table below is the team decision record.
+
+| Review point | Status after direct review | Plan action |
+| --- | --- | --- |
+| Essential-medicine availability is low and the Health track fit is exact | The [National Bureau of Statistics' 2023 National Health Facility Survey](https://microdata.nigerianstat.gov.ng/index.php/catalog/149/related-materials) exists and includes an essential-drug availability section. The 36.2% figure appears in legacy Supplai materials, but Farid must verify its exact table/page before it is used in the report or deck. | Use the NBS report as a source lead, not a slide statistic until the precise citation is captured. |
+| Confirm-before-dispatch is the core differentiator | Correct. It is the strongest mechanics-first idea in the product. | Keep it central, but change the interaction from a bare Y/N response into a source-custodian shelf, batch, expiry, and safety-floor confirmation. |
+| The code may allow the requester, rather than the supplier, to confirm | **Verified.** The in-memory repository checks `offer.phone`, which is the requester; the deployed SQL function joins the request facility against `p_phone`. Neither verifies that the source facility answered. | Make source-custodian authority the first backend correction. Add a regression test proving a requester cannot confirm or reserve supplier stock. |
+| No named local community, facility interview, pharmacist, or stock audit | Correct and not solved by a polished prototype. | Farid owns one no-cost validation sprint: a call/interview with an LGA health officer, pharmacist, or two PHC staff, with consented notes. The product remains clearly simulated unless evidence permits a narrower claim. |
+| Regulatory design is the central real-world gap | Correct. NAFDAC GSDP is already a foundation of this plan; the review usefully adds a sharper governance, risk, and compliance framing. | Add a simple GRC matrix covering authority, batch/expiry traceability, handover, exceptions, privacy, and incident ownership. Do not claim that the prototype is regulator-approved. |
+| Oxytocin contradicts the no-cold-chain scope | Correct. The development brief already excludes it, but the old deck and HTML still contain oxytocin examples. | Keep only ambient-stable tracer commodities in the demo. Do not use legacy deck assets until oxytocin, receiver-confirm wording, unvalidated pricing, and 20–30-clinic claims are removed. |
+| Donor protection, FEFO, batch/expiry, and recall matter | Already identified in the recovery plan and now elevated to the first data-model work. | Implement safety stock, batch/expiry capture, FEFO ranking, receiving check, exception status, and a recall-search demonstration before visual polish. |
+| Economics and rider incentives need work | Correct. Existing deck pricing and per-drop claims are not validated. | Use a transparent scenario worksheet with variables, not invented prices or subscriptions. A future pilot pays a carrier for a documented compliant handover, not raw delivery volume. |
+| One major assumption and a fallback are necessary | Already identified, and the review confirms its importance. | State that usable, authorised nearby surplus is the core assumption. If unsupported, Supplai becomes an LGA stockout-visibility and escalation tool with no peer transfer. |
+
+### Legacy-asset rule
+
+The existing deck, generated HTML, and old narrative are useful design references, not current submission material. They currently contain an oxytocin example, SMS-first positioning, a receiver-confirmation description, unverified statistics/prices, and a broader 20–30-clinic pilot. Farid owns a claim-by-claim content audit before any of those assets are reused. Developers must not optimise the new interfaces around those old assumptions.
 
 ## Product boundary: one narrow, credible pilot
 
@@ -127,7 +147,7 @@ Use one canonical `emergency_request` regardless of origin. Each inbound channel
 
 ## The primary experiences
 
-### 1. Facility app, mobile-first PWA
+### 1. Facility app, mobile-first Expo experience
 
 This is the emotional centre of the demo. It should feel fast, calm, and trustworthy, not like a form-heavy government portal.
 
@@ -145,7 +165,8 @@ This is the emotional centre of the demo. It should feel fast, calm, and trustwo
 - One primary action per screen.
 - All progress is visible through a vertical transfer timeline.
 - Use clear language: “Needs review”, “Awaiting source confirmation”, “Rider en route”, “Received”, and “Escalated”.
-- Treat the PWA as an installable app. It gives the mobile feeling without taking the schedule risk of separate native iOS/Android work.
+- Build the facility and rider experiences in **React Native with Expo**, sharing the existing Fastify/Supabase backend and typed contracts. Use an Expo Android build for the app-like demonstration; keep the operations console as a responsive web application.
+- Use one Expo project with role-based demo accounts rather than two separately deployed mobile applications. It produces the right role experience without duplicating build, release, or testing effort.
 
 ### 2. LGA operations console, web-first
 
@@ -166,7 +187,7 @@ The console must make a judge understand the operational value in ten seconds. I
 4. **Facility network**: stock health for the two tracer commodities, response behaviour, and facilities needing stock reconciliation.
 5. **Audit export**: a constrained CSV/download state showing this is a compliance-aware operating tool, not just a pretty dashboard.
 
-### 3. Rider app, mobile-first PWA
+### 3. Rider app, mobile-first Expo experience
 
 The rider has one job at a time. This must never become a dense operations dashboard.
 
@@ -184,10 +205,10 @@ Do not use SMS/WhatsApp as the showcase surface. Use them as resilient access po
 | Channel | Demo purpose | MVP implementation |
 | --- | --- | --- |
 | SMS | Low-data fallback and notification | Existing provider-neutral webhook boundary plus a simulator. Use a controlled message grammar and link every message to an order reference. |
-| WhatsApp | Familiar rich notification and quick request entry | Add an adapter and an in-product conversation simulator first. A Twilio sandbox can support a controlled test if the account is available. |
-| Web/PWA | Primary experience and system of record | Role-based facility, operations, and rider interfaces against the Fastify API. |
+| WhatsApp | Familiar rich notification and quick request entry | Add an adapter and an in-product conversation simulator first. Use a provider sandbox only if it is genuinely free and does not delay the build. |
+| Expo app + web console | Primary experience and system of record | Role-based facility and rider flows in Expo; role-based LGA operations console in React web, all against the Fastify API. |
 
-WhatsApp is sensible as an add-on, but do not let provider onboarding block the build. Twilio's official sandbox supports testing before sender registration; production requires business-account and sender onboarding, and outbound messaging is constrained by platform rules. [Twilio, *Quickstart: Send and receive WhatsApp messages*](https://www.twilio.com/docs/whatsapp/quickstart) [Twilio, *WhatsApp Business Platform overview*](https://www.twilio.com/docs/whatsapp/api)
+WhatsApp is sensible as an add-on, but provider onboarding must not block the build. The default is an in-product simulator with clearly labelled fictional message events. A sandbox is optional, never a presentation dependency. Twilio's official sandbox supports testing before sender registration, while production requires business-account and sender onboarding. [Twilio, *Quickstart: Send and receive WhatsApp messages*](https://www.twilio.com/docs/whatsapp/quickstart) [Twilio, *WhatsApp Business Platform overview*](https://www.twilio.com/docs/whatsapp/api)
 
 ## Data, safety, and interface changes
 
@@ -231,13 +252,14 @@ Keep the current ledger and request core. Add the following incrementally, with 
 
 | Layer | Decision |
 | --- | --- |
-| Frontend | Vite + React for a single responsive web codebase, with route groups for facility, operations, and rider. Build it as a PWA rather than separate native apps. |
+| Mobile app | React Native with Expo in `apps/mobile`, using one role-based Android app for facility and rider flows. Share API contracts and design tokens, not web UI components. Test in Expo Go first and create an Android demonstration build only when it is stable. |
+| Operations web | Vite + React in `apps/dashboard`, built for the LGA command centre at laptop/projector size. |
 | Server state | TanStack Query or an equally simple typed fetch layer. Poll in the demo first; add SSE or Supabase Realtime only if it improves the final rehearsal. |
-| Local UI state | Small route-local state or Zustand only where necessary. Do not build a global state machine in the browser. |
-| Visual system | CSS variables, deliberate typography, a tight token system, reusable status and timeline components, and a single dark/light direction chosen before screens are made. |
-| Motion | Framer Motion or native CSS transforms for state transitions, route animation, status reveals, skeletons, and number updates. Respect reduced-motion preferences. |
+| Local UI state | Small route-local state or Zustand only where necessary. Do not build a global state machine in the mobile app or browser. |
+| Visual system | Shared semantic tokens for colour, type, spacing, and status; React Native components for mobile and CSS variables/components for web. Choose one dark/light direction before screens are made. |
+| Motion | React Native Reanimated or Expo-supported motion for mobile; Framer Motion or CSS transforms for web. Motion explains state changes, routes, and handovers rather than decorating screens. |
 | Map | A stylised fictional service map first. Add MapLibre only if it is stable and materially improves the demonstration. |
-| Deployment | Vercel/Netlify for the PWA, a simple Node host for Fastify, Supabase for data. Create preview deployments before the final day. |
+| Deployment | Vercel/Netlify for the operations web, a simple Node host for Fastify, Supabase for data, and Expo Go/Android build for the mobile demo. Stay within free tiers; no app-store launch is required. |
 | Demo controls | A protected reset endpoint/script, a scenario launcher, deterministic seeded timestamps, and a visible `Demo data` label. |
 
 ### API contract work
@@ -278,7 +300,7 @@ The visual illustration does **not** need a filmed team video. Make a polished, 
 | Time | Scene | What it proves |
 | --- | --- | --- |
 | 0:00–0:18 | A PHC has an urgent, named stockout; the current manual scramble is shown as fragmented calls/messages | The specific local logistics breakdown |
-| 0:18–0:45 | Facility user creates the request in the PWA; an SMS/WhatsApp message appears as the same request event | Access without making messaging the product |
+| 0:18–0:45 | Facility user creates the request in the Expo app; an SMS/WhatsApp message appears as the same request event | Access without making messaging the product |
 | 0:45–1:12 | A source custodian confirms actual batch, expiry, safe-to-release stock, then LGA approves | Human authority and donor protection |
 | 1:12–1:42 | Rider pickup, animated route, in-transit status, and exception alert | Physical flow and accountable delivery |
 | 1:42–2:08 | Receiver inspects and accepts; ledger and facility stock update | Traceability and closed-loop handover |
@@ -286,6 +308,21 @@ The visual illustration does **not** need a filmed team video. Make a polished, 
 | 2:35–3:00 | Pilot scope, operating partners, measurement plan, and honest “what needs validation” close | Feasibility and discipline |
 
 Record each role flow from a deterministic, resettable demo environment. Assemble only after every screen is stable. A fancy edit cannot rescue a broken live demo.
+
+## Low-cost simulation rules
+
+Supplai is a low-to-no-fund build. The product needs to be impressive because the simulated operating model is explicit, coherent, and interactive, not because it pretends to have paid integrations or a live pilot.
+
+| Element | Demo implementation | Mandatory label |
+| --- | --- | --- |
+| Facilities, staff, stock, LGA, and routes | Fictional seed data in Supabase | `Demo data` and `Fictional scenario` |
+| SMS and WhatsApp | Internal message simulator and provider adapter tests | `Simulated channel event` |
+| Rider assignment and map movement | Deterministic rider state, progress events, and animated route | `Simulated dispatch` |
+| Delivery proof and ledger | Working Fastify/Supabase workflow against demo data | `Demo workflow` |
+| Costs, rider availability, and service levels | Variable-based pilot scenario, never a claimed operating result | `Illustrative pilot assumption` |
+| Outreach/interviews | Farid's human notes, with consent and no fabricated endorsement | `Research insight`, named only with permission |
+
+The goal is a real software demonstration of a simulated, safety-aware pilot design. No medicine is moved, no live provider account is required, no LGA partnership is implied, and no project expense becomes a prerequisite for judging the workflow.
 
 ## Measurement and credibility plan
 
@@ -314,6 +351,25 @@ There is sufficient authorised, usable, ambient-stable surplus within a practica
 
 **If wrong:** Supplai must not force peer redistribution. It pivots to the same exception-control interface, but directs unmet demand to the LGA store, approved emergency supplier, or procurement/replenishment pathway.
 
+### Pilot economics, modelled but not claimed
+
+The submission will use a one-page scenario worksheet, owned by Farid, rather than a subscription price list. Its variables are carrier compensation for a documented handover, packaging/handling, data/messaging, supervision, and exception follow-up. The worksheet must show who might fund a future pilot and the cost per completed authorised transfer under stated assumptions. It must not present today's simulated cost as a validated market price, donor commitment, LGA budget, or rider agreement.
+
+## Governance, risk, and compliance frame
+
+This is a competition design, not legal advice or a regulatory approval. The compliance framing makes the concept more credible by showing that technology does not replace human authority.
+
+| Risk/control area | Demonstrated design control | Evidence Farid must seek |
+| --- | --- | --- |
+| Authority to release stock | Only a designated source custodian can confirm availability; LGA/pharmacist release follows before dispatch | Short interview question or written feedback on the proposed role chain |
+| Donor harm and scarcity | Safety stock, sequential offers, transfer restrictions, and escalation when no safe source exists | Feedback on realistic reorder thresholds and outage periods |
+| Product traceability and quality | Batch, expiry, condition, FEFO ranking, source release, receiver inspection, and recall-search demo | Pharmacist validation of the minimum handover fields |
+| Transport and incident ownership | Simulated rider is assigned only after approval; damaged/refused/late transfers become tracked incidents | Feedback on realistic carrier and incident steps |
+| Personal data | No patient data; minimise staff contact data; role-scoped access; do not expose contacts in the creative illustration | NDPA-focused review of the prototype data list |
+| Claims and partnership | Every non-fictional claim carries source, date, scope, and owner; no implied endorsement | Farid's claim register and consent record |
+
+NAFDAC's guidance makes authorised recipients, valid delivery orders, traceability, batch/expiry information, and transport conditions central distribution controls. The NDPA is also relevant when the future service processes staff contact details. [NAFDAC GSDP, 2024](https://www.nafdac.gov.ng/wp-content/uploads/Files/Resources/Guidelines/PMS_Guidelines_2024/NAFDAC-Good-Storage-and-Distribution-Practice-Guidelines-For-Pharmaceutical-Products-1.pdf) [Nigeria Data Protection Commission, *NDP Act 2023*](https://www.ndpc.gov.ng/ndp-act-2023/)
+
 ## Responsibility map
 
 The two developers are co-developers. These are component owners, not a leadership hierarchy. Both review integration decisions that affect the whole product.
@@ -321,13 +377,13 @@ The two developers are co-developers. These are component owners, not a leadersh
 | Workstream | Primary owner | Contribution expected from the other co-developer | Completion evidence |
 | --- | --- | --- | --- |
 | Product workflow, Supabase migrations, canonical domain model, security rules, API contracts | **You** | Akolo validates UI contract needs before migration/API freeze | Migration, typed contracts, integration tests, documented state transitions |
-| Facility PWA, rider app, order tracking, dispatch/rider integration | **You** | Akolo supplies shared visual components and reviews data clarity | End-to-end mobile flow from request to accepted handover |
+| Expo facility/rider app, order tracking, dispatch/rider simulation | **You** | Akolo supplies shared visual tokens and reviews data clarity | End-to-end native mobile flow from request to accepted handover |
 | SMS/WhatsApp adapter boundary and in-product conversation simulation | **You** | Akolo places channel events in the console timeline | One inbound message creates a visible canonical order; app/web state stays in sync |
 | Operations command centre, exception queue, transfer detail, map/network views, responsive web design | **Akolo** | You supply stable contracts and integration support | Operators can complete the priority decisions from live data |
-| Shared design system, motion rules, status components, reusable fixtures, screen-recording composition assets | **Akolo** | You make role screens consume those primitives and preserve UX consistency | Visual token sheet, reusable components, screenshots at mobile and desktop widths |
+| Shared web visual system, motion rules, status components, reusable fixtures, and operations-console composition | **Akolo** | You keep the Expo app aligned with shared visual tokens and status meanings | Visual token sheet, reusable components, screenshots at mobile and desktop widths |
 | Demo reset, seeded scenarios, deployment configuration, end-to-end rehearsal | **Shared** | Both own failure recovery | Three clean consecutive rehearsals from reset |
-| Local evidence, stakeholder validation, partner/authority checks, claim register, rubric mapping, UI reference collection | **Farid** | You and Akolo provide questions and prototype screenshots | Evidence log with source/claim/owner/status; a validation memo |
-| Written report and contest-facing creative material | **Team, subject to AI eligibility gate** | Farid owns evidence integrity; both developers validate product truthfulness | Requirements checklist, source register, final disclosure/credit check |
+| All non-coding work: local research, outreach, stakeholder validation, AI-credit record, claim register, rubric mapping, UI references, pilot-economics worksheet, and submission process | **Farid** | You and Akolo provide focused questions, screenshots, and technical facts only | Evidence log with source/claim/owner/status; validation memo; completed submission checklist |
+| Written report, creative-illustration script/assembly, captions, citations, credits, and final submission package | **Farid** | You and Akolo supply truthful technical screenshots, scenario data, and a technical accuracy check | Requirements checklist, source register, final credit line, and export-ready files |
 
 ## Delivery plan: 3–15 November
 
@@ -335,12 +391,12 @@ This is deliberately shorter than a normal build plan. The product must look fin
 
 ### Phase 0: freeze the winning thesis, 3 November
 
-**Owner: all; Farid owns the evidence/eligibility checks**
+**Owner: Farid for all non-coding work; both developers only for technical scope and contract decisions**
 
-- [ ] Obtain and record the AI-policy clarification from GBSN. If no written approval exists, ring-fence AI output from the submission.
+- [ ] Preserve the organiser's meeting confirmation and record the exact required AI credit wording.
 - [ ] Choose the one target community or keep every prototype screen explicitly fictional.
 - [ ] Confirm two tracer commodities with a pharmacist/credible source.
-- [ ] Freeze the product statement, operating roles, non-goals, and three-minute story in this file.
+- [ ] Produce the claim register, legacy-deck audit, and report/illustration requirements checklist.
 - [ ] Choose a visual direction and collect 6–10 interface references. Farid supplies references; both developers choose one coherent direction.
 - [ ] Freeze the UI routes and API action contract before component work begins.
 
@@ -348,28 +404,29 @@ This is deliberately shorter than a normal build plan. The product must look fin
 
 ### Phase 1: make the engine safe enough to show, 4–5 November
 
-**You:** migrations, API, contracts, fixture reset.  
-**Akolo:** design tokens, operations shell, shared components.
+**You:** migrations, API, contracts, fixture reset, Expo mobile shell.
+**Akolo:** web design tokens, operations shell, shared components.
 
 - [ ] Add a controlled demo formulary and donor safety-stock calculation.
+- [ ] Move offer confirmation from the requester to the designated source custodian in the API, in-memory repository, Supabase function, and regression tests.
 - [ ] Add batch, expiry, condition, source release, receiving decision, and exception-event fields.
 - [ ] Replace four-digit proof-only completion with role-gated receipt plus a short-lived code in the demo.
 - [ ] Define the canonical event timeline and order detail response.
-- [ ] Create the Vite/React shell, route layout, visual tokens, typography, status chips, timeline, and empty/loading/error states.
+- [ ] Create the Expo role shell for facility/rider flows and the Vite/React operations shell, with shared visual tokens, typography, status chips, timeline, and empty/loading/error states.
 - [ ] Create a deterministic `request → offer → release → pickup → receipt → ledger` scenario and reset path.
 
 **Gate:** the API can complete one traceable transfer from a fresh demo seed, with batch/expiry and safety-floor evidence visible.
 
 ### Phase 2: build the visible role experiences, 5–8 November
 
-**You:** facility PWA, rider PWA, API integration.  
+**You:** Expo facility/rider app, API integration.
 **Akolo:** operations console, exception queue, network/transfer views.
 
 - [ ] Facility home, request creation, request timeline, source offer, and receiving screens.
 - [ ] Rider job, pickup, in-transit, and handover screens with simulated tracking.
 - [ ] Operations overview, priority queue, release drawer, transfer detail, and exception escalation.
 - [ ] Consume shared live contracts. Retain fixture mode only as a transparent fallback.
-- [ ] Add responsive behaviour for 360px mobile, laptop, and projected desktop widths.
+- [ ] Test Android phone layouts, laptop, and projected operations-console widths.
 - [ ] Capture screenshots after each integrated route, not at the end.
 
 **Gate:** a judge can follow a complete transfer without terminal access, database edits, or verbal explanation.
@@ -393,7 +450,7 @@ This is deliberately shorter than a normal build plan. The product must look fin
 **You and Akolo:** integration, performance, staging.  
 **Farid:** validation, evidence, claims, rubric.
 
-- [ ] Deploy a stable preview URL and verify it on a phone and a laptop.
+- [ ] Deploy a stable operations preview URL; verify it alongside the Expo Android demo on a phone and a laptop.
 - [ ] Add protected demo reset, prefilled role accounts, and clear fictional-data labels.
 - [ ] Run type checks, tests, and end-to-end smoke tests after each demo-relevant change.
 - [ ] Use Farid's validation findings to correct labels, pilot assumptions, and stakeholder responsibilities.
@@ -404,10 +461,10 @@ This is deliberately shorter than a normal build plan. The product must look fin
 
 ### Phase 5: creative illustration, rehearsal, and submission hardening, 12–15 November
 
-**Shared. Farid owns the final requirements checklist.**
+**Farid owns all non-coding production and submission work. Developers own stable technical recordings and rehearsal support.**
 
 - [ ] Record clean, short role flows from the deployed resettable build.
-- [ ] Assemble the three-minute screen story with captions, motion, and English text/subtitles.
+- [ ] Farid assembles the three-minute screen story with captions, motion, and English text/subtitles from developer-supplied recordings.
 - [ ] Prepare a fallback recording and static storyboard in case hosting fails.
 - [ ] Conduct three full rehearsals from a clean reset, with one person driving and the others observing failure points.
 - [ ] Test mobile, laptop, slow network, and first-load states.
@@ -433,12 +490,12 @@ This is deliberately shorter than a normal build plan. The product must look fin
 Supplai is ready for the creative illustration when all of the following are true:
 
 - [ ] The product proposition is visibly an LGA-authorised emergency exception system, not a generic medicine marketplace.
-- [ ] A request may start in the facility PWA, simulated SMS, or simulated WhatsApp and resolves to the same order and timeline.
+- [ ] A request may start in the Expo facility app, simulated SMS, or simulated WhatsApp and resolves to the same order and timeline.
 - [ ] Source confirmation, LGA release, rider pickup, receiver acceptance/refusal, and LGA escalation are distinct role actions.
 - [ ] The completed demo records the medicine, quantity, source/destination, batch, expiry, release/receipt timestamps, and ledger movements.
 - [ ] A source cannot donate below its safety stock and an unsafe/expired/restricted item cannot complete the happy path.
 - [ ] One successful transfer and one unresolved/unsafe exception are both clear in the operations console.
-- [ ] The facility and rider views are polished on a phone-size viewport; the operations console is polished on a laptop/projector viewport.
+- [ ] The facility and rider views are polished in Expo on Android phone dimensions; the operations console is polished on a laptop/projector viewport.
 - [ ] The demo can be reset and run successfully three times without direct database changes.
 - [ ] All visible data is marked as fictional/simulated unless Farid's evidence register proves otherwise.
 - [ ] The report and creative illustration satisfy the official requirements and the AI eligibility issue is resolved in writing.
@@ -447,12 +504,12 @@ Supplai is ready for the creative illustration when all of the following are tru
 
 The plan can start with sensible defaults, but these decisions change what can truthfully appear in the submission:
 
-1. **AI eligibility:** Do you have a written GBSN approval that supersedes the public policy? If yes, send Farid the exact wording and keep it with the submission log.
-2. **Community:** Which actual LGA/community are you prepared to research, or should we keep the prototype entirely labelled “Aiyetoro Demo LGA, fictional” until validation arrives?
-3. **Mobile form factor:** I recommend the installable PWA route, not Expo/native. Confirm this so we do not split attention across platforms.
-4. **Visual direction:** Ask Farid today for 6–10 UI references. If he cannot provide them, I recommend a calm dark operations console paired with a warm, clear mobile facility app, joined by the same transfer-line motif.
-5. **Deployment:** Which account will host the frontend and Fastify API? Vercel plus Render/Railway is enough for the demo, with Supabase remaining the database.
+1. **AI credit:** Farid must record the organiser's required wording from the live meeting and place it in the submission record.
+2. **Community:** Farid must either secure one evidence point for a named community or keep every product screen labelled “Aiyetoro Demo LGA, fictional”.
+3. **Mobile form factor:** Confirmed: the facility and rider experiences are React Native with Expo, presented through Android; the LGA console is web.
+4. **Visual direction:** Farid supplies 6–10 UI references. If none arrive, use a calm dark operations console paired with a warm, clear native mobile facility app, joined by the same transfer-line motif.
+5. **Deployment:** Choose an account for the operations web and Fastify API. The free-tier default is Vercel/Netlify plus a simple Node host, with Supabase remaining the database.
 
 ## Immediate next action
 
-Freeze the PWA decision, choose the initial visual direction, then begin Phase 1 with the data/safety migration and the shared React shell in parallel. The first page we should build is the facility request timeline, because it makes the entire product story visible and provides the spine for SMS, WhatsApp, rider tracking, and the operations console.
+The mobile decision is frozen. Begin Phase 1 with the source-confirmation authority fix, safety/traceability migration, the Expo role shell, and the operations web shell in parallel. The first interface to build is the facility request timeline, because it makes the entire product story visible and provides the spine for SMS, WhatsApp, rider tracking, and the operations console.
