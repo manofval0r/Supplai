@@ -1,112 +1,102 @@
-# Akolo Development Plan
+# Akolo Co-Developer Plan
 
-## Goal
+> **Current product direction, 3 November 2026:** Supplai is an app-first, LGA-authorised emergency exception workflow for ambient tracer commodities. It has one Expo Android app for facility and rider roles, plus this responsive web operations console. The Scenario Lab demonstrates fictional, deterministic operations under both successful and unsafe conditions. SMS/WhatsApp are simulated intake bridges, not the primary product.
 
-Own the operational and presentation layer of the Supplai MVP as an equal co-developer. Deliver a clear LGA dashboard, reliable demo fixtures, stock data exchange, and a mock dispatch integration that connects cleanly to the technical core.
+## Role and boundary
 
-## Round 1: Fixtures and dashboard foundation
+You are an equal co-developer. You own the web operations and visual experience. The other co-developer owns the canonical workflow, Supabase migrations, API contracts, Expo facility/rider app, channel boundary, and Scenario Lab engine. Work from shared contracts, not copied types or locally invented backend states.
 
-### Build
+## Outcome
 
-- Review the shared contracts supplied by the core workflow co-developer.
-- Create eight fictional public PHCs in one fictional LGA.
-- Create two fictional riders.
-- Seed ORS sachets and zinc 20 mg tablets with realistic aliases.
-- Create stock snapshots that support the agreed demonstration scenario.
-- Create request, transfer, failure, and metric JSON fixtures.
-- Initialize the React dashboard within the shared workspace.
-- Build the page shell, navigation, loading state, empty state, and error state.
+Deliver a polished responsive operations console that lets a judge understand the live state of a fictional scenario, make an LGA release/escalation decision, inspect a transfer, and replay the outcome without terminal access or manual database edits.
 
-### Deliverable
+## Progress tracker
 
-A dashboard running entirely from checked-in fixtures, with reproducible demo data and no dependency on an unfinished API.
+- `[ ]` Not started
+- `[~]` In progress
+- `[x]` Completed
+- `[!]` Blocked
 
-### Completion checks
+| Round | Status | Completion condition |
+| --- | --- | --- |
+| A. Web foundation | `[ ]` | Dashboard shell and shared visual language work from fixtures |
+| B. Operations workflow | `[ ]` | Queue, transfer detail, authority actions, and exceptions use shared contracts |
+| C. Scenario Lab | `[ ]` | An operator can start, advance, reset, and replay every deterministic scenario |
+| D. Demonstration polish | `[ ]` | Responsive, accessible console works in live and fixture modes and is recording-ready |
 
-- Fixture identifiers are stable.
-- All facilities use the public ledger.
-- Facility A lacks ORS and Facility B has transferable surplus.
-- Dashboard works at common laptop and projector widths.
-
-## Round 2: LGA operational dashboard
+## Round A: web foundation
 
 ### Build
 
-- Build summary metrics for open stockouts, transfers in flight, completed transfers, unmet requests, and response rate.
-- Build a stockout list by facility and medicine.
-- Build a transfer table with status and timestamps.
-- Build an unmet-request view.
-- Build a facility response-rate view.
-- Add useful filtering without introducing configuration screens.
-- Integrate `GET /api/lga/overview` and `GET /api/lga/transfers` when available.
-- Keep fixture mode available as a demonstration fallback.
+- [ ] Establish `apps/dashboard` as a Vite/React operations console.
+- [ ] Create the shared web token sheet: colour meanings, typography, spacing, elevation, status chips, timeline items, and evidence chips.
+- [ ] Build the application shell, navigation, loading, empty, and error states.
+- [ ] Build transparent fixture mode using fictional data only. It must be visibly labelled `Demo data` and `Fictional scenario`.
+- [ ] Design for laptop and projector first, then maintain a usable narrow layout.
+- [ ] Add a calm, clinical visual direction. Use motion only to explain an event, route, or status change.
 
-### Deliverable
+### Completion check
 
-A single-screen LGA dashboard that clearly shows what requires attention and what Supplai has accomplished.
+The console opens directly into a believable demo state at laptop/projector size with no console errors and no patient data.
 
-### Completion checks
-
-- API loading, empty, error, and populated states work.
-- Status labels match shared workflow states exactly.
-- No patient information appears.
-- The most important information is understandable without explanation.
-
-## Round 3: CSV tools, dispatch adapter, and failures
+## Round B: operations workflow
 
 ### Build
 
-- Define and document the stock CSV template with the core workflow co-developer.
-- Validate required columns, facility identifiers, medicine identifiers, quantities, and timestamps.
-- Stage valid stock imports and return row-level errors for invalid files.
-- Export completed stock movements as CSV.
-- Implement the in-memory dispatch adapter using the shared dispatch interface.
-- Support dispatch creation, assignment, in-transit state, delivered state, and simulated failure.
-- Build an operations view for unmatched messages, expired requests, failed dispatches, and locked proof attempts.
-- Integrate `GET /api/operations/failures`.
+- [ ] Build the operations overview with open requests, transfers in flight, safe completions, blocked transfers, and owned escalations.
+- [ ] Build a priority queue that explains why each item needs attention and who owns the next action.
+- [ ] Build transfer detail: request, source offer, safety-floor evidence, batch/expiry evidence, source confirmation, LGA/pharmacist release, rider timeline, receipt/refusal, and ledger outcome.
+- [ ] Build the release/escalation drawer using the co-developer’s action contracts. Never let the requester approve a source offer.
+- [ ] Build exception views for source decline, safety-floor block, FEFO reroute, no eligible match, delayed rider, refused receipt, and demand shock.
+- [ ] Build a stylised fictional service map with animated route segments. Do not depend on paid maps, live GPS, or carrier APIs.
+- [ ] Consume the shared API as it becomes available. Keep fixture fallback clearly marked.
 
-### Deliverable
+### Completion check
 
-Operators can import fictional stock, simulate rider dispatch, inspect failures, and export completed movement records.
+An operator can identify the next decision, inspect why it is safe or blocked, take the authorised action, and see the resulting timeline state.
 
-### Completion checks
-
-- Invalid CSV rows do not silently enter stock records.
-- Import errors identify the exact row and reason.
-- Exported movements preserve positive and negative signs.
-- Dispatch states match the shared contract.
-- Every simulated failure is visible to an operator.
-
-## Round 4: Integration and demonstration polish
+## Round C: Scenario Lab
 
 ### Build
 
-- Replace remaining temporary API assumptions with shared contracts.
-- Integrate dashboard updates with the completed SMS workflow.
-- Confirm that the demonstration state updates without a page reload where practical.
-- Add a clear demo reset path with the core workflow co-developer.
-- Improve responsive layout, accessibility, keyboard behavior, and projection readability.
-- Add dashboard and CSV tests.
-- Document Akolo-owned setup and troubleshooting steps.
-- Participate in three consecutive full demo rehearsals.
+- [ ] Build the Scenario Lab entry point and scenario picker.
+- [ ] Show selected scenario, learning goal, fictional-data label, simulation clock, active event, role actions, and modelled outcome card.
+- [ ] Integrate start, tick, read-run, replay, and reset endpoints when provided.
+- [ ] Create reusable visual fixture packs for these scenarios:
+  - [ ] Authorised ambient transfer
+  - [ ] Shelf mismatch
+  - [ ] Safety-floor shield
+  - [ ] FEFO reroute
+  - [ ] Delayed rider
+  - [ ] Refused receipt
+  - [ ] Demand shock and LGA escalation
+- [ ] Ensure every outcome names the next accountable owner. Never display modelled outputs as real impact metrics.
 
-### Deliverable
+### Completion check
 
-A polished operational layer fully connected to the Supplai core and safe to use during the recorded or live demonstration.
+A facilitator can run any scenario from a clean seed, explain the decision made, show the outcome, and reset it without help from the terminal.
 
-### Completion checks
+## Round D: demonstration polish
 
-- Dashboard reflects the final stock movement.
-- Fixture fallback still works if the API or hosting fails.
-- CSV tests and dashboard tests pass.
-- No console errors occur during the scripted demonstration.
-- Setup and troubleshooting instructions have been tested by another team member.
+### Build
+
+- [ ] Add responsive layouts, keyboard navigation, focus states, readable contrast, and reduced-motion support.
+- [ ] Capture desktop and mobile-width screenshots for every finished route.
+- [ ] Test the fixture fallback when the API is unavailable.
+- [ ] Add dashboard tests for loading, populated, empty, error, and critical exception states.
+- [ ] Remove dead copy, speculative numbers, real-partner implications, and any old SMS-first wording.
+- [ ] Join three full demo rehearsals and log every visual or integration failure.
+- [ ] Provide Farid with truthful screenshots, a short flow capture, and labelled fictional scenario data for the creative illustration.
+
+### Completion check
+
+The console is stable, accessible, recording-ready, and agrees exactly with the mobile app, API state, Scenario Lab, deck, and report.
 
 ## Coordination rules
 
-- Use shared contracts. Do not create a second set of API types.
-- Coordinate any required workflow change with the co-developer who owns that component before implementing it.
-- Keep pull requests small and focused on one behavior.
-- Include screenshots for visible dashboard changes.
-- Add tests for CSV validation, dispatch state changes, and critical dashboard states.
-- Raise blockers early instead of building temporary incompatible behavior.
+- Keep work on a focused feature branch and commit at each meaningful checkpoint.
+- Import shared contracts from `@supplai/contracts`; do not duplicate API models.
+- Ask for a contract change before building against an assumption.
+- Include a screenshot or short GIF for each visual pull request and tests for behaviour changes.
+- Report blockers early. Do not quietly replace unavailable APIs with incompatible temporary behaviour.
+- Update this tracker after each working session.
