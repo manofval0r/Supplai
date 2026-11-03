@@ -22,7 +22,8 @@ Deliver a polished responsive operations console that lets a judge understand th
 | A. Web foundation | `[ ]` | Dashboard shell and shared visual language work from fixtures |
 | B. Operations workflow | `[ ]` | Queue, transfer detail, authority actions, and exceptions use shared contracts |
 | C. Scenario Lab | `[ ]` | An operator can start, advance, reset, and replay every deterministic scenario |
-| D. Demonstration polish | `[ ]` | Responsive, accessible console works in live and fixture modes and is recording-ready |
+| D. OSM map and notification centre | `[ ]` | Web map and notification inbox work with visible fallbacks and no hidden provider dependency |
+| E. Demonstration polish | `[ ]` | Responsive, accessible console works in live and fixture modes and is recording-ready |
 
 ## Round A: web foundation
 
@@ -76,7 +77,22 @@ An operator can identify the next decision, inspect why it is safe or blocked, t
 
 A facilitator can run any scenario from a clean seed, explain the decision made, show the outcome, and reset it without help from the terminal.
 
-## Round D: demonstration polish
+## Round D: OSM map and notification centre
+
+### Build
+
+- [ ] Add an interactive Leaflet map to the web operations console, using a configurable OpenStreetMap-compatible tile provider.
+- [ ] Display `© OpenStreetMap contributors` visibly and preserve browser referrer/caching defaults. Do not prefetch, bulk-download, or promise offline maps.
+- [ ] Render fictional facility markers, a rider marker, route segments, delayed-route status, and a no-map route/ETA fallback from the same fixture data.
+- [ ] Build the web notification centre: inbox, unread count, severity/status, actor, order reference, event time, read/dismiss state, and deep links to transfer or exception detail.
+- [ ] Add in-app toast/banner notifications for scenario events. Ask for browser notification permission only from an explicit user action.
+- [ ] Treat service-worker/browser push as an optional enhancement after the in-app notification centre is complete and deployed over HTTPS.
+
+### Completion check
+
+The dashboard still tells the complete operational story when tile loading fails or browser notifications are denied.
+
+## Round E: demonstration polish
 
 ### Build
 

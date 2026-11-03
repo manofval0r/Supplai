@@ -263,7 +263,8 @@ Keep the current ledger and request core. Add the following incrementally, with 
 | Local UI state | Small route-local state or Zustand only where necessary. Do not build a global state machine in the mobile app or browser. |
 | Visual system | Shared semantic tokens for colour, type, spacing, and status; React Native components for mobile and CSS variables/components for web. Choose one dark/light direction before screens are made. |
 | Motion | React Native Reanimated or Expo-supported motion for mobile; Framer Motion or CSS transforms for web. Motion explains state changes, routes, and handovers rather than decorating screens. |
-| Map | A drawn fictional service map with animated route segments first. Do not depend on paid mapping, live tiles, or a real rider integration for the demonstration. |
+| Map | Web: Leaflet with a configurable OpenStreetMap-compatible tile source, visible `© OpenStreetMap contributors` attribution, no prefetching, and a stylised route fallback. Mobile: run an early provider-switchable OSM-compatible map spike in an Android development build; keep the exact same route/ETA visual fallback until it is proven. Never make public tiles, live GPS, or a real rider integration a demo dependency. |
+| Notifications | One canonical notification-event record powers mobile and web inboxes, unread badges, deep links, and in-app banners. Expo local Android notifications are the first mobile proof. Browser push and remote native push require permission plus stable HTTPS/development-build setup and remain optional enhancements. |
 | Deployment | Vercel/Netlify for the operations web, a simple Node host for Fastify, Supabase for data, and Expo Go/Android build for the mobile demo. Stay within free tiers; no app-store launch is required. |
 | Demo controls | A protected reset endpoint/script, a scenario launcher, deterministic seeded timestamps, and a visible `Demo data` label. |
 
@@ -286,10 +287,25 @@ GET  /api/demo/scenarios                 available scripted scenarios and their 
 POST /api/demo/scenarios/:id/start       reset and start one scenario run
 POST /api/demo/runs/:id/tick             advance the controlled demo clock/event sequence
 GET  /api/demo/runs/:id                  replayable event timeline, decisions, and modelled metrics
+GET  /api/notifications                  role-scoped notification inbox and unread count
+POST /api/notifications/:id/read         mark a notification read or dismissed
+POST /api/devices                         register a development-only native push token when enabled
 POST /webhooks/messages/:provider        canonical SMS/WhatsApp adapter boundary
 ```
 
 Do not ship all endpoints before showing a screen. Implement in the exact order required by the scripted transfer.
+
+### Shared map and notification contract
+
+The map and notification experience must be driven by the same canonical event stream, not two visual-only mock systems.
+
+| Contract | Required fields | Behaviour |
+| --- | --- | --- |
+| `RouteSnapshot` | transfer reference, source/destination coordinates, rider coordinate, route segments, ETA, route status, updated timestamp, `simulated` flag | Web and mobile render the same route state. If map tiles fail, both render the route/ETA fallback from this payload. |
+| `NotificationEvent` | ID, role audience, severity, event type, reference, title, body, deep-link target, dedupe key, created/read/dismissed timestamps, `simulated` flag | Events create a persistent inbox item and an in-app alert. A delivery mechanism may fail without losing the inbox record. |
+| `NotificationPreference` | role/user, in-app enabled, local-mobile enabled, browser-push consent, native-push token status | Permission is requested only after a user action. The product remains usable when every optional channel is off. |
+
+Required event types are: request created, source response needed, source declined, safety floor blocked, authority release needed, rider assigned, rider delayed, receipt needed, receipt refused, transfer complete, and LGA escalation. Each event must state the next accountable role.
 
 ## Visual direction and creative illustration
 

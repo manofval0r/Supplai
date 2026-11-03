@@ -4,7 +4,7 @@
 
 ## Goal
 
-Own the Supplai technical core and deliver a tested, deployed end-to-end demonstration. You and Akolo are equal co-developers with different component ownership. The original four foundation rounds are complete or superseded; the current product plan continues through six tracked rounds. Each round should end with working software, not disconnected components.
+Own the Supplai technical core and deliver a tested, deployed end-to-end demonstration. You and Akolo are equal co-developers with different component ownership. The original foundation rounds are complete or superseded; the remodel now has **eight tracked rounds**. Each round ends with independently demonstrable software, not disconnected components.
 
 ## Progress tracker
 
@@ -22,9 +22,11 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 | Round 1: Foundation and contracts    | `[x]`  | Workspace, database, contracts, and checks work from a clean setup | Verified locally and on Supabase on 2026-11-03. Fictional demo foundation is loaded. |
 | Round 2: SMS intake and confirmation | `[~]`  | One valid request reaches one confirmed reservation                | Reopened on 2026-11-03: direct review found requester-authorised confirmation; source-custodian authority must replace it. |
 | Round 3: Dispatch, proof, and ledger | `[x]`  | A verified delivery writes two correct stock movements             | Ledger mechanics verified locally and with a rolled-back live Supabase workflow on 2026-11-03; product sign-off depends on the Round 2 authority correction. |
-| Round 4: Product reframe and experience foundation | `[~]`  | Safety-aware order model, Scenario Lab contract, and shared Expo/web console shell are agreed and buildable | Product strategy was upgraded on 2026-11-03 with a controlled simulation layer; source-confirmation authority fix remains the first implementation task. |
-| Round 5: Role experiences and channel integration | `[ ]` | Facility, operations, rider, SMS, and WhatsApp-simulator paths share one order state | |
-| Round 6: Deployment and creative illustration | `[ ]` | Deployed scripted demo succeeds three consecutive times and supports screen recording | |
+| Round 4: Safety, authority, and event spine | `[~]` | Source confirmation, safety data, canonical order timeline, and Scenario 1 API are safe and replayable | Product strategy was upgraded on 2026-11-03; source-confirmation authority fix remains the first implementation task. |
+| Round 5: Native role app and notification core | `[ ]` | Facility/rider Android flows and the shared in-app notification centre consume one canonical event stream | Local notifications work in the Android demo; remote push is not a dependency. |
+| Round 6: Web operations, OSM map, and notification centre | `[ ]` | Dashboard, exception workbench, interactive map, and web notification inbox work from API or fixtures | Akolo may work from versioned fixtures without waiting for live endpoints. |
+| Round 7: Scenario Lab, channel resilience, and cross-platform hardening | `[ ]` | Every scenario, message bridge, map fallback, and notification path is deterministic and recoverable | Browser push and remote native push are enhancements, not gates. |
+| Round 8: Deployment, creative illustration, and rehearsal | `[ ]` | Deployed scripted demo succeeds three consecutive times and supports screen recording | |
 
 ### Preflight
 
@@ -85,16 +87,63 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 - [ ] Define the controlled Scenario Lab contract: scenario, fixture version, event, role action, outcome, and reset.
 - [ ] Implement Scenario 1: an authorised ambient transfer with a deterministic replayable timeline.
 - [ ] Add fixture packs for safety-floor, shelf-mismatch, FEFO, rider-delay, refused-receipt, and demand-shock scenarios.
+- [ ] Build a central admin panel for managing all scenarios and demo operations from one location, with authority beyond the LGA dashboards and access to behind-the-scenes controls.
 - [ ] Integrate Akolo's dashboard, fixtures, CSV tools, and failure views.
-- [ ] Connect the dashboard to live API routes.
-- [ ] Add demonstration authentication and rate limiting.
-- [ ] Configure demo-only routes safely.
+- [ ] Connect the admin panel and dashboard to live API routes.
+- [ ] Add demonstration authentication, role-based authority, and rate limiting.
+- [ ] Configure demo-only routes and behind-the-scenes controls safely.
 - [ ] Run the complete critical test suite.
-- [ ] Deploy the API, dashboard, and database.
+- [ ] Deploy the API, admin panel, dashboard, and database.
 - [ ] Document setup, architecture, demo, fallback, and limitations.
 - [ ] Create and verify a demo reset command.
 - [ ] Complete three consecutive successful rehearsals.
 - [ ] Prepare a recorded fallback demonstration.
+
+### Rounds 5–8 delivery gates
+
+#### Round 5: Native role app and notification core
+
+- [ ] Create the Expo facility/rider role shell and complete the facility request, order timeline, receiving inspection, rider pickup, in-transit, and handover flows.
+- [ ] Build a shared notification event model and mobile inbox, unread badge, deep link target, read/dismiss action, and in-app banner.
+- [ ] Add Expo local notifications for simulated critical events on Android. Treat remote push as an optional development-build enhancement, never a required demo dependency.
+- [ ] Run an early native-map technical spike with a provider-switchable OSM-compatible implementation and visible attribution. Keep the route/ETA visual fallback until the Android build is proven.
+
+**Gate:** a facility and rider can finish Scenario 1 on Android, receive visible event alerts, and understand route progress even with the map provider unavailable.
+
+#### Round 6: Web operations, OSM map, and notification centre
+
+- [ ] Akolo completes the operations overview, priority queue, transfer detail, authority drawer, Scenario Lab controls, and exception workbench against fixture mode first.
+- [ ] Add a Leaflet-based OSM map to the web console with visible attribution, a configurable tile provider, no prefetching, and a stylised route fallback.
+- [ ] Build the web notification centre with inbox, unread count, filters, read state, deep links, toast/banner alerts, and browser-permission prompt only after user intent.
+- [ ] Connect web routes to live APIs only after the Round 4 contract is frozen; retain fixtures as a tested fallback.
+
+**Gate:** the web console remains fully demonstrable when the API, map tiles, or browser-notification permission are unavailable.
+
+#### Round 7: Scenario Lab, channel resilience, and cross-platform hardening
+
+- [ ] Implement and verify all seven deterministic scenarios and their next-accountable-owner outcomes.
+- [ ] Make the SMS/WhatsApp simulators write the same event and notification records as the facility app.
+- [ ] Verify Android and web notification parity: event, badge, inbox, deep link, read/dismiss, and in-app alert.
+- [ ] Add browser push only if HTTPS, service worker, permissions, and deployment are stable. Add native remote push only in an Expo development build if it adds demo value.
+- [ ] Test map fallback, notification fallback, slow network, reload, API error, and fixture mode.
+
+**Gate:** no external service or collaborator's unfinished interface can prevent a complete, resettable demonstration.
+
+#### Round 8: Deployment, creative illustration, and rehearsal
+
+- [ ] Deploy the API and web preview, make the Android build/install route repeatable, and secure demo reset/admin controls.
+- [ ] Run three full demos from clean reset, including one map-provider failure and one notification-permission denial.
+- [ ] Give Farid stable screen recordings, screenshots, labels, and scenario outcomes for the creative illustration and report.
+
+**Gate:** the final demo works from its fallback path without terminal access or direct database edits.
+
+## Dependency and blocker policy
+
+- **Contract first:** Round 4 publishes versioned order, event, notification, route, and Scenario Lab fixtures. Akolo can build web screens from those fixtures before any live endpoint exists.
+- **Adapters, not waits:** the mobile app and web console each have API and fixture adapters. A missing endpoint switches to labelled fixtures; it never stops visual work.
+- **Map fallback:** the full web map uses interactive OSM tiles only when available. Native and web both ship a route/ETA visual fallback with the exact same coordinates and event state.
+- **Notification fallback:** in-app inbox, banner, and badge are mandatory. Browser push and remote native push are progressive enhancements after permissions and deployment are stable.
+- **Integration windows:** each developer merges against the shared contract after each round gate, not continuously. If one side is delayed, the other continues against fixtures and only swaps adapters during the planned integration window.
 
 ## Ready-to-start implementation queue
 

@@ -48,8 +48,8 @@ Supplai is an app-first, LGA-authorised emergency exception workflow for ambient
 
 ## Workstream 4: design and creative direction
 
-- [ ] Collect 6–10 credible UI references for a trustworthy mobile health workflow and a focused operations console.
-- [ ] Send the co-developers a concise design brief: mood, typography, colour meaning, dashboard density, motion references, and examples to avoid.
+- [ ] Collect 6–10 credible UI references for a trustworthy mobile health workflow, notification centre, route/ETA treatment, and focused operations console.
+- [ ] Send the co-developers a concise design brief: mood, typography, colour meaning, dashboard density, map/route treatment, notification urgency, motion references, and examples to avoid.
 - [ ] Review product screenshots only for claim accuracy, scenario realism, and narrative alignment. Do not conduct code review.
 - [ ] Write the three-minute screen-story storyboard: problem, request, source confirmation, authority release, rider handover, receipt, safe failure, pilot close.
 - [ ] Maintain captions and narration that clearly call the Scenario Lab fictional/modelled where appropriate.
