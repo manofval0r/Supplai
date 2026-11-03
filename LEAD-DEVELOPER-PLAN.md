@@ -22,7 +22,7 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 | Round 1: Foundation and contracts    | `[x]`  | Workspace, database, contracts, and checks work from a clean setup | Verified locally and on Supabase on 2026-11-03. Fictional demo foundation is loaded. |
 | Round 2: SMS intake and confirmation | `[~]`  | One valid request reaches one confirmed reservation                | Reopened on 2026-11-03: direct review found requester-authorised confirmation; source-custodian authority must replace it. |
 | Round 3: Dispatch, proof, and ledger | `[x]`  | A verified delivery writes two correct stock movements             | Ledger mechanics verified locally and with a rolled-back live Supabase workflow on 2026-11-03; product sign-off depends on the Round 2 authority correction. |
-| Round 4: Product reframe and experience foundation | `[~]`  | Safety-aware order model and shared Expo/web console shell are agreed and buildable | Product strategy and delivery plan created on 2026-11-03; source-confirmation authority fix is now the first implementation task. |
+| Round 4: Product reframe and experience foundation | `[~]`  | Safety-aware order model, Scenario Lab contract, and shared Expo/web console shell are agreed and buildable | Product strategy was upgraded on 2026-11-03 with a controlled simulation layer; source-confirmation authority fix remains the first implementation task. |
 | Round 5: Role experiences and channel integration | `[ ]` | Facility, operations, rider, SMS, and WhatsApp-simulator paths share one order state | |
 | Round 6: Deployment and creative illustration | `[ ]` | Deployed scripted demo succeeds three consecutive times and supports screen recording | |
 
@@ -79,6 +79,9 @@ Update this tracker whenever a task begins, is completed, or becomes blocked.
 
 ### Round 4 tasks
 
+- [ ] Define the controlled Scenario Lab contract: scenario, fixture version, event, role action, outcome, and reset.
+- [ ] Implement Scenario 1: an authorised ambient transfer with a deterministic replayable timeline.
+- [ ] Add fixture packs for safety-floor, shelf-mismatch, FEFO, rider-delay, refused-receipt, and demand-shock scenarios.
 - [ ] Integrate Akolo's dashboard, fixtures, CSV tools, and failure views.
 - [ ] Connect the dashboard to live API routes.
 - [ ] Add demonstration authentication and rate limiting.

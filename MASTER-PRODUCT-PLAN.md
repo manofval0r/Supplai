@@ -84,9 +84,14 @@ The review is useful, but not every point is new or equally evidenced. The table
 | Economics and rider incentives need work | Correct. Existing deck pricing and per-drop claims are not validated. | Use a transparent scenario worksheet with variables, not invented prices or subscriptions. A future pilot pays a carrier for a documented compliant handover, not raw delivery volume. |
 | One major assumption and a fallback are necessary | Already identified, and the review confirms its importance. | State that usable, authorised nearby surplus is the core assumption. If unsupported, Supplai becomes an LGA stockout-visibility and escalation tool with no peer transfer. |
 
-### Legacy-asset rule
+### Legacy deck replacement
 
-The existing deck, generated HTML, and old narrative are useful design references, not current submission material. They currently contain an oxytocin example, SMS-first positioning, a receiver-confirmation description, unverified statistics/prices, and a broader 20–30-clinic pilot. Farid owns a claim-by-claim content audit before any of those assets are reused. Developers must not optimise the new interfaces around those old assumptions.
+The existing deck, generated HTML, and old narrative are **not** submission material. They are being replaced, not merely quarantined. Their oxytocin example, SMS-first positioning, receiver-confirmation description, unverified statistics/prices, and 20–30-clinic pilot claim must not survive into the rebuilt story.
+
+- **Farid** owns the claim register, source checks, local-validation wording, and final narrative approval.
+- **You** own the authoritative product workflow represented in the deck: source-custodian confirmation, authority release, rider handover, receipt, and the Scenario Lab data states.
+- **Akolo** owns the operations-console visual evidence and the web sequence used in the creative illustration.
+- The new story is: **LGA-authorised emergency exception control for ambient tracer commodities**, demonstrated through explicitly fictional but operationally credible scenarios. The mobile app and operations console are primary; SMS/WhatsApp are optional intake bridges.
 
 ## Product boundary: one narrow, credible pilot
 
@@ -258,7 +263,7 @@ Keep the current ledger and request core. Add the following incrementally, with 
 | Local UI state | Small route-local state or Zustand only where necessary. Do not build a global state machine in the mobile app or browser. |
 | Visual system | Shared semantic tokens for colour, type, spacing, and status; React Native components for mobile and CSS variables/components for web. Choose one dark/light direction before screens are made. |
 | Motion | React Native Reanimated or Expo-supported motion for mobile; Framer Motion or CSS transforms for web. Motion explains state changes, routes, and handovers rather than decorating screens. |
-| Map | A stylised fictional service map first. Add MapLibre only if it is stable and materially improves the demonstration. |
+| Map | A drawn fictional service map with animated route segments first. Do not depend on paid mapping, live tiles, or a real rider integration for the demonstration. |
 | Deployment | Vercel/Netlify for the operations web, a simple Node host for Fastify, Supabase for data, and Expo Go/Android build for the mobile demo. Stay within free tiers; no app-store launch is required. |
 | Demo controls | A protected reset endpoint/script, a scenario launcher, deterministic seeded timestamps, and a visible `Demo data` label. |
 
@@ -277,6 +282,10 @@ POST /api/transfers/:reference/receipt   receiving custodian accept or refuse
 GET  /api/operations/queue               ranked exceptions and decisions
 GET  /api/operations/overview            command-centre metrics and active routes
 POST /api/demo/reset                     protected deterministic scenario reset
+GET  /api/demo/scenarios                 available scripted scenarios and their learning goals
+POST /api/demo/scenarios/:id/start       reset and start one scenario run
+POST /api/demo/runs/:id/tick             advance the controlled demo clock/event sequence
+GET  /api/demo/runs/:id                  replayable event timeline, decisions, and modelled metrics
 POST /webhooks/messages/:provider        canonical SMS/WhatsApp adapter boundary
 ```
 
@@ -309,13 +318,53 @@ The visual illustration does **not** need a filmed team video. Make a polished, 
 
 Record each role flow from a deterministic, resettable demo environment. Assemble only after every screen is stable. A fancy edit cannot rescue a broken live demo.
 
-## Low-cost simulation rules
+## Supplai Scenario Lab
 
-Supplai is a low-to-no-fund build. The product needs to be impressive because the simulated operating model is explicit, coherent, and interactive, not because it pretends to have paid integrations or a live pilot.
+Supplai should feel like a live operations product, not a linear mock-up. The **Scenario Lab** is a controlled simulation layer shared by the Expo app and operations console. A facilitator selects a named scenario, starts from a clean seed, advances a visible clock, makes the required human decisions, and can replay the resulting operational timeline.
+
+This is a credible approach, not novelty for its own sake. UNICEF's SCANIT compares alternative supply-chain scenarios with maps and performance indicators, while WHO describes progressive simulation exercises as a way to expose assumptions, coordination gaps, and roles under pressure. [UNICEF SCANIT](https://www.unicef.org/supply/documents/unicef-supply-chain-analysis-and-intelligence-tool-scanit) [WHO Simulation Exercises](https://www.who.int/emergencies/operations/simulation-exercises)
+
+### What a Scenario Lab run contains
+
+- A deterministic fixture pack: fictional facilities, authorised roles, ambient formulary, stock positions, batch/expiry data, riders, and a stylised service map.
+- A clocked event script: request, source response, safety check, approval, pickup, route progress, receipt, and escalation events.
+- Human decision gates. The facilitator cannot skip source-custodian confirmation, authorised release, or receiving inspection.
+- A visible event timeline and a `Demo data · Fictional scenario` marker on every relevant screen.
+- A resettable outcome card: response time, eligible-match result, safety rule triggered, final order state, and next accountable owner. These are **modelled run outputs**, never impact claims.
+
+### Scripted scenarios to ship
+
+| Scenario | What happens | What the product proves |
+| --- | --- | --- |
+| 1. Authorised ambient transfer | ORS/zinc request receives an eligible source offer, source shelf check, LGA release, rider handover, and receipt. | The complete safe path and its traceability. |
+| 2. Shelf mismatch | Source inventory record is stale and the custodian finds less usable stock than expected. | The source declines before dispatch; no promise is converted into movement. |
+| 3. Safety floor shield | A nearby source has enough units on paper but would fall below its defined safety stock. | The match is blocked and the request is escalated instead of draining the donor. |
+| 4. FEFO reroute | The nearest offered batch is too close to expiry for the expected transfer and use window. | Batch/expiry evidence changes the recommendation and keeps an unsafe batch out of the path. |
+| 5. Delayed rider | A rider is delayed after approved pickup. | Both mobile and web views update ETA, alert the operator, and preserve incident ownership. |
+| 6. Refused receipt | The receiving custodian rejects a damaged or mismatched handover. | Receipt is not a cosmetic code entry; the transfer becomes an owned incident with a traceable record. |
+| 7. Demand shock | Several facilities request the same tracer commodity in a short window. | The system stops unsafe peer transfers and surfaces an LGA replenishment decision rather than pretending supply exists. |
+
+### Low-cost implementation and visual language
 
 | Element | Demo implementation | Mandatory label |
 | --- | --- | --- |
-| Facilities, staff, stock, LGA, and routes | Fictional seed data in Supabase | `Demo data` and `Fictional scenario` |
+| Facilities, staff, stock, LGA, and routes | Versioned fictional fixture packs in Supabase or local demo seed data | `Demo data` and `Fictional scenario` |
+| Scenario controls | Scenario picker, reset, start, pause/tick, and replay from a deterministic event list | `Scenario Lab` |
+| SMS and WhatsApp | Internal message simulator feeding the same canonical order event as the app | `Simulated channel event` |
+| Rider assignment and map movement | Deterministic progress events along a drawn route, with no paid map or carrier dependency | `Simulated dispatch` |
+| Delivery proof and ledger | Working Fastify/Supabase workflow against demo data | `Demo workflow` |
+| Costs, rider availability, and service levels | Scenario variables, never a claimed operating result | `Illustrative pilot assumption` |
+| Outreach/interviews | Farid's human notes, with consent and no fabricated endorsement | `Research insight`, named only with permission |
+
+**Build boundary:** this is a scenario engine, not an expensive digital twin. Store each run as a scenario ID, fixture version, event sequence, human actions, timestamps, and outcome. Use a short scripted event list and an explicit clock; do not build real-time optimisation, live GPS, paid messaging, or probabilistic forecasting before the core path is stable.
+
+## Low-cost simulation rules
+
+Supplai is a low-to-no-fund build. The product needs to be impressive because the simulated operating model is explicit, coherent, interactive, and resilient under pressure, not because it pretends to have paid integrations or a live pilot.
+
+| Element | Demo implementation | Mandatory label |
+| --- | --- | --- |
+| Facilities, staff, stock, LGA, and routes | Versioned fictional seed data in Supabase | `Demo data` and `Fictional scenario` |
 | SMS and WhatsApp | Internal message simulator and provider adapter tests | `Simulated channel event` |
 | Rider assignment and map movement | Deterministic rider state, progress events, and animated route | `Simulated dispatch` |
 | Delivery proof and ledger | Working Fastify/Supabase workflow against demo data | `Demo workflow` |
@@ -379,10 +428,11 @@ The two developers are co-developers. These are component owners, not a leadersh
 | Product workflow, Supabase migrations, canonical domain model, security rules, API contracts | **You** | Akolo validates UI contract needs before migration/API freeze | Migration, typed contracts, integration tests, documented state transitions |
 | Expo facility/rider app, order tracking, dispatch/rider simulation | **You** | Akolo supplies shared visual tokens and reviews data clarity | End-to-end native mobile flow from request to accepted handover |
 | SMS/WhatsApp adapter boundary and in-product conversation simulation | **You** | Akolo places channel events in the console timeline | One inbound message creates a visible canonical order; app/web state stays in sync |
+| Scenario engine, deterministic seed/reset, run timeline, and modelled-outcome API | **You** | Akolo consumes stable run/event contracts in the command centre | Every scripted scenario starts, advances, resets, and records an accountable outcome without manual database edits |
 | Operations command centre, exception queue, transfer detail, map/network views, responsive web design | **Akolo** | You supply stable contracts and integration support | Operators can complete the priority decisions from live data |
-| Shared web visual system, motion rules, status components, reusable fixtures, and operations-console composition | **Akolo** | You keep the Expo app aligned with shared visual tokens and status meanings | Visual token sheet, reusable components, screenshots at mobile and desktop widths |
+| Shared web visual system, motion rules, status components, Scenario Lab controls/replay, reusable fixtures, and operations-console composition | **Akolo** | You keep the Expo app aligned with shared visual tokens and status meanings | Visual token sheet, reusable components, readable scenario controls, screenshots at mobile and desktop widths |
 | Demo reset, seeded scenarios, deployment configuration, end-to-end rehearsal | **Shared** | Both own failure recovery | Three clean consecutive rehearsals from reset |
-| All non-coding work: local research, outreach, stakeholder validation, AI-credit record, claim register, rubric mapping, UI references, pilot-economics worksheet, and submission process | **Farid** | You and Akolo provide focused questions, screenshots, and technical facts only | Evidence log with source/claim/owner/status; validation memo; completed submission checklist |
+| All non-coding work: local research, outreach, stakeholder validation, scenario realism, AI-credit record, claim register, rubric mapping, UI references, pilot-economics worksheet, and submission process | **Farid** | You and Akolo provide focused questions, screenshots, and technical facts only | Evidence log with source/claim/owner/status; validation memo; scenario-assumption register; completed submission checklist |
 | Written report, creative-illustration script/assembly, captions, citations, credits, and final submission package | **Farid** | You and Akolo supply truthful technical screenshots, scenario data, and a technical accuracy check | Requirements checklist, source register, final credit line, and export-ready files |
 
 ## Delivery plan: 3–15 November
@@ -412,6 +462,7 @@ This is deliberately shorter than a normal build plan. The product must look fin
 - [ ] Add batch, expiry, condition, source release, receiving decision, and exception-event fields.
 - [ ] Replace four-digit proof-only completion with role-gated receipt plus a short-lived code in the demo.
 - [ ] Define the canonical event timeline and order detail response.
+- [ ] Define the Scenario Lab fixture, event, run, action, and outcome contracts; ship Scenario 1 as the reference run.
 - [ ] Create the Expo role shell for facility/rider flows and the Vite/React operations shell, with shared visual tokens, typography, status chips, timeline, and empty/loading/error states.
 - [ ] Create a deterministic `request → offer → release → pickup → receipt → ledger` scenario and reset path.
 
@@ -424,7 +475,7 @@ This is deliberately shorter than a normal build plan. The product must look fin
 
 - [ ] Facility home, request creation, request timeline, source offer, and receiving screens.
 - [ ] Rider job, pickup, in-transit, and handover screens with simulated tracking.
-- [ ] Operations overview, priority queue, release drawer, transfer detail, and exception escalation.
+- [ ] Operations overview, priority queue, release drawer, transfer detail, exception escalation, and Scenario Lab control/replay views.
 - [ ] Consume shared live contracts. Retain fixture mode only as a transparent fallback.
 - [ ] Test Android phone layouts, laptop, and projected operations-console widths.
 - [ ] Capture screenshots after each integrated route, not at the end.
@@ -439,7 +490,7 @@ This is deliberately shorter than a normal build plan. The product must look fin
 - [ ] Make the SMS simulator create the same canonical order event as the facility UI.
 - [ ] Add a WhatsApp conversation simulator. Use Twilio Sandbox only if it can be activated without distracting from the primary build.
 - [ ] Show message-originated events in the order timeline and operations feed.
-- [ ] Implement and display source decline, safety-floor block, no eligible match, timeout, delayed rider, refusal at receipt, and failed handover.
+- [ ] Implement and display the complete Scenario Lab library: source decline, safety-floor block, FEFO reroute, no eligible match, demand shock, delayed rider, refusal at receipt, and failed handover.
 - [ ] Link all UI states to deterministic fixtures for easy screen capture.
 - [ ] Add accessible motion, reduce-motion support, keyboard focus, and readable text contrast.
 
@@ -495,6 +546,7 @@ Supplai is ready for the creative illustration when all of the following are tru
 - [ ] The completed demo records the medicine, quantity, source/destination, batch, expiry, release/receipt timestamps, and ledger movements.
 - [ ] A source cannot donate below its safety stock and an unsafe/expired/restricted item cannot complete the happy path.
 - [ ] One successful transfer and one unresolved/unsafe exception are both clear in the operations console.
+- [ ] At least five distinct deterministic scenarios can be started, advanced, reset, and replayed without manual data edits; every outcome names its next accountable owner.
 - [ ] The facility and rider views are polished in Expo on Android phone dimensions; the operations console is polished on a laptop/projector viewport.
 - [ ] The demo can be reset and run successfully three times without direct database changes.
 - [ ] All visible data is marked as fictional/simulated unless Farid's evidence register proves otherwise.

@@ -1124,7 +1124,7 @@
                   <li>
                     <h3>Report</h3>
                     <p>
-                      The nurse texts the drug name and quantity to a shortcode.
+                      A facility creates the request in the app or through a simulated message channel.
                     </p>
                   </li>
                   <li>
@@ -1134,22 +1134,21 @@
                   <li>
                     <h3>Find</h3>
                     <p>
-                      Nearby facilities holding that drug as surplus are
-                      located.
+                      Eligible ambient stock is ranked after safety-stock, batch, and expiry checks.
                     </p>
                   </li>
                   <li>
                     <h3>Confirm</h3>
-                    <p>Each checks the physical shelf and replies yes or no.</p>
+                    <p>The designated source custodian checks the physical shelf and confirms or declines.</p>
                   </li>
                   <li>
                     <h3>Deliver</h3>
-                    <p>A contracted rider moves the stock the same day.</p>
+                    <p>An authorised release assigns a simulated rider and accountable handover.</p>
                   </li>
                   <li>
                     <h3>Record</h3>
                     <p>
-                      Both stock records update from the confirmed transfer.
+                      Receipt, traceability, and the ledger update only after receiving inspection.
                     </p>
                   </li>
                 </ol>
@@ -1157,16 +1156,16 @@
               <div class="s5-bottom">
                 <div class="mock a" style="--d: 0.28s">
                   <div class="hd">Ikotun PHC · 09:14</div>
-                  <div class="bubble in">NEED OXY 20</div>
+                  <div class="bubble in">NEED ORS 20</div>
                   <div class="hd">Isolo PHC · 09:15</div>
                   <div class="bubble in">
-                    Supplai: Ikotun PHC needs 20 oxytocin 10IU. Do you have them
-                    ON THE SHELF now? Reply YES 20 / NO<span class="ref"
+                    Supplai: Ikotun PHC requests 20 ORS sachets. Is safe, ambient stock available
+                    ON THE SHELF now? Source custodian: CONFIRM 20 / DECLINE<span class="ref"
                       >Ref 4471</span
                     >
                   </div>
                   <div class="hd">Isolo PHC · 09:19</div>
-                  <div class="bubble out">YES 20</div>
+                    <div class="bubble out">CONFIRM 20</div>
                   <div class="bubble sys">
                     Rider assigned 09:31 · delivered 10:02 · code 8842 · both
                     records updated
@@ -1197,9 +1196,8 @@
                     class="body a"
                     style="--d: 0.16s; margin-top: 28px; max-width: 40ch"
                   >
-                    Four players serve private pharmacies, hospital networks, or
-                    donated stock. None runs a peer-to-peer exchange between
-                    public primary health centres on basic phones.
+                    Supplai is designed as an LGA-authorised emergency exception workflow,
+                    not an ungoverned peer marketplace. Comparative claims require validation before submission.
                   </p>
                 </div>
                 <div
@@ -1219,38 +1217,33 @@
               >
                 <div class="why a" style="--d: 0.14s">
                   <div class="why-item">
-                    <h3>Confirm before dispatch</h3>
+                    <h3>Source-confirm before dispatch</h3>
                     <p>
-                      The receiving clinic checks the shelf, not the database.
-                      The stale-record failure mode disappears.
+                      A designated source custodian checks usable shelf stock before any release is proposed.
                     </p>
                   </div>
                   <div class="why-item">
-                    <h3>Basic phones only</h3>
+                    <h3>App-first, channel-flexible</h3>
                     <p>
-                      No smartphone, no app, no data bundle. A feature phone and
-                      a shortcode are enough.
+                      The mobile app and web console are primary; simulated messages create the same canonical order.
                     </p>
                   </div>
                   <div class="why-item">
-                    <h3>Public sector first</h3>
+                    <h3>Governance visible in-product</h3>
                     <p>
-                      Designed for the 20,000 facilities that commercial
-                      logistics has no reason to serve.
+                      Safety floors, batch/expiry, release authority, receipt, and escalation are decision gates.
                     </p>
                   </div>
                   <div class="why-item">
-                    <h3>Light infrastructure</h3>
+                    <h3>Scenario-tested resilience</h3>
                     <p>
-                      Existing riders, existing nurses, existing records. No new
-                      buildings, no cold fleet.
+                      A Scenario Lab demonstrates both an authorised transfer and the safe failure paths.
                     </p>
                   </div>
                   <div class="why-item">
-                    <h3>Paid by the private tier</h3>
+                    <h3>Evidence before economics</h3>
                     <p>
-                      Pharmacies subscribe for the same network. Their fees
-                      cover the riders.
+                      Funding and carrier costs are pilot assumptions to validate, never current commercial claims.
                     </p>
                   </div>
                 </div>
@@ -1334,26 +1327,25 @@
                     class="body a"
                     style="--d: 0.16s; margin-top: 26px; max-width: 40ch"
                   >
-                    We charge for moving it and for seeing it. That single rule
-                    keeps public stock out of commerce and keeps the model
-                    defensible to a regulator.
+                    We do not yet claim a commercial model. A future pilot must
+                    measure the cost of safe movement and validate who is authorised
+                    to fund it.
                   </p>
                 </div>
                 <div
                   class="rule-note a"
                   style="--d: 0.26s; margin-top: 44px; max-width: 46ch"
                 >
-                  One rider covers about 176 deliveries a month at ₦1,000 each.
-                  <b>Fifteen to eighteen pharmacy subscribers</b> fund that
-                  rider, so public clinic transfers cost the clinic nothing.
+                  The demonstration uses a transparent cost worksheet, not prices.
+                  <b>Carrier, handling, data, supervision, and incident follow-up</b>
+                  remain assumptions until local validation.
                 </div>
                 <p
                   class="small a"
                   style="--d: 0.36s; margin-top: 28px; max-width: 44ch"
                 >
-                  Pilot is grant-funded for six months. The LGA line is only
-                  charged once the dashboard has shown them a stockout they did
-                  not already know about.
+                  The pilot scope, commodities, partners, and measures remain
+                  subject to pharmacist and LGA validation before any real transfer.
                 </p>
               </div>
               <div
@@ -1363,35 +1355,35 @@
                 <table class="econ a" style="--d: 0.14s">
                   <thead>
                     <tr>
-                      <th>Payer</th>
-                      <th>What they buy</th>
-                      <th>Monthly</th>
+                      <th>Assumption</th>
+                      <th>What must be tested</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="name">Pharmacies</td>
+                      <td class="name">Carrier</td>
                       <td>
-                        Network access, surplus sourcing, delivery credits
+                        Safe pickup, handover, incident ownership
                       </td>
-                      <td class="price">₦12,000<small>the engine</small></td>
+                      <td class="price">Modelled<small>not priced</small></td>
                     </tr>
                     <tr>
-                      <td class="name">LGA health</td>
+                      <td class="name">LGA / pharmacist</td>
                       <td>
-                        Live stockout dashboard, unmet-need alerts, audit trail
+                        Release authority, escalation, audit trail
                       </td>
-                      <td class="price">₦150,000<small>per LGA</small></td>
+                      <td class="price">Validate<small>role chain</small></td>
                     </tr>
                     <tr>
-                      <td class="name">Public clinics</td>
-                      <td>Transfers, confirmation, records</td>
-                      <td class="price">Free<small>always</small></td>
+                      <td class="name">Source facility</td>
+                      <td>Safety floor, batch, expiry, shelf confirmation</td>
+                      <td class="price">Validate<small>donor protection</small></td>
                     </tr>
                     <tr>
-                      <td class="name">Riders</td>
-                      <td>Paid per verified delivery, instantly</td>
-                      <td class="price">₦1,000<small>per drop</small></td>
+                      <td class="name">Receiving facility</td>
+                      <td>Inspection, acceptance/refusal, traceable receipt</td>
+                      <td class="price">Demonstrated<small>in scenario</small></td>
                     </tr>
                   </tbody>
                 </table>

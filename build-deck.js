@@ -264,7 +264,7 @@ async function main() {
       s,
       [
         {
-          text: 'SMS-first · confirm-before-dispatch · rider-delivered · LGA dashboard',
+          text: 'App-first · LGA-authorised · safety-aware · scenario-tested',
           font: B,
           fontSize: 12,
           color: FADE,
@@ -648,16 +648,16 @@ async function main() {
     const y = titleBlock(
       s,
       'The solution',
-      'A stock-sharing network for clinics',
-      'Six steps, SMS-first, confirm-before-dispatch',
+      'An emergency exception workflow for clinics',
+      'Six gates, app-first, with human authority before dispatch',
     );
     const steps = [
-      ['1', 'Report', 'Nurse SMS/WhatsApps drug name', md.MdLocalHospital],
-      ['2', 'Match', 'Server fuzzy-matches drug name', md.MdInventory],
-      ['3', 'Find', 'Nearby facilities with surplus', md.MdMap],
-      ['4', 'Confirm', 'Recipient replies Y/N', md.MdCheckCircle],
-      ['5', 'Deliver', 'Rider moves stock same day', md.MdLocalShipping],
-      ['6', 'Track', 'Records update · LGA dashboard', md.MdDashboard],
+      ['1', 'Request', 'Facility app, SMS, or WhatsApp', md.MdLocalHospital],
+      ['2', 'Match', 'Eligible ambient stock only', md.MdInventory],
+      ['3', 'Protect', 'Safety floor, batch, and expiry', md.MdMap],
+      ['4', 'Confirm', 'Source custodian checks shelf', md.MdCheckCircle],
+      ['5', 'Release', 'LGA/pharmacist approves, rider moves', md.MdLocalShipping],
+      ['6', 'Receive', 'Inspection, receipt, and audit trail', md.MdDashboard],
     ];
     const stepW = 1.78,
       gap = 0.16,
@@ -741,7 +741,7 @@ async function main() {
       s,
       [
         {
-          text: 'No smartphone, no app install: SMS and WhatsApp work on basic phones. Confirmation means no clinic ever promises drugs it no longer has.',
+          text: 'The facility app and operations console are primary. SMS/WhatsApp create the same request when data access is limited; only the source custodian can confirm stock.',
           font: B,
           fontSize: 11.5,
           color: INK,
@@ -759,7 +759,7 @@ async function main() {
     );
     footer(s, 5);
     s.addNotes(
-      'Flow: SMS report → RxNorm/pg_trgm fuzzy match → nearby facilities → Y/N confirm → motorcycle rider POD → dashboard update.',
+      'Flow: app or channel request → eligibility and safety check → source shelf confirmation → authorised release → simulated rider handover → receipt and trace.',
     );
   }
 
@@ -775,24 +775,24 @@ async function main() {
     );
     const wins = [
       [
-        'Confirm-before-dispatch',
-        'Fixes the stale-record failure mode documented in LMIS studies (70–87% accuracy).',
+        'Source-confirm before dispatch',
+        'A designated source custodian checks usable shelf stock before any release is proposed.',
       ],
       [
-        'SMS-first',
-        'Works on basic phones — no smartphone, app, or data bundle needed at the clinic.',
+        'One canonical order',
+        'The mobile app is primary; a simulated SMS or WhatsApp message creates the same order and timeline.',
       ],
       [
-        'Public PHC tier',
-        "Competitors serve private pharmacies or donations; none serve Nigeria's 20,000 public PHCs on basic phones.",
+        'Public PHC workflow',
+        'Designed around LGA-authorised exception handling, not an ungoverned peer marketplace.',
       ],
       [
-        'Complements government',
-        'Builds on DHIS2/OpenLMIS (already in Nigeria; saved 850,000 vaccine doses) instead of replacing it.',
+        'Governance visible in-product',
+        'Safety floors, batch/expiry, release authority, receipt, and escalation are visible decision gates.',
       ],
       [
-        'Software + people + light hardware',
-        'Riders, nurses, health officers — mobilizable today, no heavy infrastructure.',
+        'Scenario-tested resilience',
+        'The Scenario Lab demonstrates a successful transfer and the safe failure paths that stop unsafe movement.',
       ],
     ];
     let wy = y;
@@ -831,7 +831,7 @@ async function main() {
     }
     footer(s, 6);
     s.addNotes(
-      'Positioning: SIRUM (US), InStockRx (US), MedCycle (Ghana), Remedial Health (Nigeria) validate the model; none covers public PHCs on basic phones.',
+      'Positioning: Supplai is a fictional-demo prototype for LGA-authorised emergency exception control. Farid validates every comparative or local claim before submission.',
     );
   }
 
@@ -841,29 +841,29 @@ async function main() {
     bg(s);
     const y = titleBlock(
       s,
-      'Open-source stack',
-      'We build the connecting layer — not the whole system',
+      'Demonstration architecture',
+      'A controllable safety workflow, not a stack of unverified integrations',
       '',
     );
     const stack = [
       [
-        'OpenBoxes / OpenLMIS',
-        'Inventory and stock records; OpenLMIS already runs in Nigeria and saved 850,000 vaccine doses from expiry.',
+        'Expo mobile app',
+        'Role-specific facility and rider flows built for a controlled Android demonstration.',
         io.IoIosMedical,
       ],
       [
-        'Fleetbase',
-        'Rider dispatch, tracking, and proof of delivery.',
+        'Fastify + Supabase',
+        'Typed workflow, append-only stock movements, scenario fixtures, and a resettable event timeline.',
         md.MdLocalShipping,
       ],
       [
-        "Africa's Talking",
-        'USSD / SMS / WhatsApp gateway for basic-phone clinics.',
+        'Channel simulator',
+        'SMS/WhatsApp-style intake is simulated and feeds the same canonical order as the app.',
         io.IoIosChatbubbles,
       ],
       [
-        'RxNorm / pg_trgm',
-        'Fuzzy drug-name matching for misspelt SMS entries.',
+        'Scenario Lab',
+        'Scripted safety-floor, expiry, rider-delay, refusal, and demand-shock runs make the operating model inspectable.',
         md.MdInventory,
       ],
     ];
@@ -926,7 +926,7 @@ async function main() {
       s,
       [
         {
-          text: 'Our build: the matching + routing + confirmation layer that ties these together.',
+          text: 'Our build: the authority, safety, handover, and escalation layer that makes a time-critical exception accountable.',
           font: B,
           fontSize: 11.5,
           color: INK,
@@ -945,7 +945,7 @@ async function main() {
     );
     footer(s, 7);
     s.addNotes(
-      "Stack: OpenBoxes/OpenLMIS inventory, Fleetbase rider POD, Africa's Talking SMS/USSD/WhatsApp, RxNorm/pg_trgm fuzzy matching.",
+      'Build scope: Expo, Fastify, Supabase, and a no-cost Scenario Lab. No live carrier, messaging, or medicine movement is implied.',
     );
   }
 
@@ -956,23 +956,23 @@ async function main() {
     const y = titleBlock(s, 'Sustainability', 'How it works and lasts', '');
     const cols = [
       [
-        'Riders',
-        'Paid per delivery (gig model) — income for motorcycle riders, same-day transfers.',
+        'Transfer cost model',
+        'A future pilot will measure carrier, handling, data, supervision, and incident costs per authorised handover.',
         md.MdLocalShipping,
       ],
       [
-        'LGA / state health',
-        'Subscription for the dashboard and stock-visibility reports.',
+        'Funding hypothesis',
+        'Potential LGA, state, donor, or programme funding is a research question, not a subscription claim.',
         md.MdDashboard,
       ],
       [
-        'No per-drug fee',
-        'Public medicines move free — trust and equity come first.',
+        'Equity control',
+        'Safety floors and sequential offers prevent a well-stocked facility from being quietly drained.',
         md.MdCheckCircle,
       ],
       [
-        'Pilot',
-        'One LGA, 20–30 clinics, 90 days; measure stockout reduction and fill rate.',
+        'Pilot design',
+        'Scope, commodities, partners, and measures remain subject to local validation before any real transfer.',
         io.IoIosPulse,
       ],
     ];
@@ -1039,7 +1039,7 @@ async function main() {
       s,
       [
         {
-          text: 'Every transfer is confirmed before a rider moves — no clinic ever promises drugs it no longer has.',
+          text: 'Every simulated transfer is source-confirmed, authority-released, and receipt-checked before it is treated as complete.',
           font: B,
           fontSize: 9,
           color: FADE,
@@ -1050,7 +1050,7 @@ async function main() {
     );
     footer(s, 8);
     s.addNotes(
-      'Revenue: per-delivery rider pay, LGA dashboard subscription. No fee on public medicines. Pilot: one LGA, 20–30 clinics, 90 days.',
+      'Economics are intentionally modelled, not priced. Farid validates funder, carrier, and pilot assumptions before submission.',
     );
   }
 

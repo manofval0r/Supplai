@@ -16,51 +16,51 @@ const BG = '0A0908';
 const slides = [
   {
     file: 's1.png',
-    alt: 'Title slide: Supplai, a carton across the road could save a life. Photograph of mothers waiting at a child clinic in Lagos, 1930.',
+    alt: 'Title slide: Supplai, LGA-authorised emergency exception control for primary-health-centre medicine stockouts.',
     notes:
-      'Supplai — peer-to-peer medicine sharing between Nigerian primary health centres. The claim: a carton four kilometres away can end a stockout the same day, and the receiving clinic confirms the shelf before a rider moves.',
+      'Supplai is an app-first, fictional-demo prototype for LGA-authorised emergency exception control. A designated source custodian confirms shelf stock, then an authorised release precedes any simulated rider movement.',
   },
   {
     file: 's2.png',
-    alt: 'Problem slide: 36.2% of essential medicines available, 20,000 facilities on paper, 14-day order-to-delivery lag.',
+    alt: 'Problem slide: operational stockouts surface too late to act safely; all quantitative claims require source verification.',
     notes:
-      '36.2% mean availability of essential medicines at primary health centres. Around 20,000 facilities still record stock on paper. A fortnight or more between order and delivery is the strongest predictor of stockout — the gap is noticed too late to fix.',
+      'Use Farid’s source-verified problem statistics only. The product story is the operational gap between an urgent request, actual source shelf stock, authorised release, and accountable handover.',
   },
   {
     file: 's3.png',
-    alt: 'Slide showing two clinics four kilometres apart: one stocked out, one holding surplus that will expire.',
+    alt: 'Slide showing a fictional emergency request and an eligible ambient-stock decision.',
     notes:
-      'Redistribution between neighbouring facilities is already government guidance. Nothing executes it at the public PHC tier, where phones are basic and records are paper. Clinic A is empty while Clinic B holds 31 units it will write off.',
+      'The demonstrator uses fictional facilities and ambient tracer commodities. It tests the assumption that authorised, usable nearby stock may exist without portraying real transfer permission.',
   },
   {
     file: 's4.png',
-    alt: 'Slide listing three failures — paper records, bimonthly ordering, stale inventory data — and the line: the failure is not ignorance, it is latency.',
+    alt: 'Slide listing stale stock records, delayed escalation, and unclear accountability as workflow risks.',
     notes:
-      'Paper bin cards drift from the shelf. Bimonthly ordering means a gap on day three waits for the next cycle, then two more weeks. System records run 70–87% accurate, so a clinic promises stock its own database says exists. The failure is latency, not ignorance.',
+      'The workflow treats a stock record as a lead, not permission to move. Source confirmation, safety floors, batch/expiry, release authority, and receiving inspection make operational uncertainty visible.',
   },
   {
     file: 's5.png',
-    alt: 'Six-step flow — report, match, find, confirm, deliver, record — with an SMS exchange and a motorcycle rider.',
+    alt: 'Six-gate flow: request, eligibility, protection, source confirmation, authorised release, and receipt.',
     notes:
-      'The nurse texts a shortcode. Fuzzy matching normalises the drug name. Nearby surplus is located. Each holder is asked to check the physical shelf and reply yes or no. A rider moves it the same day. Both records update from the confirmed transfer.',
+      'The mobile app is primary. Simulated SMS or WhatsApp intake creates the same canonical order. The source custodian confirms available stock, an LGA/pharmacist role releases it, and receipt closes or escalates the transfer.',
   },
   {
     file: 's6.png',
-    alt: 'Slide arguing a real gap, not a crowded space, with five design properties of the service.',
+    alt: 'Slide showing the product’s authority, safety, and scenario-testing design properties.',
     notes:
-      'Existing players serve private pharmacies, hospital networks or donated stock. None runs a peer-to-peer exchange between public primary health centres on basic phones. OpenLMIS is already in Nigeria and credited with saving 850,000 doses; we connect to it rather than replace it.',
+      'Supplai is not presented as a marketplace. It is a controlled emergency exception workflow. Any comparison, local-system, or partner claim is withheld until Farid validates it.',
   },
   {
     file: 's7.png',
-    alt: 'Open-source stack: OpenBoxes/OpenLMIS for inventory, Fleetbase for dispatch, Africa\u2019s Talking for messaging, RxNorm and pg_trgm for matching.',
+    alt: 'Demonstration architecture: Expo, Fastify, Supabase, simulated channels, and a Scenario Lab.',
     notes:
-      'Four proven open-source parts. We build the thin connecting layer: matching, routing and the confirmation logic that makes them behave as one service.',
+      'The low-cost build uses a role-based Expo app, Fastify, Supabase, a simulated messaging boundary, and a deterministic Scenario Lab. No live provider, carrier, or medicine movement is implied.',
   },
   {
     file: 's8.png',
-    alt: 'Payer table: pharmacies 12,000 naira monthly, LGA health 150,000 per LGA, public clinics free, riders 1,000 per verified drop.',
+    alt: 'Validation table for future carrier, authority, donor-protection, and receiving-handover assumptions.',
     notes:
-      'We never sell the medicine — only movement and visibility. Pharmacies pay 12,000 naira a month, LGAs 150,000. Fifteen to eighteen pharmacy subscribers fund one rider at 176 deliveries a month, so public clinic transfers cost the clinic nothing.',
+      'Economics are modelled rather than priced. A future pilot must validate the cost per authorised handover, carrier terms, funding pathway, and safeguards against donor depletion.',
   },
   {
     file: 's9.png',
@@ -78,7 +78,7 @@ const slides = [
   pptx.company = 'Supplai';
   pptx.title = 'Supplai — GBSN Social Logistics Challenge 2026';
   pptx.subject =
-    'Peer-to-peer medicine stock sharing between Nigerian primary health centres';
+    'LGA-authorised emergency exception control for primary-health-centre medicine stockouts';
   pptx.lang = 'en-GB';
 
   for (const s of slides) {
