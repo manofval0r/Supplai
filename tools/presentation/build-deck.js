@@ -7,6 +7,7 @@ const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const sharp = require('sharp');
 const fs = require('fs');
+const path = require('path');
 
 const io = require('react-icons/io');
 const md = require('react-icons/md');
@@ -1127,7 +1128,9 @@ async function main() {
     );
   }
 
-  pptx.writeFile({ fileName: 'supplai_deck.pptx' });
+  await pptx.writeFile({
+    fileName: path.resolve(__dirname, '../../artifacts/deck/supplai_deck.pptx'),
+  });
   console.log('deck written');
 }
 main().catch((e) => {

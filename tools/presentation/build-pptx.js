@@ -6,9 +6,9 @@ const path = require('path');
 
 const W = 13.333,
   H = 7.5; // 16:9 inches, matches 1600×900 at 120 px/in
-const SRC = path.join(__dirname, 'pptx', 'slides');
+const SRC = path.resolve(__dirname, '../../artifacts/deck/pptx/slides');
 const OUT = path.join(
-  __dirname,
+  path.resolve(__dirname, '../../artifacts/deck'),
   'Supplai — GBSN Social Logistics Challenge 2026.pptx',
 );
 const BG = '0A0908';

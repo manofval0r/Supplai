@@ -14,6 +14,7 @@ coverage/
 .taste-skill/
 artifacts/
 qa/
+pptx/
 pdfqa-*.jpg
 check_p*.png
 span_check.txt

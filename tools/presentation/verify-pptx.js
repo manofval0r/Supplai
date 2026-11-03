@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const dir = __dirname;
+const dir = path.resolve(__dirname, '../../artifacts/deck');
 const file = fs
   .readdirSync(dir)
   .filter((f) => f.endsWith('.pptx') && f.includes('GBSN'))[0];
