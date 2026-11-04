@@ -1,0 +1,66 @@
+[
+  {
+    "id": "PHC-A",
+    "name": "Aiyetoro Central PHC",
+    "ward": "Aiyetoro",
+    "phone": "+2348010000001",
+    "coordinates": { "x": 18, "y": 42 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-B",
+    "name": "Idera PHC",
+    "ward": "Idera",
+    "phone": "+2348010000002",
+    "coordinates": { "x": 42, "y": 25 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-C",
+    "name": "Ajegunle PHC",
+    "ward": "Ajegunle",
+    "phone": "+2348010000003",
+    "coordinates": { "x": 70, "y": 18 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-D",
+    "name": "Oke-Odo PHC",
+    "ward": "Oke-Odo",
+    "phone": "+2348010000004",
+    "coordinates": { "x": 82, "y": 45 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-E",
+    "name": "Alagbado PHC",
+    "ward": "Alagbado",
+    "phone": "+2348010000005",
+    "coordinates": { "x": 63, "y": 68 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-F",
+    "name": "Iyana-Ipaja PHC",
+    "ward": "Iyana-Ipaja",
+    "phone": "+2348010000006",
+    "coordinates": { "x": 35, "y": 76 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-G",
+    "name": "Meiran PHC",
+    "ward": "Meiran",
+    "phone": "+2348010000007",
+    "coordinates": { "x": 15, "y": 66 },
+    "publicLedger": true
+  },
+  {
+    "id": "PHC-H",
+    "name": "Kola PHC",
+    "ward": "Kola",
+    "phone": "+2348010000008",
+    "coordinates": { "x": 53, "y": 45 },
+    "publicLedger": true
+  }
+]

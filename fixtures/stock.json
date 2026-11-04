@@ -1,0 +1,98 @@
+[
+  {
+    "facilityId": "PHC-A",
+    "medicineId": "MED-ORS",
+    "onHand": 0,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-A",
+    "medicineId": "MED-ZINC",
+    "onHand": 12,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-B",
+    "medicineId": "MED-ORS",
+    "onHand": 80,
+    "minimum": 30
+  },
+  {
+    "facilityId": "PHC-B",
+    "medicineId": "MED-ZINC",
+    "onHand": 60,
+    "minimum": 30
+  },
+  {
+    "facilityId": "PHC-C",
+    "medicineId": "MED-ORS",
+    "onHand": 35,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-C",
+    "medicineId": "MED-ZINC",
+    "onHand": 20,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-D",
+    "medicineId": "MED-ORS",
+    "onHand": 15,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-D",
+    "medicineId": "MED-ZINC",
+    "onHand": 40,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-E",
+    "medicineId": "MED-ORS",
+    "onHand": 24,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-E",
+    "medicineId": "MED-ZINC",
+    "onHand": 15,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-F",
+    "medicineId": "MED-ORS",
+    "onHand": 18,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-F",
+    "medicineId": "MED-ZINC",
+    "onHand": 28,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-G",
+    "medicineId": "MED-ORS",
+    "onHand": 32,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-G",
+    "medicineId": "MED-ZINC",
+    "onHand": 26,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-H",
+    "medicineId": "MED-ORS",
+    "onHand": 22,
+    "minimum": 20
+  },
+  {
+    "facilityId": "PHC-H",
+    "medicineId": "MED-ZINC",
+    "onHand": 18,
+    "minimum": 20
+  }
+]

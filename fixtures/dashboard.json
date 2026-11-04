@@ -1,0 +1,33 @@
+{
+  "lgaCode": "DEMO-LGA",
+  "generatedAt": "2026-11-04T08:00:00.000Z",
+  "metrics": {
+    "openStockouts": 6,
+    "transfersInFlight": 1,
+    "completedTransfers": 12,
+    "unmetRequests": 2,
+    "responseRate": 0.84
+  },
+  "transfers": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "reference": "TRF-0042",
+      "fromFacility": "Idera PHC",
+      "toFacility": "Aiyetoro Central PHC",
+      "drug": "Oral Rehydration Salts",
+      "quantity": 20,
+      "status": "in_transit",
+      "createdAt": "2026-11-04T07:51:00.000Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "reference": "TRF-0041",
+      "fromFacility": "Ajegunle PHC",
+      "toFacility": "Oke-Odo PHC",
+      "drug": "Zinc Sulfate",
+      "quantity": 12,
+      "status": "delivered",
+      "createdAt": "2026-11-03T15:22:00.000Z"
+    }
+  ]
+}

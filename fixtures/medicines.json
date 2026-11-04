@@ -1,0 +1,19 @@
+[
+  {
+    "id": "MED-ORS",
+    "name": "ORS sachets",
+    "unit": "sachets",
+    "aliases": [
+      "ors",
+      "o.r.s",
+      "oral rehydration salts",
+      "oral rehydration salt"
+    ]
+  },
+  {
+    "id": "MED-ZINC",
+    "name": "Zinc 20 mg tablets",
+    "unit": "tablets",
+    "aliases": ["zinc", "zinc 20mg", "zinc 20 mg", "zinc tablets"]
+  }
+]

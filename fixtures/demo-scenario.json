@@ -1,0 +1,17 @@
+{
+  "name": "Aiyetoro ORS replenishment",
+  "steps": [
+    "Facility A sends NEED ORS 20",
+    "Facility B confirms YES 20",
+    "A dispatch is assigned and delivered",
+    "Facility A verifies delivery by SMS"
+  ],
+  "requesterFacilityId": "PHC-A",
+  "supplierFacilityId": "PHC-B",
+  "medicineId": "MED-ORS",
+  "quantity": 20,
+  "expectedFinalBalances": {
+    "PHC-A": { "MED-ORS": 20 },
+    "PHC-B": { "MED-ORS": 60 }
+  }
+}

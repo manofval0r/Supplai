@@ -1,0 +1,30 @@
+[
+  {
+    "id": "00000000-0000-4000-8000-000000000010",
+    "category": "unmatched",
+    "reference": "REQ-0038",
+    "occurredAt": "2026-11-04T07:12:00.000Z",
+    "detail": "No eligible stock found for ORS 20."
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000011",
+    "category": "expired",
+    "reference": "REQ-0037",
+    "occurredAt": "2026-11-04T06:48:00.000Z",
+    "detail": "Supplier confirmation window expired."
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000012",
+    "category": "dispatch",
+    "reference": "TRF-0039",
+    "occurredAt": "2026-11-04T06:15:00.000Z",
+    "detail": "Rider assignment failed after retry."
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000013",
+    "category": "proof_locked",
+    "reference": "TRF-0036",
+    "occurredAt": "2026-11-04T05:42:00.000Z",
+    "detail": "Delivery proof locked after two invalid attempts."
+  }
+]
