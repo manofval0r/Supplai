@@ -36,3 +36,5 @@ Supplai — GBSN Social Logistics Challenge 2026.pptx
 Thumbs.db
 .idea/
 .vscode/
+.vercel
+.env*
