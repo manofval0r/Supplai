@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useMemo, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -25,16 +27,15 @@ import {
   fixtureOverview,
   fixtureStock,
   getStockPosition,
-} from './data/fixtures.js';
-import { loadLiveDashboard } from './data/api.js';
+} from './data/fixtures';
+import { loadLiveDashboard } from './data/api';
 import {
   getWardLocations,
   locationLgas,
   locationStates,
-} from './data/locations.js';
+} from './data/locations';
 import nigeriaMapHtml from '../Nigeria_Map_14e11598.html?raw';
-import { transferStatusLabel } from './lib/statusLabels.js';
-import './styles.css';
+import { transferStatusLabel } from './lib/statusLabels';
 
 type Theme = 'light' | 'dark';
 
@@ -323,7 +324,10 @@ function WardMap() {
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem('supplai-theme') as Theme) || 'light',
+    () =>
+      (typeof window !== 'undefined'
+        ? (window.localStorage.getItem('supplai-theme') as Theme)
+        : null) || 'light',
   );
   const [showLanding, setShowLanding] = useState(true);
   const [activeNav, setActiveNav] = useState('Overview');

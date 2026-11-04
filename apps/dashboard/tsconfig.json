@@ -4,14 +4,19 @@
     "rootDir": "../..",
     "jsx": "react-jsx",
     "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
     "lib": ["ES2023", "DOM"]
   },
   "include": [
-    "src/**/*.ts",
+  "next-env.d.ts",
+  "app/**/*.ts",
+  "app/**/*.tsx",
+  "src/**/*.ts",
     "src/**/*.tsx",
     "test/**/*.ts",
-    "vite.config.ts",
+    "next.config.ts",
     "../../fixtures/**/*.json"
   ]
 }

@@ -5,6 +5,7 @@ package-lock.legacy.json
 .env.*
 !.env.example
 dist/
+.next/
 coverage/
 .turbo/
 *.tsbuildinfo
@@ -22,6 +23,13 @@ stack_trace.txt
 report.pdf
 dev-handover.pdf
 supplai_deck.pptx
+
+# Repository-local planning and presentation files
+AKOLO-PLAN.md
+DEVELOPMENT-PLAN.md
+LEAD-DEVELOPER-PLAN.md
+LICENSE
+Supplai — GBSN Social Logistics Challenge 2026.pptx
 
 # OS and editor files
 .DS_Store
