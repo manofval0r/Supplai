@@ -6,6 +6,8 @@ import {
   faCircleCheck,
   faCircleExclamation,
   faClipboardList,
+  faBars,
+  faGear,
   faHouse,
   faMoon,
   faRoute,
@@ -13,6 +15,7 @@ import {
   faSun,
   faTriangleExclamation,
   faTruckFast,
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -138,31 +141,74 @@ function NigeriaMap() {
   );
 }
 
-function HeroNetwork() {
+function TopoLinesEffect() {
   return (
-    <div className="hero-network" aria-hidden="true">
-      <div className="hero-orbit hero-orbit-one" />
-      <div className="hero-orbit hero-orbit-two" />
-      <div className="hero-glow" />
-      <div className="hero-network-grid" />
-      {fixtureFacilities.map((facility, index) => (
-        <span
-          className={`hero-node hero-node-${index % 4}`}
-          key={facility.id}
-          style={{
-            left: `${facility.coordinates.x}%`,
-            top: `${facility.coordinates.y}%`,
-          }}
-        >
-          <i />
-        </span>
-      ))}
-      <svg viewBox="0 0 100 70" preserveAspectRatio="none">
-        <path d="M18 42 Q 28 20 42 25 T 70 18" />
-        <path d="M42 25 Q 55 42 82 45" />
-        <path d="M15 66 Q 38 56 53 45 T 63 68" />
-      </svg>
-    </div>
+    <div
+      data-aifx="topo-lines"
+      className="topo-lines-effect"
+      aria-hidden="true"
+    />
+  );
+}
+
+function LandingPage({ onOpenDashboard }: { onOpenDashboard: () => void }) {
+  return (
+    <main className="landing-page">
+      <div className="landing-page__backdrop">
+        <TopoLinesEffect />
+      </div>
+      <header className="landing-header">
+        <div className="brand">
+          <span className="brand-mark">S</span>
+          <span>supplai</span>
+        </div>
+        <button className="landing-login" onClick={onOpenDashboard}>
+          Open dashboard
+        </button>
+      </header>
+      <section className="landing-hero">
+        <div className="landing-hero__frame">
+          <div className="landing-hero__copy">
+            <h1>
+              Move essential stock
+              <span> where it matters.</span>
+            </h1>
+            <p>
+              A live command center for faster, more accountable medicine
+              transfers across every LGA.
+            </p>
+            <button className="landing-cta" onClick={onOpenDashboard}>
+              Open live operations
+              <FontAwesomeIcon icon={faRoute} />
+            </button>
+          </div>
+          <div className="landing-hero__stats">
+            <strong>8,811</strong>
+            <span>wards mapped for better last-mile visibility</span>
+            <strong>37</strong>
+            <span>states ready to explore</span>
+          </div>
+        </div>
+      </section>
+      <section className="landing-features" aria-label="Supplai capabilities">
+        <article className="landing-feature-card">
+          <strong>Live LGA visibility</strong>
+          <p>See facility needs, stock position, and requests in one place.</p>
+        </article>
+        <article className="landing-feature-card">
+          <strong>Accountable transfers</strong>
+          <p>Track every movement from a verified request to delivery.</p>
+        </article>
+        <article className="landing-feature-card">
+          <strong>Built for the last mile</strong>
+          <p>Map states, LGAs, wards, and facilities with dependable context.</p>
+        </article>
+      </section>
+      <footer className="landing-footer">
+        <span>supplai operations cloud</span>
+        <span>Medicine movement, made visible.</span>
+      </footer>
+    </main>
   );
 }
 
@@ -279,19 +325,29 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('supplai-theme') as Theme) || 'light',
   );
+  const [showLanding, setShowLanding] = useState(true);
   const [activeNav, setActiveNav] = useState('Overview');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [notice, setNotice] = useState('');
   const [overview, setOverview] = useState(fixtureOverview);
   const [failures, setFailures] = useState(fixtureFailures);
-  const [dataMode, setDataMode] = useState<'fixture' | 'live' | 'fallback'>(
-    'fixture',
-  );
-  const [apiError, setApiError] = useState('');
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('supplai-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const scriptId = 'aidesigner-effects-runtime';
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://cdn.aidesigner.ai/effects/runtime/v1.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => script.remove();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -304,18 +360,12 @@ export default function App() {
         if (!active) return;
         setOverview(live.overview);
         setFailures(live.failures);
-        setDataMode('live');
-        setApiError('');
       } catch (error) {
         if (
           !active ||
           (error instanceof DOMException && error.name === 'AbortError')
         )
           return;
-        setDataMode((current) => (current === 'live' ? 'fallback' : 'fixture'));
-        setApiError(
-          error instanceof Error ? error.message : 'Live API is unavailable.',
-        );
       }
     };
     void refresh();
@@ -332,18 +382,31 @@ export default function App() {
     [],
   );
 
+  if (showLanding) {
+    return <LandingPage onOpenDashboard={() => setShowLanding(false)} />;
+  }
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
       <aside className="nav-rail" aria-label="Primary navigation">
         <div className="brand">
           <span className="brand-mark">S</span>
-          <span>supplai</span>
+          <span className="nav-label">supplai</span>
         </div>
+        <button
+          className="sidebar-toggle"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={() => setSidebarCollapsed((current) => !current)}
+        >
+          <FontAwesomeIcon icon={faBars} />
+        </button>
         <div className="lga-label">
-          DEMO-LGA <span className="live-dot" /> LIVE
+          <span className="nav-label">DEMO-LGA </span>
+          <span className="live-dot" />{' '}
+          <span className="nav-label">LIVE</span>
         </div>
         <nav>
           {navItems.map(([label, icon]) => (
@@ -357,16 +420,45 @@ export default function App() {
               <span aria-hidden="true">
                 <FontAwesomeIcon icon={icon} />
               </span>
-              {label}
+              <span className="nav-label">{label}</span>
               {label === 'Operations' && (
                 <b className="nav-count">{failures.length}</b>
               )}
             </button>
           ))}
         </nav>
+        <div className="sidebar-settings">
+          <button
+            className={settingsOpen ? 'nav-item is-active' : 'nav-item'}
+            onClick={() => setSettingsOpen((current) => !current)}
+            aria-expanded={settingsOpen}
+          >
+            <span aria-hidden="true">
+              <FontAwesomeIcon icon={faGear} />
+            </span>
+            <span className="nav-label">Settings</span>
+          </button>
+          {settingsOpen && (
+            <div className="settings-menu">
+              <button className="settings-item">
+                <FontAwesomeIcon icon={faUser} />
+                <span className="nav-label">Profile</span>
+              </button>
+              <button
+                className="settings-item"
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              >
+                <FontAwesomeIcon icon={theme === 'light' ? faMoon : faSun} />
+                <span className="nav-label">
+                  Theme: {theme === 'light' ? 'Light' : 'Dark'}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
         <div className="nav-footer">
           <span className="avatar">AO</span>
-          <div>
+          <div className="nav-label">
             <strong>Akolo</strong>
             <small>Health operations</small>
           </div>
@@ -378,85 +470,63 @@ export default function App() {
             <p className="eyebrow">LGA COMMAND CENTER</p>
             <h1>{activeNav}</h1>
           </div>
-          <div className="topbar-actions">
-            <span className={`mode-badge mode-${dataMode}`}>
-              <i />{' '}
-              {dataMode === 'live'
-                ? 'Live'
-                : dataMode === 'fallback'
-                  ? 'Fixture (API unreachable)'
-                  : 'Fixture mode'}
-            </span>
-            <button
-              className="icon-button"
-              aria-label="Toggle dark theme"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            >
-              <FontAwesomeIcon icon={theme === 'light' ? faMoon : faSun} />
-            </button>
-            <button className="help-button">?</button>
-          </div>
         </header>
         <div
           className={`content ${activeNav !== 'Overview' ? 'service-page' : ''}`}
         >
-          {apiError && (
-            <div className="notice notice-warning" role="alert">
-              {apiError}
-              <button onClick={() => window.location.reload()}>
-                Retry live
-              </button>
-            </div>
-          )}
           {notice && (
             <div className="notice" role="status">
               {notice}
               <button onClick={() => setNotice('')}>Dismiss</button>
             </div>
           )}
-          <section className="hero-stage">
-            <div className="hero-stage__copy">
-              <p className="hero-kicker">
-                <span /> SUPPLAI OPERATIONS CLOUD
-              </p>
-              <h2>
-                Move essential stock
-                <span> where it matters.</span>
-              </h2>
-              <p className="hero-stage__description">
-                A live command center for faster, more accountable medicine
-                transfers across your LGA.
-              </p>
-              <div className="hero-actions">
-                <button
-                  className="hero-cta"
-                  onClick={() =>
-                    document
-                      .getElementById('operations-story')
-                      ?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                >
-                  Open live operations
-                </button>
-                <span className="hero-note">
-                  <i /> {fixtureFacilities.length} public facilities connected
-                </span>
+          <div className="dashboard-intro-frame">
+            <section className="hero-stage">
+              <div className="hero-stage__frame">
+                <div className="hero-stage__copy">
+                  <p className="hero-kicker">
+                    <span /> SUPPLAI OPERATIONS CLOUD
+                  </p>
+                  <h2>
+                    Move essential stock
+                    <span> where it matters.</span>
+                  </h2>
+                  <p className="hero-stage__description">
+                    A live command center for faster, more accountable medicine
+                    transfers across your LGA.
+                  </p>
+                  <div className="hero-actions">
+                    <button
+                      className="hero-cta"
+                      onClick={() =>
+                        document
+                          .getElementById('operations-story')
+                          ?.scrollIntoView({ behavior: 'smooth' })
+                      }
+                    >
+                      Open live operations
+                    </button>
+                    <span className="hero-note">
+                      <i /> {fixtureFacilities.length} public facilities
+                      connected
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <HeroNetwork />
-          </section>
-          <section className="hero-row" id="operations-story">
-            <div>
-              <h2>Good morning, Akolo</h2>
-              <p>Here is what needs attention across the LGA today.</p>
-            </div>
-            <button
-              className="primary-button"
-              onClick={() => setNotice('Fixture data refreshed just now.')}
-            >
-              Refresh data
-            </button>
-          </section>
+            </section>
+            <section className="hero-row" id="operations-story">
+              <div>
+                <h2>Good morning, Akolo</h2>
+                <p>Here is what needs attention across the LGA today.</p>
+              </div>
+              <button
+                className="primary-button"
+                onClick={() => setNotice('Fixture data refreshed just now.')}
+              >
+                Refresh data
+              </button>
+            </section>
+          </div>
           <section className="metric-grid" aria-label="LGA summary metrics">
             {[
               [
@@ -787,6 +857,9 @@ export default function App() {
           )}
         </div>
       </main>
+      <button className="help-button" aria-label="Open help and information">
+        ?
+      </button>
     </div>
   );
 }
