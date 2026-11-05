@@ -1,23 +1,40 @@
 # Dashboard API map
 
-This map reflects the checked-in API and contracts on 4 November 2026. The
-dashboard uses fixture mode until the planned LGA routes are available.
+This map reflects the checked-in API and contracts on 5 November 2026. The
+dashboard can use fixture mode or live mode; both parse through the shared
+`@supplai/contracts` schemas.
 
-| Method | Path                         | Auth                               | Request schema                                | Response schema            | Error shape                                                     | Owner                         | Status                                 |
-| ------ | ---------------------------- | ---------------------------------- | --------------------------------------------- | -------------------------- | --------------------------------------------------------------- | ----------------------------- | -------------------------------------- |
-| GET    | `/health`                    | None                               | None                                          | `HealthResponse`           | Fastify validation/error                                        | Lead                          | Implemented                            |
-| POST   | `/demo/sms`                  | None (demo)                        | `DemoSmsRequest`                              | `SmsProcessingResult`      | Fastify validation/error                                        | Lead                          | Implemented                            |
-| POST   | `/webhooks/sms/:provider`    | `x-webhook-secret` when configured | Provider payload adapted to `InboundSmsEvent` | `SmsProcessingResult`      | `{ error: "Unauthorized webhook" }` or Fastify validation/error | Lead                          | Implemented                            |
-| POST   | `/demo/dispatch`             | None (demo)                        | `CreateDemoDispatch`                          | `DemoDispatchResult`       | `{ error: "Request is not confirmed or already dispatched" }`   | Lead                          | Implemented                            |
-| POST   | `/demo/delivery/:reference`  | None (demo)                        | `VerifyDelivery`                              | `DeliveryResult`           | Fastify validation/error; non-delivered result uses HTTP 409    | Lead                          | Implemented                            |
-| GET    | `/api/overview`              | None                               | None                                          | `LgaOverview`              | Repository/runtime error                                        | Lead                          | Implemented                            |
-| GET    | `/api/transfers/:reference`  | None                               | Path `reference`                              | `TransferSummary`          | `{ error: "Transfer not found" }`                               | Lead                          | Implemented                            |
-| GET    | `/api/failures`              | None                               | None                                          | `OperationalFailure[]`     | Repository/runtime error                                        | Lead / Akolo presentation     | Implemented                            |
-| GET    | `/api/lga/overview`          | Not yet defined                    | Not yet defined                               | Planned dashboard overview | Not yet defined                                                 | Lead contract, Akolo consumer | Planned; use `/api/overview` currently |
-| GET    | `/api/lga/transfers`         | Not yet defined                    | Not yet defined                               | Planned transfer list      | Not yet defined                                                 | Lead contract, Akolo consumer | Planned; no route                      |
-| GET    | `/api/operations/failures`   | Not yet defined                    | Not yet defined                               | Planned failure list       | Not yet defined                                                 | Shared                        | Planned; use `/api/failures` currently |
-| POST   | `/api/imports/stock-csv`     | Not yet defined                    | Planned CSV upload                            | Planned import result      | Planned row errors                                              | Akolo                         | Planned                                |
-| GET    | `/api/exports/movements.csv` | Not yet defined                    | Planned date filter                           | CSV completed movements    | Planned export errors                                           | Akolo                         | Planned                                |
+## Routes
+
+| Method | Path                         | Auth                               | Request schema                                | Response schema         | Error shape                                                     | Owner                         | Status                                 |
+| ------ | ---------------------------- | ---------------------------------- | --------------------------------------------- | ----------------------- | --------------------------------------------------------------- | ----------------------------- | -------------------------------------- |
+| GET    | `/health`                    | None                               | None                                          | `HealthResponse`        | Fastify validation/error                                        | Core                          | Implemented                            |
+| POST   | `/demo/sms`                  | None (demo)                        | `DemoSmsRequest`                              | `SmsProcessingResult`   | Fastify validation/error                                        | Core                          | Implemented                            |
+| POST   | `/webhooks/sms/:provider`    | `x-webhook-secret` when configured | Provider payload adapted to `InboundSmsEvent` | `SmsProcessingResult`   | `{ error: "Unauthorized webhook" }` or Fastify validation/error | Core                          | Implemented                            |
+| POST   | `/demo/dispatch`             | None (demo)                        | `CreateDemoDispatch`                          | `DemoDispatchResult`    | `{ error: "Request is not confirmed or already dispatched" }`   | Core                          | Implemented                            |
+| POST   | `/demo/delivery/:reference`  | None (demo)                        | `VerifyDelivery`                              | `DeliveryResult`        | Fastify validation/error; non-delivered result uses HTTP 409    | Core                          | Implemented                            |
+| GET    | `/api/overview`              | None                               | None                                          | `LgaOverview`           | Repository/runtime error                                        | Core                          | Implemented                            |
+| GET    | `/api/lga/overview`          | None                               | None                                          | `LgaOverview`           | Repository/runtime error                                        | Core                          | Implemented (alias of `/api/overview`) |
+| GET    | `/api/lga/transfers`         | None                               | None                                          | `TransferSummary[]`     | Repository/runtime error                                        | Core                          | Implemented                            |
+| GET    | `/api/transfers/:reference`  | None                               | Path `reference`                              | `TransferSummary`       | `{ error: "Transfer not found" }`                               | Core                          | Implemented                            |
+| GET    | `/api/orders/:reference`     | None                               | Path `reference`                              | `OrderDetail`           | `{ error: "Order not found" }`                                  | Core                          | Implemented                            |
+| GET    | `/api/failures`              | None                               | None                                          | `OperationalFailure[]`  | Repository/runtime error                                        | Core / Akolo presentation     | Implemented                            |
+| GET    | `/api/operations/failures`   | None                               | None                                          | `OperationalFailure[]`  | Repository/runtime error                                        | Core / Akolo presentation     | Implemented (alias of `/api/failures`) |
+| POST   | `/api/imports/stock-csv`     | Not yet defined                    | Planned CSV upload                            | Planned import result   | Planned row errors                                              | Akolo                         | Planned                                |
+| GET    | `/api/exports/movements.csv` | Not yet defined                    | Planned date filter                           | CSV completed movements | Planned export errors                                           | Akolo                         | Planned                                |
+| GET    | `/api/operations/directory`  | Not yet defined                    | None                                          | `DashboardDirectory`    | Repository/runtime error                                        | Core contract, Akolo consumer | Planned; fixtures are the source today |
+
+## Fixture domain (shared contracts)
+
+These schemas replace the provisional types that previously lived only in
+`apps/dashboard/src/data/fixtures.ts`:
+
+- `FacilityFixture`: `id`, `name`, `ward`, `phone` (E.164), `coordinates`, `publicLedger`
+- `MedicineFixture`: `id`, `name`, `unit`, `aliases`
+- `StockFixture`: `facilityId`, `medicineId`, `onHand`, `minimum`
+- `RiderFixture`: `id`, `name`, `phone`
+- `DashboardDirectory`: `lgaCode`, `facilities`, `medicines`, `riders`, `stock`
+- `transferableSurplus(stock)`: shared helper returning `max(0, onHand - minimum)`
 
 ## Exact workflow states
 
@@ -29,25 +46,18 @@ Copied from `packages/contracts/src/index.ts`:
 - Delivery result: `delivered`, `invalid_proof`, `locked`, `expired`, `already_closed`, `not_found`, `unauthorized`
 - Failure kinds: `unmatched`, `expired`, `dispatch`, `proof_locked`
 - SMS processing outcomes: `accepted`, `offered`, `confirmed`, `declined`, `expired`, `unmatched`, `invalid`
+- Order detail status: `needs_review`, `awaiting_source_confirmation`, `rider_en_route`, `received`, `escalated`
 
-There is no separate match-state schema in the shared contracts. The API's
-in-memory offer uses `offered`, `confirmed`, and `declined` internally.
+## Transfer lifecycle fields
 
-## Gaps and change requests
+`TransferSummary` now carries optional `fromFacilityId`, `toFacilityId`,
+`riderName`, `dispatchedAt`, and `deliveredAt`. They are optional so fixture
+summaries remain valid; the full event timeline lives on `OrderDetail`.
 
-1. The plan names `/api/lga/overview`, `/api/lga/transfers`, and
-   `/api/operations/failures`; the API currently exposes `/api/overview`,
-   `/api/transfers/:reference`, and `/api/failures`.
-2. `LgaOverview` only contains metrics and transfer summaries. The Round 1
-   dashboard needs facility, medicine, stock snapshot, rider, and timeline
-   contracts for live mode.
-3. `TransferSummary` does not expose lifecycle timestamps, rider, supplier
-   IDs, receiver IDs, or a full timeline.
-4. No shared fixture-domain schemas exist for facilities, medicines, riders, or
-   stock snapshots. Round 1 keeps these as a single provisional fixture type
-   in `apps/dashboard/src/data/fixtures.ts`; replace it when contracts land.
-5. `DispatchAdapter` currently only supports `createDispatch`; assignment,
-   in-transit, delivered, and failure transitions are not represented.
-6. `OperationsService` currently uses a 30-minute proof expiry while the
-   development rules require 10 minutes. This dashboard does not change it;
-   it is a lead-owned change request.
+## Resolved change requests
+
+1. LGA route names: `/api/lga/overview` and `/api/operations/failures` now exist as aliases; `/api/lga/transfers` is new.
+2. Fixture-domain contracts: now shared in `@supplai/contracts`.
+3. Transfer lifecycle detail: optional fields added; timeline lives on `OrderDetail`.
+4. `DispatchAdapter` now has an optional `updateDispatch` for in-transit, delivered, and failed transitions.
+5. Proof-code expiry is 30 minutes. The 10-minute rule applies to the source confirmation TTL, not to delivery proof.

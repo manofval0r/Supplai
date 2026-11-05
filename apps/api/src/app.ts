@@ -111,6 +111,11 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   });
 
   app.get('/api/overview', () => repository.getOverview(new Date()));
+  app.get('/api/lga/overview', () => repository.getOverview(new Date()));
+  app.get(
+    '/api/lga/transfers',
+    async () => (await repository.getOverview(new Date())).transfers,
+  );
   app.get('/api/transfers/:reference', async (request, reply) => {
     const { reference } = request.params as { reference: string };
     const transfer = await repository.getTransfer(reference);
@@ -122,6 +127,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     return order ?? reply.code(404).send({ error: 'Order not found' });
   });
   app.get('/api/failures', () => repository.getFailures(new Date()));
+  app.get('/api/operations/failures', () => repository.getFailures(new Date()));
   app.get('/demo/scenarios/authorised-ambient-transfer', (request, reply) =>
     authorizeScenarioControl(request)
       ? scenarios.read()

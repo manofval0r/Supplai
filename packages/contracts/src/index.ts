@@ -63,6 +63,11 @@ export const transferSummarySchema = z.object({
   quantity: z.number().int().positive(),
   status: transferStatusSchema,
   createdAt: z.iso.datetime(),
+  fromFacilityId: z.uuid().optional(),
+  toFacilityId: z.uuid().optional(),
+  riderName: z.string().min(1).optional(),
+  dispatchedAt: z.iso.datetime().optional(),
+  deliveredAt: z.iso.datetime().optional(),
 });
 
 export const operationalFailureSchema = z.object({
@@ -221,10 +226,64 @@ export const scenarioRunSchema = z.object({
   events: z.array(canonicalEventSchema),
 });
 
+const nigerianPhoneSchema = z.string().regex(/^\+[1-9]\d{7,14}$/);
+
+export const facilityFixtureSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  ward: z.string().min(1),
+  phone: nigerianPhoneSchema,
+  coordinates: z.object({ x: z.number(), y: z.number() }),
+  publicLedger: z.boolean(),
+});
+
+export const medicineFixtureSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  unit: z.string().min(1),
+  aliases: z.array(z.string().trim().min(1)).min(1),
+});
+
+export const stockFixtureSchema = z.object({
+  facilityId: z.string().min(1),
+  medicineId: z.string().min(1),
+  onHand: z.number().int().nonnegative(),
+  minimum: z.number().int().nonnegative(),
+});
+
+export const riderFixtureSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  phone: nigerianPhoneSchema,
+});
+
+export const dashboardDirectorySchema = z.object({
+  lgaCode: z.string().min(1),
+  facilities: z.array(facilityFixtureSchema),
+  medicines: z.array(medicineFixtureSchema),
+  riders: z.array(riderFixtureSchema),
+  stock: z.array(stockFixtureSchema),
+});
+
+/**
+ * Surplus a facility can release without breaching its own minimum cover.
+ * Shared so the API, dashboard, and mobile app apply one rule.
+ */
+export function transferableSurplus(
+  stock: z.infer<typeof stockFixtureSchema>,
+): number {
+  return Math.max(0, stock.onHand - stock.minimum);
+}
+
 export interface DispatchAdapter {
   createDispatch(
     request: z.infer<typeof dispatchRequestSchema>,
   ): Promise<z.infer<typeof dispatchResultSchema>>;
+  updateDispatch?(input: {
+    externalId: string;
+    status: 'in_transit' | 'delivered' | 'failed';
+    at: string;
+  }): Promise<z.infer<typeof dispatchResultSchema>>;
 }
 
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
@@ -240,3 +299,8 @@ export type StockEvidence = z.infer<typeof stockEvidenceSchema>;
 export type CanonicalEvent = z.infer<typeof canonicalEventSchema>;
 export type OrderDetail = z.infer<typeof orderDetailSchema>;
 export type ScenarioRun = z.infer<typeof scenarioRunSchema>;
+export type FacilityFixture = z.infer<typeof facilityFixtureSchema>;
+export type MedicineFixture = z.infer<typeof medicineFixtureSchema>;
+export type StockFixture = z.infer<typeof stockFixtureSchema>;
+export type RiderFixture = z.infer<typeof riderFixtureSchema>;
+export type DashboardDirectory = z.infer<typeof dashboardDirectorySchema>;

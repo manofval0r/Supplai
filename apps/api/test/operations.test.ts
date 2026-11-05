@@ -178,9 +178,24 @@ describe('dispatch, proof, and ledger', () => {
       }>().metrics.completedTransfers,
     ).toBe(1);
     expect(
+      (await app.inject({ method: 'GET', url: '/api/lga/overview' })).json<{
+        metrics: { completedTransfers: number };
+      }>().metrics.completedTransfers,
+    ).toBe(1);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/lga/transfers' })).json<
+        unknown[]
+      >(),
+    ).toHaveLength(1);
+    expect(
       (await app.inject({ method: 'GET', url: '/api/failures' })).json<
         unknown[]
       >(),
+    ).toHaveLength(0);
+    expect(
+      (
+        await app.inject({ method: 'GET', url: '/api/operations/failures' })
+      ).json<unknown[]>(),
     ).toHaveLength(0);
     await app.close();
   });
