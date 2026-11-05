@@ -11,6 +11,7 @@ coverage/
 *.tsbuildinfo
 
 # Local tooling and generated review artifacts
+.superpowers/
 .pdfstudio/
 .taste-skill/
 artifacts/

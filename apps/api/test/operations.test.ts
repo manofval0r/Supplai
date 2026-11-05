@@ -163,6 +163,15 @@ describe('dispatch, proof, and ledger', () => {
         })
       ).json<{ status: string }>().status,
     ).toBe('delivered');
+    const order = await app.inject({
+      method: 'GET',
+      url: `/api/orders/${requestReference}`,
+    });
+    expect(order.statusCode).toBe(200);
+    expect(
+      order.json<{ nextAccountableOwner: string }>().nextAccountableOwner,
+    ).toBe('none');
+    expect(order.json<{ timeline: unknown[] }>().timeline).toHaveLength(5);
     expect(
       (await app.inject({ method: 'GET', url: '/api/overview' })).json<{
         metrics: { completedTransfers: number };
@@ -173,6 +182,51 @@ describe('dispatch, proof, and ledger', () => {
         unknown[]
       >(),
     ).toHaveLength(0);
+    await app.close();
+  });
+});
+
+describe('Scenario Lab controls', () => {
+  it('starts, ticks, replays, and resets a protected deterministic scenario', async () => {
+    const app = buildApp({ scenarioControlSecret: 'scenario-control-secret' });
+    const blocked = await app.inject({
+      method: 'POST',
+      url: '/demo/scenarios/authorised-ambient-transfer/start',
+    });
+    expect(blocked.statusCode).toBe(401);
+
+    const headers = { 'x-demo-control-secret': 'scenario-control-secret' };
+    const started = await app.inject({
+      method: 'POST',
+      url: '/demo/scenarios/authorised-ambient-transfer/start',
+      headers,
+    });
+    expect(started.json<{ state: string; cursor: number }>().state).toBe(
+      'running',
+    );
+    expect(started.json<{ cursor: number }>().cursor).toBe(0);
+
+    const ticked = await app.inject({
+      method: 'POST',
+      url: '/demo/scenarios/authorised-ambient-transfer/tick',
+      headers,
+    });
+    expect(ticked.json<{ cursor: number }>().cursor).toBe(1);
+
+    const replayed = await app.inject({
+      method: 'POST',
+      url: '/demo/scenarios/authorised-ambient-transfer/replay',
+      headers,
+    });
+    expect(replayed.json<{ cursor: number }>().cursor).toBe(1);
+
+    const reset = await app.inject({
+      method: 'POST',
+      url: '/demo/scenarios/authorised-ambient-transfer/reset',
+      headers,
+    });
+    expect(reset.json<{ state: string; cursor: number }>().state).toBe('ready');
+    expect(reset.json<{ cursor: number }>().cursor).toBe(0);
     await app.close();
   });
 });

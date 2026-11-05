@@ -46,12 +46,15 @@ describe('SMS workflow', () => {
       receivedAt,
     });
     expect(offer.status).toBe('offered');
+    const reference = offer.requestReference;
+    expect(reference).toBeDefined();
+    if (!reference) throw new Error('Offered request must have a reference');
 
     const requesterAttempt = await service.process({
       provider: 'demo',
       providerMessageId: 'requester-confirm',
       from: '+2348010000001',
-      body: `CONFIRM ${offer.requestReference!}`,
+      body: `CONFIRM ${reference}`,
       receivedAt,
     });
     expect(requesterAttempt.status).toBe('invalid');
@@ -59,7 +62,7 @@ describe('SMS workflow', () => {
     const event = {
       provider: 'demo',
       from: '+2348010000002',
-      body: `CONFIRM ${offer.requestReference!}`,
+      body: `CONFIRM ${reference}`,
       receivedAt,
     };
     const results = await Promise.all([
@@ -70,14 +73,13 @@ describe('SMS workflow', () => {
       'confirmed',
       'invalid',
     ]);
-    expect(repository.outbound).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          phone: '+2348010000002',
-          body: expect.stringContaining(`CONFIRM ${offer.requestReference!}`),
-        }),
-      ]),
-    );
+    expect(
+      repository.outbound.some(
+        (message) =>
+          message.phone === '+2348010000002' &&
+          message.body.includes(`CONFIRM ${reference}`),
+      ),
+    ).toBe(true);
   });
 
   it('rejects duplicate provider messages and expired confirmations', async () => {
@@ -100,6 +102,19 @@ describe('SMS workflow', () => {
       receivedAt: '2026-11-03T12:11:00.000Z',
     });
     expect(expired.status).toBe('expired');
+  });
+
+  it('does not offer stock that would breach the source safety floor', async () => {
+    const repository = new InMemorySmsRepository();
+    const service = new SmsService(repository);
+    const result = await service.process({
+      provider: 'demo',
+      providerMessageId: 'safety-floor',
+      from: '+2348010000001',
+      body: 'NEED ORS 70',
+      receivedAt,
+    });
+    expect(result.status).toBe('unmatched');
   });
 
   it('serves demo and authenticated provider webhook routes', async () => {

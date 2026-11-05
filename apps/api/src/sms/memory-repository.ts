@@ -4,6 +4,7 @@ import type {
   DeliveryResult,
   InboundSmsEvent,
   LgaOverview,
+  OrderDetail,
   OperationalFailure,
   TransferSummary,
 } from '@supplai/contracts';
@@ -26,6 +27,7 @@ interface FacilityStock {
   name: string;
   phone: string;
   stock: Record<'ors' | 'zinc', number>;
+  safetyFloor: Record<'ors' | 'zinc', number>;
 }
 
 interface Offer {
@@ -82,6 +84,10 @@ const demoFacilities: FacilityStock[] = Array.from(
       ors: index === 0 ? 0 : index === 1 ? 80 : index === 2 ? 35 : 15,
       zinc: index === 0 ? 4 : index === 1 ? 60 : 20,
     },
+    safetyFloor: {
+      ors: index === 0 ? 0 : 20,
+      zinc: index === 0 ? 0 : 10,
+    },
   }),
 );
 
@@ -137,7 +143,7 @@ export class InMemorySmsRepository
       .filter(
         (facility) =>
           facility.id !== requester.id &&
-          facility.stock[drug] >= input.quantity,
+          facility.stock[drug] - input.quantity >= facility.safetyFloor[drug],
       )
       .sort(
         (left, right) =>
@@ -269,8 +275,11 @@ export class InMemorySmsRepository
     const supplier = this.facilities.find(
       (facility) => facility.id === transfer.fromFacilityId,
     )!;
-    if (supplier.stock[transfer.drug] < transfer.quantity)
-      throw new Error('Insufficient stock');
+    if (
+      supplier.stock[transfer.drug] - transfer.quantity <
+      supplier.safetyFloor[transfer.drug]
+    )
+      throw new Error('Transfer would breach the source safety floor');
     supplier.stock[transfer.drug] -= transfer.quantity;
     receiver.stock[transfer.drug] += transfer.quantity;
     this.movements.push(
@@ -307,6 +316,94 @@ export class InMemorySmsRepository
       quantity: transfer.quantity,
       status: transfer.status,
       createdAt: transfer.createdAt.toISOString(),
+    });
+  }
+
+  getOrderDetail(reference: string): Promise<OrderDetail | null> {
+    const offer = this.offers.get(reference);
+    if (!offer) return Promise.resolve(null);
+    const transfer = [...this.transfers.values()].find(
+      (item) => item.requestReference === reference,
+    );
+    const source = this.facilities.find(
+      (item) => item.id === offer.supplierId,
+    )!;
+    const requester = this.facilities.find(
+      (item) => item.id === offer.requesterId,
+    )!;
+    const at = transfer?.createdAt ?? new Date(offer.match.expiresAt);
+    const timeline: OrderDetail['timeline'] = [
+      {
+        sequence: 1,
+        type: 'request_created',
+        occurredAt: at.toISOString(),
+        actorRole: 'facility_requester',
+        label: 'Stock request created',
+      },
+      {
+        sequence: 2,
+        type: 'source_confirmation_requested',
+        occurredAt: at.toISOString(),
+        actorRole: 'system',
+        label: 'Source confirmation requested',
+      },
+    ];
+    if (offer.state === 'confirmed')
+      timeline.push({
+        sequence: 3,
+        type: 'source_released',
+        occurredAt: at.toISOString(),
+        actorRole: 'source_custodian',
+        label: 'Source stock released for transfer',
+      });
+    if (transfer)
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: 'rider_assigned',
+        occurredAt: at.toISOString(),
+        actorRole: 'system',
+        label: 'Rider assigned',
+      });
+    if (transfer?.status === 'delivered')
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: 'received',
+        occurredAt: at.toISOString(),
+        actorRole: 'facility_requester',
+        label: 'Receiving facility accepted handover',
+      });
+    const delivered = transfer?.status === 'delivered';
+    const dispatched = transfer?.status === 'dispatched';
+    return Promise.resolve({
+      reference,
+      status: delivered
+        ? 'received'
+        : dispatched
+          ? 'rider_en_route'
+          : 'awaiting_source_confirmation',
+      commodity: offer.drug,
+      quantity: offer.quantity,
+      sourceFacility: source.name,
+      requestingFacility: requester.name,
+      evidence: {
+        commodity: offer.drug,
+        batchNumber: `${offer.drug.toUpperCase()}-DEMO-01`,
+        expiresOn: '2027-06-30',
+        inspectedAt: at.toISOString(),
+        condition: 'usable',
+        ambientOnly: true,
+        quantityOnHand:
+          source.stock[offer.drug] + (delivered ? offer.quantity : 0),
+        safetyFloor: source.safetyFloor[offer.drug],
+        quantityRequested: offer.quantity,
+      },
+      timeline,
+      allowedActions: delivered ? [] : ['View evidence'],
+      nextAccountableOwner: delivered
+        ? 'none'
+        : dispatched
+          ? 'rider'
+          : 'source_custodian',
     });
   }
 

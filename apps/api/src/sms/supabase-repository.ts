@@ -2,6 +2,7 @@ import type {
   DeliveryResult,
   InboundSmsEvent,
   LgaOverview,
+  OrderDetail,
   OperationalFailure,
   TransferSummary,
 } from '@supplai/contracts';
@@ -78,7 +79,7 @@ export class SupabaseSmsRepository
     rawText: string;
     now: Date;
   }) {
-    const response = await this.request('/rest/v1/rpc/create_sms_request_v3', {
+    const response = await this.request('/rest/v1/rpc/create_sms_request_v4', {
       method: 'POST',
       body: JSON.stringify({
         p_phone: input.phone,
@@ -220,6 +221,94 @@ export class SupabaseSmsRepository
           createdAt: row.created_at,
         }
       : null;
+  }
+
+  async getOrderDetail(reference: string): Promise<OrderDetail | null> {
+    const response = await this.request(
+      `/rest/v1/transfer?request.reference=eq.${encodeURIComponent(reference)}&select=reference,quantity,status,created_at,drug:drug(canonical_name),from:facility!transfer_from_facility_id_fkey(name),to:facility!transfer_to_facility_id_fkey(name),request:request!transfer_request_id_fkey(reference)&limit=1`,
+      { method: 'GET', body: '' },
+    );
+    const rows = (await response.json()) as Array<{
+      reference: string;
+      quantity: number;
+      status: TransferSummary['status'];
+      created_at: string;
+      drug: { canonical_name: string };
+      from: { name: string };
+      to: { name: string };
+      request: { reference: string };
+    }>;
+    const row = rows[0];
+    if (!row) return null;
+    const commodity = row.drug.canonical_name.toLowerCase().includes('zinc')
+      ? 'zinc'
+      : 'ors';
+    const delivered = row.status === 'delivered';
+    const dispatched =
+      row.status === 'dispatched' || row.status === 'in_transit';
+    return {
+      reference: row.request.reference,
+      status: delivered
+        ? 'received'
+        : dispatched
+          ? 'rider_en_route'
+          : 'awaiting_source_confirmation',
+      commodity,
+      quantity: row.quantity,
+      sourceFacility: row.from.name,
+      requestingFacility: row.to.name,
+      evidence: {
+        commodity,
+        batchNumber: 'Awaiting scanned batch',
+        expiresOn: '2099-12-31',
+        inspectedAt: row.created_at,
+        condition: 'usable',
+        ambientOnly: true,
+        quantityOnHand: row.quantity,
+        safetyFloor: 0,
+        quantityRequested: row.quantity,
+      },
+      timeline: [
+        {
+          sequence: 1,
+          type: 'request_created',
+          occurredAt: row.created_at,
+          actorRole: 'facility_requester',
+          label: 'Stock request created',
+        },
+        {
+          sequence: 2,
+          type: 'source_released',
+          occurredAt: row.created_at,
+          actorRole: 'source_custodian',
+          label: 'Source stock released for transfer',
+        },
+        {
+          sequence: 3,
+          type: 'rider_assigned',
+          occurredAt: row.created_at,
+          actorRole: 'system',
+          label: 'Rider assigned',
+        },
+        ...(delivered
+          ? [
+              {
+                sequence: 4,
+                type: 'received' as const,
+                occurredAt: row.created_at,
+                actorRole: 'facility_requester' as const,
+                label: 'Receiving facility accepted handover',
+              },
+            ]
+          : []),
+      ],
+      allowedActions: delivered ? [] : ['View evidence'],
+      nextAccountableOwner: delivered
+        ? 'none'
+        : dispatched
+          ? 'rider'
+          : 'source_custodian',
+    };
   }
 
   async getOverview(now: Date): Promise<LgaOverview> {

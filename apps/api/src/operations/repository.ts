@@ -1,6 +1,7 @@
 import type {
   DeliveryResult,
   LgaOverview,
+  OrderDetail,
   OperationalFailure,
   TransferSummary,
 } from '@supplai/contracts';
@@ -32,6 +33,7 @@ export interface OperationsRepository {
     now: Date;
   }): Promise<DeliveryResult>;
   getTransfer(reference: string): Promise<TransferSummary | null>;
+  getOrderDetail(reference: string): Promise<OrderDetail | null>;
   getOverview(now: Date): Promise<LgaOverview>;
   getFailures(now: Date): Promise<OperationalFailure[]>;
 }

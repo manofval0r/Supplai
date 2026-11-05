@@ -15,12 +15,14 @@ import { normalizeNigerianPhone } from './sms/phone.js';
 import { adaptProviderPayload } from './sms/provider.js';
 import type { SmsRepository } from './sms/repository.js';
 import { SmsService } from './sms/service.js';
+import { ScenarioLabService } from './scenarios/service.js';
 
 export interface BuildAppOptions {
   logger?: boolean;
   repository?: SmsRepository & OperationsRepository;
   webhookSecret?: string;
   proofSecret?: string;
+  scenarioControlSecret?: string;
 }
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -32,6 +34,13 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     new MockDispatchAdapter(),
     options.proofSecret ?? 'demo-only-proof-secret-change-me-32',
   );
+  const scenarios = new ScenarioLabService();
+
+  const authorizeScenarioControl = (request: {
+    headers: Record<string, unknown>;
+  }) =>
+    !options.scenarioControlSecret ||
+    request.headers['x-demo-control-secret'] === options.scenarioControlSecret;
 
   app.get('/health', () =>
     healthResponseSchema.parse({
@@ -107,7 +116,27 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     const transfer = await repository.getTransfer(reference);
     return transfer ?? reply.code(404).send({ error: 'Transfer not found' });
   });
+  app.get('/api/orders/:reference', async (request, reply) => {
+    const { reference } = request.params as { reference: string };
+    const order = await repository.getOrderDetail(reference);
+    return order ?? reply.code(404).send({ error: 'Order not found' });
+  });
   app.get('/api/failures', () => repository.getFailures(new Date()));
+  app.get('/demo/scenarios/authorised-ambient-transfer', (request, reply) =>
+    authorizeScenarioControl(request)
+      ? scenarios.read()
+      : reply.code(401).send({ error: 'Unauthorized demo control' }),
+  );
+  for (const action of ['start', 'tick', 'replay', 'reset'] as const) {
+    app.post(
+      `/demo/scenarios/authorised-ambient-transfer/${action}`,
+      (request, reply) => {
+        if (!authorizeScenarioControl(request))
+          return reply.code(401).send({ error: 'Unauthorized demo control' });
+        return scenarios[action]();
+      },
+    );
+  }
 
   return app;
 }
