@@ -43,9 +43,7 @@ export default function Hero({
 
           <ul className="lp-hero__trust" aria-label="Trust commitments">
             {trustBadges.map((label) => (
-              <li key={label}>
-                {label}
-              </li>
+              <li key={label}>{label}</li>
             ))}
           </ul>
 
@@ -54,7 +52,6 @@ export default function Hero({
             medicine movement.
           </p>
         </div>
-
       </div>
     </section>
   );

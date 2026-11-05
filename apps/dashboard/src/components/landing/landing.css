@@ -1089,7 +1089,8 @@
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 14px;
-  border-bottom: 2px solid color-mix(in srgb, var(--lp-surface) 32%, transparent);
+  border-bottom: 2px solid
+    color-mix(in srgb, var(--lp-surface) 32%, transparent);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -2578,7 +2579,6 @@
   .lp-trust-banner__sticker {
     justify-self: start;
   }
-
 }
 
 @media (max-width: 640px) {

@@ -1,10 +1,5 @@
 import SectionHeading from './SectionHeading';
-import {
-  CardIcon,
-  ScooterIcon,
-  StoreIcon,
-  UploadIcon,
-} from './icons';
+import { CardIcon, ScooterIcon, StoreIcon, UploadIcon } from './icons';
 
 const steps = [
   {
@@ -58,7 +53,11 @@ export default function HowItWorks() {
           id="lp-how-title"
         />
 
-        <ol className="lp-steps" data-reveal aria-label="Supplai transfer workflow">
+        <ol
+          className="lp-steps"
+          data-reveal
+          aria-label="Supplai transfer workflow"
+        >
           {steps.map((step, index) => {
             const Icon = step.icon;
             return (

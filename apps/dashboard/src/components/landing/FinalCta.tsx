@@ -1,8 +1,4 @@
-import {
-  ArrowIcon,
-  SparkIcon,
-  StarIcon,
-} from './icons';
+import { ArrowIcon, SparkIcon, StarIcon } from './icons';
 
 export default function FinalCta({
   onOpenDashboard,
@@ -21,7 +17,9 @@ export default function FinalCta({
           <SparkIcon className="lp-final__star lp-final__star--two" />
           <StarIcon className="lp-final__star lp-final__star--three" />
 
-          <span className="lp-eyebrow lp-eyebrow--light">Ready to coordinate</span>
+          <span className="lp-eyebrow lp-eyebrow--light">
+            Ready to coordinate
+          </span>
           <h2 id="lp-final-title">
             Make every medicine
             <br />

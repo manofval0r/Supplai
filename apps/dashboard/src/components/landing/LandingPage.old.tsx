@@ -68,7 +68,9 @@ export default function LandingPageOld({
           />
           <span>01 / MATCH</span>
           <strong>Request to stock match</strong>
-          <p>See facility needs and available surplus before a transfer starts.</p>
+          <p>
+            See facility needs and available surplus before a transfer starts.
+          </p>
         </article>
         <article className="landing-feature-card">
           <span

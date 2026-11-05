@@ -29,8 +29,8 @@ export default function Marquee() {
     <div className="lp-marquee-section">
       <p className="lp-sr-only">
         Supplai capabilities: facility requests, transfer visibility, stock
-        coordination, rider handoffs, ward-level context, delivery proof,
-        public ledger, and LGA operations.
+        coordination, rider handoffs, ward-level context, delivery proof, public
+        ledger, and LGA operations.
       </p>
       <div className="lp-marquee">
         <div className="lp-marquee__track">

@@ -1,11 +1,6 @@
 import SectionHeading from './SectionHeading';
 import PhoneMockup from './PhoneMockup';
-import {
-  BellIcon,
-  FileCheckIcon,
-  RouteIcon,
-  SparkIcon,
-} from './icons';
+import { BellIcon, FileCheckIcon, RouteIcon, SparkIcon } from './icons';
 
 const highlights = [
   {

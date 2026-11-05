@@ -1,10 +1,5 @@
 import SectionHeading from './SectionHeading';
-import {
-  FileCheckIcon,
-  LockIcon,
-  ShieldCheckIcon,
-  StoreIcon,
-} from './icons';
+import { FileCheckIcon, LockIcon, ShieldCheckIcon, StoreIcon } from './icons';
 
 const trustItems = [
   {
@@ -74,7 +69,6 @@ export default function TrustSafety() {
             </article>
           ))}
         </div>
-
       </div>
     </section>
   );

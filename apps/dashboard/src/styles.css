@@ -36,7 +36,11 @@
   inset: 0;
   z-index: 9999;
   background:
-    radial-gradient(circle at center, rgba(213, 240, 226, 0.18), transparent 34%),
+    radial-gradient(
+      circle at center,
+      rgba(213, 240, 226, 0.18),
+      transparent 34%
+    ),
     var(--teal-dark);
   opacity: 0;
   pointer-events: none;
@@ -56,12 +60,21 @@
   animation: page-transition-spin 420ms linear infinite;
 }
 @keyframes page-transition-in {
-  0% { opacity: 0; }
-  25%, 75% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes page-transition-spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .page-transition {

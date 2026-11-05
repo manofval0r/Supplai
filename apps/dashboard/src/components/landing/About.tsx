@@ -81,10 +81,7 @@ export default function About() {
 
           <div className="lp-about__stats" aria-label="Supplai location data">
             {stats.map((stat, index) => (
-              <div
-                className={`lp-stat lp-stat--${index + 1}`}
-                key={stat.label}
-              >
+              <div className={`lp-stat lp-stat--${index + 1}`} key={stat.label}>
                 <strong>{stat.value}</strong>
                 <span>{stat.label}</span>
               </div>
@@ -92,8 +89,8 @@ export default function About() {
           </div>
 
           <p className="lp-about__source">
-            Source: Supplai location dataset. Coverage expands as facilities
-            and riders are connected.
+            Source: Supplai location dataset. Coverage expands as facilities and
+            riders are connected.
           </p>
         </div>
 
@@ -137,8 +134,8 @@ export default function About() {
             <SparkIcon aria-hidden="true" />
             <p>
               <strong>What makes us different:</strong> we turn fragmented
-              medicine movement into a visible, evidence-led workflow for
-              public health teams.
+              medicine movement into a visible, evidence-led workflow for public
+              health teams.
             </p>
           </div>
         </div>

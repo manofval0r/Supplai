@@ -13,10 +13,16 @@ describe('dashboard fixtures', () => {
     const ids = fixtureFacilities.map((facility) => facility.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect(fixtureFacilities).toHaveLength(8);
-    expect(fixtureFacilities.every((facility) => facility.publicLedger)).toBe(true);
-    expect(fixtureStock.every((row) => ids.includes(row.facilityId))).toBe(true);
+    expect(fixtureFacilities.every((facility) => facility.publicLedger)).toBe(
+      true,
+    );
+    expect(fixtureStock.every((row) => ids.includes(row.facilityId))).toBe(
+      true,
+    );
     expect(
-      fixtureStock.every((row) => fixtureMedicines.some((medicine) => medicine.id === row.medicineId)),
+      fixtureStock.every((row) =>
+        fixtureMedicines.some((medicine) => medicine.id === row.medicineId),
+      ),
     ).toBe(true);
   });
 
@@ -28,9 +34,13 @@ describe('dashboard fixtures', () => {
       (row) => row.facilityId === 'PHC-B' && row.medicineId === 'MED-ORS',
     );
     expect(orsAtRequester?.onHand).toBe(0);
-    expect((orsAtSupplier?.onHand ?? 0) - (orsAtSupplier?.minimum ?? 0)).toBeGreaterThanOrEqual(20);
+    expect(
+      (orsAtSupplier?.onHand ?? 0) - (orsAtSupplier?.minimum ?? 0),
+    ).toBeGreaterThanOrEqual(20);
     expect(fixtureOverview.metrics.transfersInFlight).toBe(
-      fixtureOverview.transfers.filter((transfer) => transfer.status === 'in_transit').length,
+      fixtureOverview.transfers.filter(
+        (transfer) => transfer.status === 'in_transit',
+      ).length,
     );
   });
 
@@ -38,7 +48,10 @@ describe('dashboard fixtures', () => {
     expect(new Set(fixtureFailures.map((failure) => failure.category))).toEqual(
       new Set(['unmatched', 'expired', 'dispatch', 'proof_locked']),
     );
-    const serialized = JSON.stringify({ fixtureFacilities, fixtureFailures }).toLowerCase();
+    const serialized = JSON.stringify({
+      fixtureFacilities,
+      fixtureFailures,
+    }).toLowerCase();
     expect(serialized).not.toMatch(/patient|diagnosis|proof.?code/);
   });
 });

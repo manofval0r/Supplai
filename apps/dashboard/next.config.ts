@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  async rewrites() {
+  rewrites() {
     return [
       {
         source: '/api/:path*',
@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  webpack(config) {
+  webpack(config: { module: { rules: unknown[] } }) {
     config.module.rules.push({
       test: /\.html$/i,
       resourceQuery: /raw/,

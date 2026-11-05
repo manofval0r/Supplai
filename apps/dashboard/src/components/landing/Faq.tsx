@@ -62,9 +62,7 @@ export default function Faq() {
             </span>
             <div>
               <strong>Need the operations view?</strong>
-              <p>
-                Open the dashboard to explore the workflow.
-              </p>
+              <p>Open the dashboard to explore the workflow.</p>
             </div>
           </div>
         </div>

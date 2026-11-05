@@ -157,11 +157,7 @@ export default function HeroIllustration() {
             stroke="var(--brand-blue-deep)"
             strokeWidth="3"
           />
-          <path
-            d="M0-22v44"
-            stroke="var(--brand-blue-deep)"
-            strokeWidth="3"
-          />
+          <path d="M0-22v44" stroke="var(--brand-blue-deep)" strokeWidth="3" />
         </g>
       </g>
 
@@ -194,10 +190,7 @@ export default function HeroIllustration() {
       </g>
 
       {/* Small capsule */}
-      <g
-        className="lp-art-float lp-art-float--b"
-        transform="translate(486 70)"
-      >
+      <g className="lp-art-float lp-art-float--b" transform="translate(486 70)">
         <g transform="rotate(18)">
           <rect
             x="-30"
@@ -209,11 +202,7 @@ export default function HeroIllustration() {
             stroke="var(--brand-blue-deep)"
             strokeWidth="3"
           />
-          <path
-            d="M0-15v30"
-            stroke="var(--brand-blue-deep)"
-            strokeWidth="3"
-          />
+          <path d="M0-15v30" stroke="var(--brand-blue-deep)" strokeWidth="3" />
         </g>
       </g>
 
@@ -388,12 +377,7 @@ export default function HeroIllustration() {
           strokeWidth="4"
           strokeLinecap="round"
         />
-        <circle
-          cx="424"
-          cy="243"
-          r="3"
-          fill="var(--brand-blue-deep)"
-        />
+        <circle cx="424" cy="243" r="3" fill="var(--brand-blue-deep)" />
       </g>
 
       {/* Decorative accents */}
