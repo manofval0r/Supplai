@@ -8,11 +8,13 @@ import {
   faCircleCheck,
   faCircleExclamation,
   faClipboardList,
+  faArrowLeft,
   faBars,
   faGear,
   faHouse,
   faMoon,
   faRoute,
+  faRightFromBracket,
   faSackDollar,
   faSun,
   faTriangleExclamation,
@@ -193,16 +195,31 @@ function LandingPage({ onOpenDashboard }: { onOpenDashboard: () => void }) {
       </section>
       <section className="landing-features" aria-label="Supplai capabilities">
         <article className="landing-feature-card">
-          <strong>Live LGA visibility</strong>
-          <p>See facility needs, stock position, and requests in one place.</p>
+          <span
+            className="landing-feature-icon landing-feature-icon--match"
+            aria-hidden="true"
+          />
+          <span>01 / MATCH</span>
+          <strong>Request to stock match</strong>
+          <p>See facility needs and available surplus before a transfer starts.</p>
         </article>
         <article className="landing-feature-card">
-          <strong>Accountable transfers</strong>
-          <p>Track every movement from a verified request to delivery.</p>
+          <span
+            className="landing-feature-icon landing-feature-icon--move"
+            aria-hidden="true"
+          />
+          <span>02 / MOVE</span>
+          <strong>Route the last mile</strong>
+          <p>Coordinate riders and handoffs with a clear live status.</p>
         </article>
         <article className="landing-feature-card">
-          <strong>Built for the last mile</strong>
-          <p>Map states, LGAs, wards, and facilities with dependable context.</p>
+          <span
+            className="landing-feature-icon landing-feature-icon--prove"
+            aria-hidden="true"
+          />
+          <span>03 / PROVE</span>
+          <strong>Receipt you can trust</strong>
+          <p>Keep delivery proof visible for every public facility and ward.</p>
         </article>
       </section>
       <footer className="landing-footer">
@@ -333,7 +350,6 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('Overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [notice, setNotice] = useState('');
   const [overview, setOverview] = useState(fixtureOverview);
   const [failures, setFailures] = useState(fixtureFailures);
 
@@ -466,6 +482,17 @@ export default function App() {
             <strong>Akolo</strong>
             <small>Health operations</small>
           </div>
+          <button
+            className="logout-button"
+            aria-label="Log out"
+            onClick={() => {
+              setActiveNav('Overview');
+              setShowLanding(true);
+            }}
+          >
+            <FontAwesomeIcon icon={faRightFromBracket} />
+            <span className="nav-label">Logout</span>
+          </button>
         </div>
       </aside>
       <main id="main-content">
@@ -474,63 +501,19 @@ export default function App() {
             <p className="eyebrow">LGA COMMAND CENTER</p>
             <h1>{activeNav}</h1>
           </div>
+          {activeNav !== 'Overview' && (
+            <button
+              className="back-dashboard-button"
+              onClick={() => setActiveNav('Overview')}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              Back to dashboard
+            </button>
+          )}
         </header>
         <div
           className={`content ${activeNav !== 'Overview' ? 'service-page' : ''}`}
         >
-          {notice && (
-            <div className="notice" role="status">
-              {notice}
-              <button onClick={() => setNotice('')}>Dismiss</button>
-            </div>
-          )}
-          <div className="dashboard-intro-frame">
-            <section className="hero-stage">
-              <div className="hero-stage__frame">
-                <div className="hero-stage__copy">
-                  <p className="hero-kicker">
-                    <span /> SUPPLAI OPERATIONS CLOUD
-                  </p>
-                  <h2>
-                    Move essential stock
-                    <span> where it matters.</span>
-                  </h2>
-                  <p className="hero-stage__description">
-                    A live command center for faster, more accountable medicine
-                    transfers across your LGA.
-                  </p>
-                  <div className="hero-actions">
-                    <button
-                      className="hero-cta"
-                      onClick={() =>
-                        document
-                          .getElementById('operations-story')
-                          ?.scrollIntoView({ behavior: 'smooth' })
-                      }
-                    >
-                      Open live operations
-                    </button>
-                    <span className="hero-note">
-                      <i /> {fixtureFacilities.length} public facilities
-                      connected
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <section className="hero-row" id="operations-story">
-              <div>
-                <h2>Good morning, Akolo</h2>
-                <p>Here is what needs attention across the LGA today.</p>
-              </div>
-              <button
-                className="primary-button"
-                onClick={() => setNotice('Fixture data refreshed just now.')}
-              >
-                Refresh data
-              </button>
-            </section>
-          </div>
           <section className="metric-grid" aria-label="LGA summary metrics">
             {[
               [
