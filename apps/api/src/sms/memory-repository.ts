@@ -13,6 +13,9 @@ import { proofHashesEqual } from '../operations/proof.js';
 import type {
   DispatchCandidate,
   OperationsRepository,
+  OrderView,
+  ReceiptRefusalOutcome,
+  TransferEventOutcome,
 } from '../operations/repository.js';
 
 import { normalizeMedicineTerm } from './parser.js';
@@ -35,6 +38,7 @@ interface Offer {
   reference: string;
   match: SupplyMatch;
   state: 'offered' | 'confirmed' | 'declined';
+  respondedAt?: Date;
   requesterId: string;
   supplierId: string;
   drug: 'ors' | 'zinc';
@@ -52,9 +56,19 @@ interface MemoryTransfer {
   proofHash: string;
   proofExpiresAt: Date;
   proofAttempts: number;
-  status: 'pending' | 'dispatched' | 'delivered' | 'locked';
+  status:
+    'pending' | 'dispatched' | 'in_transit' | 'delivered' | 'failed' | 'locked';
   externalDispatchId?: string;
+  dispatchedAt?: Date;
+  deliveredAt?: Date;
   createdAt: Date;
+  events: Array<{
+    sequence: number;
+    eventType: 'picked_up' | 'in_transit' | 'exception_raised';
+    actorRole: 'rider' | 'system' | 'receiving_facility';
+    detail: string;
+    occurredAt: Date;
+  }>;
 }
 
 const aliases = new Map<string, 'ors' | 'zinc'>([
@@ -186,6 +200,7 @@ export class InMemorySmsRepository
     if (input.now >= new Date(offer.match.expiresAt))
       return Promise.resolve('expired');
     offer.state = input.accept ? 'confirmed' : 'declined';
+    offer.respondedAt = input.now;
     return Promise.resolve(offer.state);
   }
 
@@ -215,6 +230,7 @@ export class InMemorySmsRepository
       proofAttempts: 0,
       status: 'pending',
       createdAt: input.now,
+      events: [],
     };
     this.transfers.set(reference, transfer);
     return Promise.resolve({
@@ -229,12 +245,63 @@ export class InMemorySmsRepository
   markDispatched(input: {
     transferReference: string;
     externalDispatchId: string;
+    now?: Date;
   }): Promise<void> {
     const transfer = this.transfers.get(input.transferReference);
     if (!transfer) throw new Error('Transfer not found');
     transfer.externalDispatchId = input.externalDispatchId;
     transfer.status = 'dispatched';
+    transfer.dispatchedAt = input.now ?? new Date();
     return Promise.resolve();
+  }
+
+  recordTransferEvent(input: {
+    transferReference: string;
+    eventType: 'picked_up' | 'in_transit';
+    actorRole: 'rider' | 'system';
+    detail: string;
+    now: Date;
+  }): Promise<TransferEventOutcome> {
+    const transfer = this.transfers.get(input.transferReference);
+    if (!transfer) return Promise.resolve('not_found');
+    if (transfer.status !== 'dispatched' && transfer.status !== 'in_transit')
+      return Promise.resolve('already_closed');
+    transfer.events.push({
+      sequence: transfer.events.length + 1,
+      eventType: input.eventType,
+      actorRole: input.actorRole,
+      detail: input.detail,
+      occurredAt: input.now,
+    });
+    if (input.eventType === 'in_transit' && transfer.status === 'dispatched')
+      transfer.status = 'in_transit';
+    return Promise.resolve('recorded');
+  }
+
+  refuseReceipt(input: {
+    transferReference: string;
+    actorPhone: string;
+    reason: string;
+    now: Date;
+  }): Promise<ReceiptRefusalOutcome> {
+    const transfer = this.transfers.get(input.transferReference);
+    if (!transfer) return Promise.resolve('not_found');
+    const receiver = this.facilities.find(
+      (facility) => facility.id === transfer.toFacilityId,
+    );
+    if (!receiver || receiver.phone !== input.actorPhone)
+      return Promise.resolve('unauthorized');
+    if (transfer.status !== 'dispatched' && transfer.status !== 'in_transit')
+      return Promise.resolve('already_closed');
+    transfer.status = 'failed';
+    transfer.events.push({
+      sequence: transfer.events.length + 1,
+      eventType: 'exception_raised',
+      actorRole: 'receiving_facility',
+      detail: input.reason,
+      occurredAt: input.now,
+    });
+    return Promise.resolve('refused');
   }
 
   verifyDelivery(input: {
@@ -295,6 +362,7 @@ export class InMemorySmsRepository
       },
     );
     transfer.status = 'delivered';
+    transfer.deliveredAt = input.now;
     return Promise.resolve({
       status: 'delivered',
       attemptsRemaining: 2 - transfer.proofAttempts,
@@ -312,10 +380,19 @@ export class InMemorySmsRepository
       )!.name,
       toFacility: this.facilities.find((f) => f.id === transfer.toFacilityId)!
         .name,
+      fromFacilityId: transfer.fromFacilityId,
+      toFacilityId: transfer.toFacilityId,
+      requestReference: transfer.requestReference,
       drug: transfer.drug === 'ors' ? 'Oral Rehydration Salts' : 'Zinc Sulfate',
       quantity: transfer.quantity,
       status: transfer.status,
       createdAt: transfer.createdAt.toISOString(),
+      ...(transfer.dispatchedAt
+        ? { dispatchedAt: transfer.dispatchedAt.toISOString() }
+        : {}),
+      ...(transfer.deliveredAt
+        ? { deliveredAt: transfer.deliveredAt.toISOString() }
+        : {}),
     });
   }
 
@@ -331,28 +408,29 @@ export class InMemorySmsRepository
     const requester = this.facilities.find(
       (item) => item.id === offer.requesterId,
     )!;
-    const at = transfer?.createdAt ?? new Date(offer.match.expiresAt);
+    const createdAt = transfer?.createdAt ?? new Date(offer.match.expiresAt);
+    const releasedAt = offer.respondedAt ?? createdAt;
     const timeline: OrderDetail['timeline'] = [
       {
         sequence: 1,
         type: 'request_created',
-        occurredAt: at.toISOString(),
+        occurredAt: createdAt.toISOString(),
         actorRole: 'facility_requester',
         label: 'Stock request created',
       },
       {
         sequence: 2,
         type: 'source_confirmation_requested',
-        occurredAt: at.toISOString(),
+        occurredAt: createdAt.toISOString(),
         actorRole: 'system',
         label: 'Source confirmation requested',
       },
     ];
     if (offer.state === 'confirmed')
       timeline.push({
-        sequence: 3,
+        sequence: timeline.length + 1,
         type: 'source_released',
-        occurredAt: at.toISOString(),
+        occurredAt: releasedAt.toISOString(),
         actorRole: 'source_custodian',
         label: 'Source stock released for transfer',
       });
@@ -360,36 +438,70 @@ export class InMemorySmsRepository
       timeline.push({
         sequence: timeline.length + 1,
         type: 'rider_assigned',
-        occurredAt: at.toISOString(),
+        occurredAt: (transfer.dispatchedAt ?? transfer.createdAt).toISOString(),
         actorRole: 'system',
         label: 'Rider assigned',
       });
+    for (const event of transfer?.events ?? []) {
+      timeline.push({
+        sequence: timeline.length + 1,
+        type:
+          event.eventType === 'exception_raised'
+            ? 'escalated'
+            : event.eventType,
+        occurredAt: event.occurredAt.toISOString(),
+        actorRole:
+          event.actorRole === 'receiving_facility'
+            ? 'facility_requester'
+            : event.actorRole,
+        label:
+          event.eventType === 'picked_up'
+            ? 'Rider collected the medicine'
+            : event.eventType === 'in_transit'
+              ? 'Transfer in transit'
+              : event.detail,
+      });
+    }
     if (transfer?.status === 'delivered')
       timeline.push({
         sequence: timeline.length + 1,
         type: 'received',
-        occurredAt: at.toISOString(),
+        occurredAt: (transfer.deliveredAt ?? createdAt).toISOString(),
         actorRole: 'facility_requester',
         label: 'Receiving facility accepted handover',
       });
+
     const delivered = transfer?.status === 'delivered';
-    const dispatched = transfer?.status === 'dispatched';
+    const failed = transfer?.status === 'failed';
+    const inTransit = transfer?.status === 'in_transit';
+    const dispatched = transfer?.status === 'dispatched' || inTransit;
+    const awaitingDispatch =
+      offer.state === 'confirmed' &&
+      (!transfer || transfer.status === 'pending');
+
     return Promise.resolve({
       reference,
       status: delivered
         ? 'received'
-        : dispatched
-          ? 'rider_en_route'
-          : 'awaiting_source_confirmation',
+        : failed
+          ? 'escalated'
+          : dispatched
+            ? 'rider_en_route'
+            : awaitingDispatch
+              ? 'awaiting_dispatch'
+              : 'awaiting_source_confirmation',
       commodity: offer.drug,
       quantity: offer.quantity,
       sourceFacility: source.name,
       requestingFacility: requester.name,
+      sourceFacilityId: source.id,
+      requestingFacilityId: requester.id,
+      transferReference: transfer?.reference ?? null,
       evidence: {
         commodity: offer.drug,
         batchNumber: `${offer.drug.toUpperCase()}-DEMO-01`,
         expiresOn: '2027-06-30',
-        inspectedAt: at.toISOString(),
+        inspectedAt: createdAt.toISOString(),
         condition: 'usable',
         ambientOnly: true,
         quantityOnHand:
@@ -398,13 +510,50 @@ export class InMemorySmsRepository
         quantityRequested: offer.quantity,
       },
       timeline,
-      allowedActions: delivered ? [] : ['View evidence'],
+      allowedActions: delivered
+        ? []
+        : failed
+          ? ['Review exception']
+          : offer.state === 'offered'
+            ? ['confirm_release', 'decline_release']
+            : inTransit
+              ? ['receive', 'refuse_receipt']
+              : dispatched
+                ? ['mark_picked_up', 'mark_in_transit']
+                : ['dispatch'],
       nextAccountableOwner: delivered
         ? 'none'
-        : dispatched
-          ? 'rider'
-          : 'source_custodian',
+        : failed
+          ? 'lga'
+          : dispatched
+            ? inTransit
+              ? 'receiving_facility'
+              : 'rider'
+            : awaitingDispatch
+              ? 'lga'
+              : 'source_custodian',
     });
+  }
+
+  async listOrders(view: OrderView): Promise<OrderDetail[]> {
+    const offered = [...this.offers.values()].filter((offer) => {
+      if (view.role === 'lga') return true;
+      if (view.role === 'facility') {
+        return (
+          offer.requesterId === view.facilityId ||
+          offer.supplierId === view.facilityId
+        );
+      }
+      return [...this.transfers.values()].some(
+        (transfer) =>
+          transfer.requestReference === offer.reference &&
+          (!view.riderName || transfer.status !== 'pending'),
+      );
+    });
+    const orders = await Promise.all(
+      offered.map((offer) => this.getOrderDetail(offer.reference)),
+    );
+    return orders.filter((order): order is OrderDetail => order !== null);
   }
 
   async getOverview(now: Date): Promise<LgaOverview> {
@@ -439,15 +588,27 @@ export class InMemorySmsRepository
   }
 
   getFailures(now: Date): Promise<OperationalFailure[]> {
-    const failures = [...this.transfers.values()]
-      .filter((t) => t.status === 'locked')
-      .map((t) => ({
-        id: t.id,
-        category: 'proof_locked' as const,
-        reference: t.reference,
-        occurredAt: now.toISOString(),
-        detail: 'Delivery proof locked after two invalid attempts.',
-      }));
+    const failures: OperationalFailure[] = [];
+    for (const transfer of this.transfers.values()) {
+      if (transfer.status === 'locked') {
+        failures.push({
+          id: transfer.id,
+          category: 'proof_locked',
+          reference: transfer.reference,
+          occurredAt: now.toISOString(),
+          detail: 'Delivery proof locked after two invalid attempts.',
+        });
+      } else if (transfer.status === 'failed') {
+        failures.push({
+          id: transfer.id,
+          category: 'dispatch',
+          reference: transfer.reference,
+          occurredAt: now.toISOString(),
+          detail:
+            'Receipt refused by the receiving facility; escalated to LGA.',
+        });
+      }
+    }
     return Promise.resolve(failures);
   }
 

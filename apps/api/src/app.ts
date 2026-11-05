@@ -1,14 +1,20 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 
 import {
+  createAppRequestSchema,
   createDemoDispatchSchema,
   demoSmsRequestSchema,
   healthResponseSchema,
+  orderActionSchema,
   verifyDeliverySchema,
 } from '@supplai/contracts';
 
+import { AppService } from './app-actions/service.js';
 import { MockDispatchAdapter } from './operations/mock-dispatch.js';
-import type { OperationsRepository } from './operations/repository.js';
+import type {
+  OperationsRepository,
+  OrderView,
+} from './operations/repository.js';
 import { OperationsService } from './operations/service.js';
 import { InMemorySmsRepository } from './sms/memory-repository.js';
 import { normalizeNigerianPhone } from './sms/phone.js';
@@ -35,6 +41,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     options.proofSecret ?? 'demo-only-proof-secret-change-me-32',
   );
   const scenarios = new ScenarioLabService();
+  const appActions = new AppService(repository, operations);
 
   const authorizeScenarioControl = (request: {
     headers: Record<string, unknown>;
@@ -125,6 +132,40 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     const { reference } = request.params as { reference: string };
     const order = await repository.getOrderDetail(reference);
     return order ?? reply.code(404).send({ error: 'Order not found' });
+  });
+  app.post('/api/requests', async (request, reply) => {
+    const input = createAppRequestSchema.parse(request.body);
+    const result = await appActions.createRequest(input);
+    return reply.code(result.status === 'offered' ? 201 : 409).send(result);
+  });
+  app.post('/api/orders/:reference/actions', async (request, reply) => {
+    const { reference } = request.params as { reference: string };
+    const action = orderActionSchema.parse(request.body);
+    const result = await appActions.act(reference, action);
+    return reply.code(result.accepted ? 200 : 409).send(result);
+  });
+  app.get('/api/notifications', async (request, reply) => {
+    const query = request.query as {
+      role?: string;
+      facilityId?: string;
+      riderName?: string;
+    };
+    if (
+      query.role !== 'facility' &&
+      query.role !== 'rider' &&
+      query.role !== 'lga'
+    )
+      return reply
+        .code(400)
+        .send({ error: 'role must be facility, rider, or lga' });
+    if (query.role === 'facility' && !query.facilityId)
+      return reply.code(400).send({ error: 'facilityId is required' });
+    const view: OrderView = {
+      role: query.role,
+      ...(query.facilityId ? { facilityId: query.facilityId } : {}),
+      ...(query.riderName ? { riderName: query.riderName } : {}),
+    };
+    return appActions.inbox(view);
   });
   app.get('/api/failures', () => repository.getFailures(new Date()));
   app.get('/api/operations/failures', () => repository.getFailures(new Date()));

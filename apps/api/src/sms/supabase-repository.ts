@@ -10,6 +10,9 @@ import type {
 import type {
   DispatchCandidate,
   OperationsRepository,
+  OrderView,
+  ReceiptRefusalOutcome,
+  TransferEventOutcome,
 } from '../operations/repository.js';
 import type { ConfirmationResult, SmsRepository } from './repository.js';
 
@@ -193,9 +196,46 @@ export class SupabaseSmsRepository
     };
   }
 
+  async recordTransferEvent(input: {
+    transferReference: string;
+    eventType: 'picked_up' | 'in_transit';
+    actorRole: 'rider' | 'system';
+    detail: string;
+    now: Date;
+  }): Promise<TransferEventOutcome> {
+    const rows = await this.rpc<Array<{ result_status: TransferEventOutcome }>>(
+      'record_transfer_event_v1',
+      {
+        p_transfer_reference: input.transferReference,
+        p_event_type: input.eventType,
+        p_actor_role: input.actorRole,
+        p_detail: input.detail,
+        p_now: input.now.toISOString(),
+      },
+    );
+    return rows[0]?.result_status ?? 'not_found';
+  }
+
+  async refuseReceipt(input: {
+    transferReference: string;
+    actorPhone: string;
+    reason: string;
+    now: Date;
+  }): Promise<ReceiptRefusalOutcome> {
+    const rows = await this.rpc<
+      Array<{ result_status: ReceiptRefusalOutcome }>
+    >('refuse_receipt_v1', {
+      p_transfer_reference: input.transferReference,
+      p_actor_phone: input.actorPhone,
+      p_reason: input.reason,
+      p_now: input.now.toISOString(),
+    });
+    return rows[0]?.result_status ?? 'not_found';
+  }
+
   async getTransfer(reference: string): Promise<TransferSummary | null> {
     const response = await this.request(
-      `/rest/v1/transfer?reference=eq.${encodeURIComponent(reference)}&select=id,reference,quantity,status,created_at,drug:drug(canonical_name),from:facility!transfer_from_facility_id_fkey(name),to:facility!transfer_to_facility_id_fkey(name)`,
+      `/rest/v1/transfer?reference=eq.${encodeURIComponent(reference)}&select=id,reference,quantity,status,created_at,dispatched_at,delivered_at,from_facility_id,to_facility_id,drug:drug(canonical_name),from:facility!transfer_from_facility_id_fkey(name),to:facility!transfer_to_facility_id_fkey(name),request:request!transfer_request_id_fkey(reference)&limit=1`,
       { method: 'GET', body: '' },
     );
     const rows = (await response.json()) as Array<{
@@ -204,9 +244,14 @@ export class SupabaseSmsRepository
       quantity: number;
       status: TransferSummary['status'];
       created_at: string;
+      dispatched_at: string | null;
+      delivered_at: string | null;
+      from_facility_id: string;
+      to_facility_id: string;
       drug: { canonical_name: string };
       from: { name: string };
       to: { name: string };
+      request: { reference: string };
     }>;
     const row = rows[0];
     return row
@@ -215,100 +260,252 @@ export class SupabaseSmsRepository
           reference: row.reference,
           fromFacility: row.from.name,
           toFacility: row.to.name,
+          fromFacilityId: row.from_facility_id,
+          toFacilityId: row.to_facility_id,
+          requestReference: row.request.reference,
           drug: row.drug.canonical_name,
           quantity: row.quantity,
           status: row.status,
           createdAt: row.created_at,
+          ...(row.dispatched_at ? { dispatchedAt: row.dispatched_at } : {}),
+          ...(row.delivered_at ? { deliveredAt: row.delivered_at } : {}),
         }
       : null;
   }
 
   async getOrderDetail(reference: string): Promise<OrderDetail | null> {
-    const response = await this.request(
-      `/rest/v1/transfer?request.reference=eq.${encodeURIComponent(reference)}&select=reference,quantity,status,created_at,drug:drug(canonical_name),from:facility!transfer_from_facility_id_fkey(name),to:facility!transfer_to_facility_id_fkey(name),request:request!transfer_request_id_fkey(reference)&limit=1`,
+    const requestResponse = await this.request(
+      `/rest/v1/request?reference=eq.${encodeURIComponent(reference)}&select=reference,quantity,created_at,drug:drug(id,canonical_name),requester:facility!request_facility_id_fkey(id,name),matches:match(quantity_offered,status,confirmed_at,offered_at,confirmation_expires_at,source:facility!match_facility_id_fkey(id,name,phone_primary))&limit=1`,
       { method: 'GET', body: '' },
     );
-    const rows = (await response.json()) as Array<{
+    const requestRows = (await requestResponse.json()) as Array<{
       reference: string;
       quantity: number;
+      created_at: string;
+      drug: { id: string; canonical_name: string };
+      requester: { id: string; name: string };
+      matches: Array<{
+        quantity_offered: number;
+        status: 'offered' | 'reserved' | 'consumed' | 'declined' | 'expired';
+        confirmed_at: string | null;
+        offered_at: string;
+        confirmation_expires_at: string | null;
+        source: { id: string; name: string; phone_primary: string };
+      }>;
+    }>;
+    const requestRow = requestRows[0];
+    if (!requestRow) return null;
+    const match = requestRow.matches[0];
+    if (!match) return null;
+
+    const transferResponse = await this.request(
+      `/rest/v1/transfer?request.reference=eq.${encodeURIComponent(reference)}&select=id,reference,status,created_at,dispatched_at,delivered_at,rider:rider!transfer_rider_id_fkey(display_name)&limit=1`,
+      { method: 'GET', body: '' },
+    );
+    const transfers = (await transferResponse.json()) as Array<{
+      id: string;
+      reference: string;
       status: TransferSummary['status'];
       created_at: string;
-      drug: { canonical_name: string };
-      from: { name: string };
-      to: { name: string };
-      request: { reference: string };
+      dispatched_at: string | null;
+      delivered_at: string | null;
+      rider: { display_name: string } | null;
     }>;
-    const row = rows[0];
-    if (!row) return null;
-    const commodity = row.drug.canonical_name.toLowerCase().includes('zinc')
+    const transfer = transfers[0] ?? null;
+
+    let events: Array<{
+      sequence: number;
+      event_type: string;
+      actor_role: string;
+      detail: string;
+      occurred_at: string;
+    }> = [];
+    if (transfer) {
+      const eventResponse = await this.request(
+        `/rest/v1/transfer_event?transfer_id=eq.${transfer.id}&select=sequence,event_type,actor_role,detail,occurred_at&order=sequence.asc`,
+        { method: 'GET', body: '' },
+      );
+      events = (await eventResponse.json()) as typeof events;
+    }
+
+    const lotResponse = await this.request(
+      `/rest/v1/stock_lot?facility_id=eq.${match.source.id}&drug_id=eq.${requestRow.drug.id}&condition=eq.usable&ambient_only=is.true&order=expires_on.asc&limit=1&select=batch_number,expires_on,quantity`,
+      { method: 'GET', body: '' },
+    );
+    const lots = (await lotResponse.json()) as Array<{
+      batch_number: string;
+      expires_on: string;
+      quantity: number;
+    }>;
+    const lot = lots[0] ?? null;
+
+    const commodity = requestRow.drug.canonical_name
+      .toLowerCase()
+      .includes('zinc')
       ? 'zinc'
       : 'ors';
-    const delivered = row.status === 'delivered';
-    const dispatched =
-      row.status === 'dispatched' || row.status === 'in_transit';
+    const delivered = transfer?.status === 'delivered';
+    const failed = transfer?.status === 'failed';
+    const inTransit = transfer?.status === 'in_transit';
+    const dispatched = transfer?.status === 'dispatched' || inTransit;
+    const awaitingDispatch =
+      match.status === 'reserved' || transfer?.status === 'pending';
+
+    const timeline: OrderDetail['timeline'] = [
+      {
+        sequence: 1,
+        type: 'request_created',
+        occurredAt: requestRow.created_at,
+        actorRole: 'facility_requester',
+        label: 'Stock request created',
+      },
+      {
+        sequence: 2,
+        type: 'source_confirmation_requested',
+        occurredAt: match.offered_at,
+        actorRole: 'system',
+        label: 'Source confirmation requested',
+      },
+    ];
+    if (match.status === 'reserved' || match.status === 'consumed' || transfer)
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: 'source_released',
+        occurredAt: match.confirmed_at ?? match.offered_at,
+        actorRole: 'source_custodian',
+        label: 'Source stock released for transfer',
+      });
+    if (transfer)
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: 'rider_assigned',
+        occurredAt: transfer.dispatched_at ?? transfer.created_at,
+        actorRole: 'system',
+        label: 'Rider assigned',
+      });
+    for (const event of events) {
+      const canonicalType =
+        event.event_type === 'exception_raised'
+          ? ('escalated' as const)
+          : event.event_type === 'picked_up' ||
+              event.event_type === 'in_transit'
+            ? event.event_type
+            : null;
+      if (!canonicalType) continue;
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: canonicalType,
+        occurredAt: event.occurred_at,
+        actorRole:
+          event.actor_role === 'receiving_facility'
+            ? 'facility_requester'
+            : event.actor_role === 'rider'
+              ? 'rider'
+              : 'system',
+        label: event.detail,
+      });
+    }
+    if (delivered)
+      timeline.push({
+        sequence: timeline.length + 1,
+        type: 'received',
+        occurredAt: transfer.delivered_at ?? transfer.created_at,
+        actorRole: 'facility_requester',
+        label: 'Receiving facility accepted handover',
+      });
+
     return {
-      reference: row.request.reference,
+      reference: requestRow.reference,
       status: delivered
         ? 'received'
-        : dispatched
-          ? 'rider_en_route'
-          : 'awaiting_source_confirmation',
+        : failed
+          ? 'escalated'
+          : dispatched
+            ? 'rider_en_route'
+            : awaitingDispatch
+              ? 'awaiting_dispatch'
+              : 'awaiting_source_confirmation',
       commodity,
-      quantity: row.quantity,
-      sourceFacility: row.from.name,
-      requestingFacility: row.to.name,
+      quantity: requestRow.quantity,
+      sourceFacility: match.source.name,
+      requestingFacility: requestRow.requester.name,
+      sourceFacilityId: match.source.id,
+      requestingFacilityId: requestRow.requester.id,
+      transferReference: transfer?.reference ?? null,
       evidence: {
         commodity,
-        batchNumber: 'Awaiting scanned batch',
-        expiresOn: '2099-12-31',
-        inspectedAt: row.created_at,
+        batchNumber: lot?.batch_number ?? 'Awaiting batch scan',
+        expiresOn: lot?.expires_on ?? '2099-12-31',
+        inspectedAt: requestRow.created_at,
         condition: 'usable',
         ambientOnly: true,
-        quantityOnHand: row.quantity,
+        quantityOnHand: Math.max(
+          lot?.quantity ?? match.quantity_offered,
+          requestRow.quantity,
+        ),
         safetyFloor: 0,
-        quantityRequested: row.quantity,
+        quantityRequested: requestRow.quantity,
       },
-      timeline: [
-        {
-          sequence: 1,
-          type: 'request_created',
-          occurredAt: row.created_at,
-          actorRole: 'facility_requester',
-          label: 'Stock request created',
-        },
-        {
-          sequence: 2,
-          type: 'source_released',
-          occurredAt: row.created_at,
-          actorRole: 'source_custodian',
-          label: 'Source stock released for transfer',
-        },
-        {
-          sequence: 3,
-          type: 'rider_assigned',
-          occurredAt: row.created_at,
-          actorRole: 'system',
-          label: 'Rider assigned',
-        },
-        ...(delivered
-          ? [
-              {
-                sequence: 4,
-                type: 'received' as const,
-                occurredAt: row.created_at,
-                actorRole: 'facility_requester' as const,
-                label: 'Receiving facility accepted handover',
-              },
-            ]
-          : []),
-      ],
-      allowedActions: delivered ? [] : ['View evidence'],
+      timeline,
+      allowedActions: delivered
+        ? []
+        : failed
+          ? ['Review exception']
+          : match.status === 'offered'
+            ? ['confirm_release', 'decline_release']
+            : inTransit
+              ? ['receive', 'refuse_receipt']
+              : dispatched
+                ? ['mark_picked_up', 'mark_in_transit']
+                : ['dispatch'],
       nextAccountableOwner: delivered
         ? 'none'
-        : dispatched
-          ? 'rider'
-          : 'source_custodian',
+        : failed
+          ? 'lga'
+          : dispatched
+            ? inTransit
+              ? 'receiving_facility'
+              : 'rider'
+            : awaitingDispatch
+              ? 'lga'
+              : 'source_custodian',
     };
+  }
+
+  async listOrders(view: OrderView): Promise<OrderDetail[]> {
+    const references = new Set<string>();
+    if (view.role === 'facility') {
+      if (!view.facilityId) return [];
+      const raised = await this.request(
+        `/rest/v1/request?facility_id=eq.${encodeURIComponent(view.facilityId)}&select=reference&order=created_at.desc&limit=50`,
+        { method: 'GET', body: '' },
+      );
+      for (const row of (await raised.json()) as Array<{ reference: string }>)
+        references.add(row.reference);
+      const offered = await this.request(
+        `/rest/v1/match?facility_id=eq.${encodeURIComponent(view.facilityId)}&select=request:request!match_request_id_fkey(reference)&limit=50`,
+        { method: 'GET', body: '' },
+      );
+      for (const row of (await offered.json()) as Array<{
+        request: { reference: string } | null;
+      }>) {
+        if (row.request) references.add(row.request.reference);
+      }
+    } else {
+      const dispatched = await this.request(
+        '/rest/v1/transfer?select=request:request!transfer_request_id_fkey(reference)&order=created_at.desc&limit=50',
+        { method: 'GET', body: '' },
+      );
+      for (const row of (await dispatched.json()) as Array<{
+        request: { reference: string } | null;
+      }>) {
+        if (row.request) references.add(row.request.reference);
+      }
+    }
+    const orders = await Promise.all(
+      [...references].map((reference) => this.getOrderDetail(reference)),
+    );
+    return orders.filter((order): order is OrderDetail => order !== null);
   }
 
   async getOverview(now: Date): Promise<LgaOverview> {

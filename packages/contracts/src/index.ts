@@ -66,6 +66,7 @@ export const transferSummarySchema = z.object({
   fromFacilityId: z.uuid().optional(),
   toFacilityId: z.uuid().optional(),
   riderName: z.string().min(1).optional(),
+  requestReference: z.string().min(1).optional(),
   dispatchedAt: z.iso.datetime().optional(),
   deliveredAt: z.iso.datetime().optional(),
 });
@@ -196,6 +197,7 @@ export const orderDetailSchema = z.object({
   status: z.enum([
     'needs_review',
     'awaiting_source_confirmation',
+    'awaiting_dispatch',
     'rider_en_route',
     'received',
     'escalated',
@@ -204,6 +206,9 @@ export const orderDetailSchema = z.object({
   quantity: z.number().int().positive(),
   sourceFacility: z.string().min(1),
   requestingFacility: z.string().min(1),
+  sourceFacilityId: z.string().min(1).optional(),
+  requestingFacilityId: z.string().min(1).optional(),
+  transferReference: z.string().min(1).nullable(),
   evidence: stockEvidenceSchema,
   timeline: z.array(canonicalEventSchema),
   allowedActions: z.array(z.string().min(1)),
@@ -216,6 +221,185 @@ export const orderDetailSchema = z.object({
   ]),
 });
 
+const nigerianPhoneSchema = z.string().regex(/^\+[1-9]\d{7,14}$/);
+
+export const commoditySchema = z.enum(['ors', 'zinc']);
+
+export const createAppRequestSchema = z.object({
+  facilityPhone: nigerianPhoneSchema,
+  commodity: commoditySchema,
+  quantity: z.number().int().positive().max(500),
+});
+
+export const appRequestResultSchema = z.object({
+  status: z.enum(['offered', 'unmatched']),
+  requestReference: z.string().min(1).nullable(),
+  sourceFacility: z.string().min(1).nullable(),
+  message: z.string().min(1),
+});
+
+export const orderActionSchema = z.discriminatedUnion('action', [
+  z.object({
+    action: z.literal('confirm_release'),
+    actorPhone: nigerianPhoneSchema,
+  }),
+  z.object({
+    action: z.literal('decline_release'),
+    actorPhone: nigerianPhoneSchema,
+  }),
+  z.object({
+    action: z.literal('mark_picked_up'),
+    actorPhone: nigerianPhoneSchema,
+    riderName: z.string().trim().min(1).max(80),
+  }),
+  z.object({
+    action: z.literal('mark_in_transit'),
+    actorPhone: nigerianPhoneSchema,
+  }),
+  z.object({
+    action: z.literal('receive'),
+    actorPhone: nigerianPhoneSchema,
+    proofCode: z.string().regex(/^\d{4}$/),
+  }),
+  z.object({
+    action: z.literal('refuse_receipt'),
+    actorPhone: nigerianPhoneSchema,
+    reason: z.string().trim().min(3).max(240),
+  }),
+]);
+
+export const orderActionResultSchema = z.object({
+  accepted: z.boolean(),
+  message: z.string().min(1),
+  order: orderDetailSchema.nullable(),
+});
+
+export const notificationKindSchema = z.enum([
+  'source_confirmation_requested',
+  'source_released',
+  'source_declined',
+  'rider_assigned',
+  'picked_up',
+  'in_transit',
+  'receiving_action_required',
+  'received',
+  'receipt_refused',
+  'escalated',
+]);
+
+export const notificationEventSchema = z.object({
+  id: z.string().min(1),
+  kind: notificationKindSchema,
+  severity: z.enum(['info', 'action', 'critical']),
+  title: z.string().min(1),
+  body: z.string().min(1),
+  occurredAt: z.iso.datetime(),
+  orderReference: z.string().min(1).nullable(),
+  deepLink: z.string().min(1).nullable(),
+  audience: z.enum(['facility_requester', 'source_custodian', 'rider', 'lga']),
+});
+
+export const notificationFeedSchema = z.object({
+  generatedAt: z.iso.datetime(),
+  events: z.array(notificationEventSchema),
+});
+
+type NotificationAudience = NotificationEvent['audience'];
+
+const notificationCopy: Record<
+  CanonicalEvent['type'],
+  {
+    kind: NotificationKind;
+    title: string;
+    audiences: NotificationAudience[];
+    severity: NotificationEvent['severity'];
+  }
+> = {
+  request_created: {
+    kind: 'source_confirmation_requested',
+    title: 'Stock request raised',
+    audiences: ['facility_requester'],
+    severity: 'info',
+  },
+  source_confirmation_requested: {
+    kind: 'source_confirmation_requested',
+    title: 'Source release needed',
+    audiences: ['source_custodian'],
+    severity: 'action',
+  },
+  source_released: {
+    kind: 'source_released',
+    title: 'Source stock released',
+    audiences: ['facility_requester', 'rider'],
+    severity: 'info',
+  },
+  rider_assigned: {
+    kind: 'rider_assigned',
+    title: 'Rider assigned',
+    audiences: ['rider', 'facility_requester'],
+    severity: 'info',
+  },
+  picked_up: {
+    kind: 'picked_up',
+    title: 'Medicine picked up',
+    audiences: ['facility_requester', 'rider'],
+    severity: 'info',
+  },
+  in_transit: {
+    kind: 'in_transit',
+    title: 'Transfer in transit',
+    audiences: ['facility_requester', 'rider'],
+    severity: 'action',
+  },
+  receiving_inspected: {
+    kind: 'receiving_action_required',
+    title: 'Inspect and receive',
+    audiences: ['facility_requester'],
+    severity: 'action',
+  },
+  received: {
+    kind: 'received',
+    title: 'Transfer received',
+    audiences: ['facility_requester', 'source_custodian', 'rider', 'lga'],
+    severity: 'info',
+  },
+  escalated: {
+    kind: 'escalated',
+    title: 'Transfer escalated',
+    audiences: ['facility_requester', 'source_custodian', 'rider', 'lga'],
+    severity: 'critical',
+  },
+};
+
+/**
+ * One canonical event stream, projected for a specific role. The API returns
+ * this feed and the mobile app renders it unchanged so both stay in step.
+ */
+export function deriveOrderNotifications(
+  order: OrderDetail,
+  audience: NotificationAudience,
+): NotificationEvent[] {
+  return order.timeline
+    .filter((entry) => entry.type !== 'request_created')
+    .filter((entry) =>
+      notificationCopy[entry.type].audiences.includes(audience),
+    )
+    .map((entry) => {
+      const copy = notificationCopy[entry.type];
+      return notificationEventSchema.parse({
+        id: `${order.reference}:${entry.sequence}:${copy.kind}`,
+        kind: copy.kind,
+        severity: copy.severity,
+        title: copy.title,
+        body: `${entry.label} for ${order.reference}.`,
+        occurredAt: entry.occurredAt,
+        orderReference: order.reference,
+        deepLink: `supplai://orders/${order.reference}`,
+        audience,
+      });
+    });
+}
+
 export const scenarioRunSchema = z.object({
   scenarioId: z.literal('authorised-ambient-transfer'),
   fixtureVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
@@ -225,8 +409,6 @@ export const scenarioRunSchema = z.object({
   outcome: z.enum(['authorised_transfer_received']).nullable(),
   events: z.array(canonicalEventSchema),
 });
-
-const nigerianPhoneSchema = z.string().regex(/^\+[1-9]\d{7,14}$/);
 
 export const facilityFixtureSchema = z.object({
   id: z.string().min(1),
@@ -299,6 +481,14 @@ export type StockEvidence = z.infer<typeof stockEvidenceSchema>;
 export type CanonicalEvent = z.infer<typeof canonicalEventSchema>;
 export type OrderDetail = z.infer<typeof orderDetailSchema>;
 export type ScenarioRun = z.infer<typeof scenarioRunSchema>;
+export type Commodity = z.infer<typeof commoditySchema>;
+export type CreateAppRequest = z.infer<typeof createAppRequestSchema>;
+export type AppRequestResult = z.infer<typeof appRequestResultSchema>;
+export type OrderAction = z.infer<typeof orderActionSchema>;
+export type OrderActionResult = z.infer<typeof orderActionResultSchema>;
+export type NotificationKind = z.infer<typeof notificationKindSchema>;
+export type NotificationEvent = z.infer<typeof notificationEventSchema>;
+export type NotificationFeed = z.infer<typeof notificationFeedSchema>;
 export type FacilityFixture = z.infer<typeof facilityFixtureSchema>;
 export type MedicineFixture = z.infer<typeof medicineFixtureSchema>;
 export type StockFixture = z.infer<typeof stockFixtureSchema>;
