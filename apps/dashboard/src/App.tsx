@@ -38,6 +38,7 @@ import {
 } from './data/locations';
 import nigeriaMapHtml from '../Nigeria_Map_14e11598.html?raw';
 import { transferStatusLabel } from './lib/statusLabels';
+import LandingPage from './components/landing/LandingPage';
 
 type Theme = 'light' | 'dark';
 
@@ -141,92 +142,6 @@ function NigeriaMap() {
         <i /> Request region: <strong>Lagos</strong>
       </div>
     </div>
-  );
-}
-
-function TopoLinesEffect() {
-  return (
-    <div
-      data-aifx="topo-lines"
-      className="topo-lines-effect"
-      aria-hidden="true"
-    />
-  );
-}
-
-function LandingPage({ onOpenDashboard }: { onOpenDashboard: () => void }) {
-  return (
-    <main className="landing-page">
-      <div className="landing-page__backdrop">
-        <TopoLinesEffect />
-      </div>
-      <header className="landing-header">
-        <div className="brand">
-          <span className="brand-mark">S</span>
-          <span>supplai</span>
-        </div>
-        <button className="landing-login" onClick={onOpenDashboard}>
-          Open dashboard
-        </button>
-      </header>
-      <section className="landing-hero">
-        <div className="landing-hero__frame">
-          <div className="landing-hero__copy">
-            <h1>
-              Move essential stock
-              <span> where it matters.</span>
-            </h1>
-            <p>
-              A live command center for faster, more accountable medicine
-              transfers across every LGA.
-            </p>
-            <button className="landing-cta" onClick={onOpenDashboard}>
-              Open live operations
-              <FontAwesomeIcon icon={faRoute} />
-            </button>
-          </div>
-          <div className="landing-hero__stats">
-            <strong>8,811</strong>
-            <span>wards mapped for better last-mile visibility</span>
-            <strong>37</strong>
-            <span>states ready to explore</span>
-          </div>
-        </div>
-      </section>
-      <section className="landing-features" aria-label="Supplai capabilities">
-        <article className="landing-feature-card">
-          <span
-            className="landing-feature-icon landing-feature-icon--match"
-            aria-hidden="true"
-          />
-          <span>01 / MATCH</span>
-          <strong>Request to stock match</strong>
-          <p>See facility needs and available surplus before a transfer starts.</p>
-        </article>
-        <article className="landing-feature-card">
-          <span
-            className="landing-feature-icon landing-feature-icon--move"
-            aria-hidden="true"
-          />
-          <span>02 / MOVE</span>
-          <strong>Route the last mile</strong>
-          <p>Coordinate riders and handoffs with a clear live status.</p>
-        </article>
-        <article className="landing-feature-card">
-          <span
-            className="landing-feature-icon landing-feature-icon--prove"
-            aria-hidden="true"
-          />
-          <span>03 / PROVE</span>
-          <strong>Receipt you can trust</strong>
-          <p>Keep delivery proof visible for every public facility and ward.</p>
-        </article>
-      </section>
-      <footer className="landing-footer">
-        <span>supplai operations cloud</span>
-        <span>Medicine movement, made visible.</span>
-      </footer>
-    </main>
   );
 }
 
@@ -347,11 +262,20 @@ export default function App() {
         : null) || 'light',
   );
   const [showLanding, setShowLanding] = useState(true);
+  const [isPageTransitioning, setIsPageTransitioning] = useState(false);
   const [activeNav, setActiveNav] = useState('Overview');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [overview, setOverview] = useState(fixtureOverview);
   const [failures, setFailures] = useState(fixtureFailures);
+
+  const transitionTo = (callback: () => void) => {
+    setIsPageTransitioning(true);
+    window.setTimeout(() => {
+      callback();
+    }, 180);
+    window.setTimeout(() => setIsPageTransitioning(false), 320);
+  };
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -403,11 +327,18 @@ export default function App() {
   );
 
   if (showLanding) {
-    return <LandingPage onOpenDashboard={() => setShowLanding(false)} />;
+    return (
+      <>
+        {isPageTransitioning && <div className="page-transition" aria-hidden="true" />}
+        <LandingPage onOpenDashboard={() => transitionTo(() => setShowLanding(false))} />
+      </>
+    );
   }
 
   return (
-    <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+    <>
+      {isPageTransitioning && <div className="page-transition" aria-hidden="true" />}
+      <div className={`app-shell ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
@@ -435,7 +366,7 @@ export default function App() {
                 activeNav === label ? 'nav-item is-active' : 'nav-item'
               }
               key={label}
-              onClick={() => setActiveNav(label)}
+              onClick={() => transitionTo(() => setActiveNav(label))}
             >
               <span aria-hidden="true">
                 <FontAwesomeIcon icon={icon} />
@@ -487,7 +418,7 @@ export default function App() {
             aria-label="Log out"
             onClick={() => {
               setActiveNav('Overview');
-              setShowLanding(true);
+              transitionTo(() => setShowLanding(true));
             }}
           >
             <FontAwesomeIcon icon={faRightFromBracket} />
@@ -847,6 +778,7 @@ export default function App() {
       <button className="help-button" aria-label="Open help and information">
         ?
       </button>
-    </div>
+      </div>
+    </>
   );
 }

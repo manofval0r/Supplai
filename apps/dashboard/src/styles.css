@@ -31,6 +31,43 @@
 * {
   box-sizing: border-box;
 }
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background:
+    radial-gradient(circle at center, rgba(213, 240, 226, 0.18), transparent 34%),
+    var(--teal-dark);
+  opacity: 0;
+  pointer-events: none;
+  animation: page-transition-in 320ms ease-out both;
+}
+.page-transition::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(232, 247, 244, 0.3);
+  border-top-color: #e8f7f4;
+  border-radius: 50%;
+  content: '';
+  transform: translate(-50%, -50%);
+  animation: page-transition-spin 420ms linear infinite;
+}
+@keyframes page-transition-in {
+  0% { opacity: 0; }
+  25%, 75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes page-transition-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    display: none;
+  }
+}
 body {
   margin: 0;
   background: var(--canvas);
@@ -1359,6 +1396,22 @@ h4 {
   --red: #c92f58;
   --blue: var(--brand-blue);
   --shadow: 5px 5px 0 var(--brand-blue-deep);
+
+  /* Landing page neo-brutalist tokens */
+  --landing-border: var(--brand-blue-deep);
+  --landing-border-width: 3px;
+  --landing-radius: 4px;
+  --landing-shadow: 6px 6px 0 var(--brand-blue-deep);
+  --landing-shadow-lg: 10px 10px 0 var(--brand-blue-deep);
+  --landing-shadow-sm: 4px 4px 0 var(--brand-blue-deep);
+  --landing-shadow-xs: 3px 3px 0 var(--brand-blue-deep);
+  --landing-shadow-press: 2px 2px 0 var(--brand-blue-deep);
+  --landing-grid-line: color-mix(
+    in srgb,
+    var(--brand-blue-deep) 8%,
+    transparent
+  );
+  --landing-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 :root[data-theme='dark'] {
   --canvas: #071b3d;
