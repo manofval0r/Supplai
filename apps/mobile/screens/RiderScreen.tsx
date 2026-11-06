@@ -74,21 +74,6 @@ const styles = StyleSheet.create({
   },
   buttonOutlineText: { color: '#2563eb', fontWeight: '700', fontSize: 14 },
   buttonSuccess: { backgroundColor: '#16a34a' },
-  codeBox: {
-    backgroundColor: '#eff6ff',
-    borderWidth: 1,
-    borderColor: '#2563eb',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
-  },
-  codeText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#1e40af',
-    letterSpacing: 2,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-  },
   timeline: { marginTop: 8 },
   eventRow: {
     flexDirection: 'row',
@@ -245,16 +230,11 @@ export function RiderScreen({ riderName }: { riderName: string }) {
               order.status !== 'received' &&
               order.status !== 'escalated' && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Delivery proof code</Text>
+                  <Text style={styles.sectionTitle}>Handover code</Text>
                   <Text style={styles.label}>
-                    Share this 4-digit code with the receiving facility to
-                    verify handover.
+                    The LGA dispatch desk issues a 4-digit code to the receiving
+                    facility. Ask the receiver to confirm it when you arrive.
                   </Text>
-                  <View style={styles.codeBox}>
-                    <Text style={styles.codeText}>
-                      {order.transferReference.slice(-4)}
-                    </Text>
-                  </View>
                 </View>
               )}
 

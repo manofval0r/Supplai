@@ -5,7 +5,7 @@ Expo SDK 58 facility/rider role shell for the Supplai emergency medicine redistr
 ## Role flows
 
 - **Facility** — raise an ambient-only stock request (ORS sachets / zinc 20 mg tablets), confirm or decline source release, accept or refuse receipt using the 4-digit delivery proof code.
-- **Rider** — mark picked up, mark in transit, view the delivery proof code to share with the receiving facility.
+- **Rider** — mark picked up, mark in transit, see who currently holds the handover code.
 
 Both roles share a notification inbox (unread badge, per-event read state, deep link to an order) and in-app banners. Expo local notifications fire for simulated critical events on Android (request raised, pickup recorded, transfer in transit). Remote push is optional and never a required demo dependency.
 
@@ -39,9 +39,9 @@ Dispatch is an LGA / demo-operator action, not a mobile action. It lives on the 
 }
 ```
 
-The `receiverProofCode` is a 4-digit code valid for 30 minutes. The rider shares it with the receiving facility, which enters it via the mobile **Accept handover** action (`POST /api/orders/:reference/actions` with `action: "receive"` and `proofCode`). The source facility's phone must match the transfer's receiving facility, otherwise the action returns `unauthorized`. Two wrong codes lock the transfer.
+The `receiverProofCode` is a 4-digit code valid for 30 minutes. The LGA dispatch desk gives it to the receiving facility, which enters it via the mobile **Accept handover** action (`POST /api/orders/:reference/actions` with `action: "receive"` and `proofCode`). The source facility's phone must match the transfer's receiving facility, otherwise the action returns `unauthorized`. Two wrong codes lock the transfer.
 
-Mobile displays the last 4 characters of `transferReference` as the placeholder proof code until the real proof code is wired from the dispatch response into the rider order view.
+The rider app deliberately does not display the code. The code is the receiving side of a two-sided handover, so the rider screen only states that the LGA desk holds it.
 
 ## Data boundaries
 
