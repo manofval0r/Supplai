@@ -1,0 +1,14 @@
+# Normalise text to LF in the repository so formatting checks pass on every OS.
+* text=auto
+
+# Never normalise binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.pptx binary
+*.xlsx binary
+*.zip binary

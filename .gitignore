@@ -14,6 +14,7 @@ coverage/
 .superpowers/
 .pdfstudio/
 .taste-skill/
+.claude/
 artifacts/
 qa/
 pptx/
@@ -30,6 +31,9 @@ AKOLO-PLAN.md
 DEVELOPMENT-PLAN.md
 LEAD-DEVELOPER-PLAN.md
 LICENSE
+
+# Raw agent and research dumps stay local; distilled research belongs in references/
+references/social-logistics-challenge-research.json
 Supplai — GBSN Social Logistics Challenge 2026.pptx
 
 # OS and editor files
