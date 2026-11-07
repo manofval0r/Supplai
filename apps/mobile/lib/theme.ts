@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import { useColorScheme } from 'react-native';
 
 export const palette = {
@@ -140,6 +146,28 @@ export interface AppConfigValue {
   setShareLga: (v: boolean) => void;
   requireCode: boolean;
   setRequireCode: (v: boolean) => void;
+  // Developer Menu & Simulation Controls
+  uiScale: number;
+  setUiScale: (scale: number) => void;
+  artScale: number;
+  setArtScale: (scale: number) => void;
+  s: (size: number) => number;
+  expectedPin: string;
+  setExpectedPin: (pin: string) => void;
+  courierSpeed: number;
+  setCourierSpeed: (speed: number) => void;
+  simCommodity: 'Zinc 20 mg' | 'ORS 20.5 g';
+  setSimCommodity: (c: 'Zinc 20 mg' | 'ORS 20.5 g') => void;
+  simEtaMin: number;
+  setSimEtaMin: (min: number) => void;
+  simOrsStock: number;
+  setSimOrsStock: (qty: number) => void;
+  simZincStock: number;
+  setSimZincStock: (qty: number) => void;
+  showSplash: boolean;
+  setShowSplash: (v: boolean) => void;
+  triggerSplash: () => void;
+  resetDemoState: () => void;
 }
 
 const AppConfigContext = createContext<AppConfigValue>({
@@ -165,6 +193,27 @@ const AppConfigContext = createContext<AppConfigValue>({
   setShareLga: () => {},
   requireCode: true,
   setRequireCode: () => {},
+  uiScale: 1,
+  setUiScale: () => {},
+  artScale: 1,
+  setArtScale: () => {},
+  s: (n) => n,
+  expectedPin: '5082',
+  setExpectedPin: () => {},
+  courierSpeed: 1,
+  setCourierSpeed: () => {},
+  simCommodity: 'Zinc 20 mg',
+  setSimCommodity: () => {},
+  simEtaMin: 4,
+  setSimEtaMin: () => {},
+  simOrsStock: 80,
+  setSimOrsStock: () => {},
+  simZincStock: 120,
+  setSimZincStock: () => {},
+  showSplash: true,
+  setShowSplash: () => {},
+  triggerSplash: () => {},
+  resetDemoState: () => {},
 });
 
 export function AppConfigProvider({ children }: { children: React.ReactNode }) {
@@ -172,8 +221,9 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [activeDelivery, setActiveDelivery] = useState<boolean>(true);
   const [savedPlace, setSavedPlace] = useState<string>('Aiyetoro Central');
-  const [savedPlaces, setSavedPlaces] =
-    useState<SavedPlaceItem[]>(DEFAULT_SAVED_PLACES);
+  const [savedPlaces, setSavedPlaces] = useState<SavedPlaceItem[]>(
+    DEFAULT_SAVED_PLACES
+  );
   const [walletBalance, setWalletBalance] = useState<number>(24500);
   const [deliveryAlerts, setDeliveryAlerts] = useState<boolean>(true);
   const [haptics, setHaptics] = useState<boolean>(true);
@@ -181,16 +231,58 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [shareLga, setShareLga] = useState<boolean>(true);
   const [requireCode, setRequireCode] = useState<boolean>(true);
 
+  // Developer & Simulation controls
+  const [uiScale, setUiScale] = useState<number>(1);
+  const [artScale, setArtScale] = useState<number>(1);
+  const [expectedPin, setExpectedPin] = useState<string>('5082');
+  const [courierSpeed, setCourierSpeed] = useState<number>(1);
+  const [simCommodity, setSimCommodity] = useState<'Zinc 20 mg' | 'ORS 20.5 g'>(
+    'Zinc 20 mg'
+  );
+  const [simEtaMin, setSimEtaMin] = useState<number>(4);
+  const [simOrsStock, setSimOrsStock] = useState<number>(80);
+  const [simZincStock, setSimZincStock] = useState<number>(120);
+  const [showSplash, setShowSplash] = useState<boolean>(true);
+
   const isDark =
     themeMode === 'dark' || (themeMode === 'system' && sysScheme === 'dark');
   const colors = isDark ? darkColors : lightColors;
 
-  const addSavedPlace = (place: SavedPlaceItem) => {
+  const s = useCallback(
+    (size: number) => Math.round(size * uiScale * 10) / 10,
+    [uiScale]
+  );
+
+  const addSavedPlace = useCallback((place: SavedPlaceItem) => {
     setSavedPlaces((prev) =>
-      prev.some((p) => p.name === place.name) ? prev : [...prev, place],
+      prev.some((p) => p.name === place.name) ? prev : [...prev, place]
     );
     setSavedPlace(place.name);
-  };
+  }, []);
+
+  const triggerSplash = useCallback(() => {
+    setShowSplash(true);
+  }, []);
+
+  const resetDemoState = useCallback(() => {
+    setActiveDelivery(true);
+    setSavedPlace('Aiyetoro Central');
+    setSavedPlaces(DEFAULT_SAVED_PLACES);
+    setWalletBalance(24500);
+    setDeliveryAlerts(true);
+    setHaptics(true);
+    setReduceMotion(false);
+    setShareLga(true);
+    setRequireCode(true);
+    setUiScale(1);
+    setArtScale(1);
+    setExpectedPin('5082');
+    setCourierSpeed(1);
+    setSimCommodity('Zinc 20 mg');
+    setSimEtaMin(4);
+    setSimOrsStock(80);
+    setSimZincStock(120);
+  }, []);
 
   const value = useMemo<AppConfigValue>(
     () => ({
@@ -216,6 +308,27 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       setShareLga,
       requireCode,
       setRequireCode,
+      uiScale,
+      setUiScale,
+      artScale,
+      setArtScale,
+      s,
+      expectedPin,
+      setExpectedPin,
+      courierSpeed,
+      setCourierSpeed,
+      simCommodity,
+      setSimCommodity,
+      simEtaMin,
+      setSimEtaMin,
+      simOrsStock,
+      setSimOrsStock,
+      simZincStock,
+      setSimZincStock,
+      showSplash,
+      setShowSplash,
+      triggerSplash,
+      resetDemoState,
     }),
     [
       themeMode,
@@ -224,13 +337,26 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       activeDelivery,
       savedPlace,
       savedPlaces,
+      addSavedPlace,
       walletBalance,
       deliveryAlerts,
       haptics,
       reduceMotion,
       shareLga,
       requireCode,
-    ],
+      uiScale,
+      artScale,
+      s,
+      expectedPin,
+      courierSpeed,
+      simCommodity,
+      simEtaMin,
+      simOrsStock,
+      simZincStock,
+      showSplash,
+      triggerSplash,
+      resetDemoState,
+    ]
   );
 
   return React.createElement(AppConfigContext.Provider, { value }, children);

@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Pressable,
   StyleSheet,
   Text,
   View,
+  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -25,27 +26,27 @@ export interface SpotConfig {
 }
 
 export function ScreenBackdrop({ spots }: { spots: SpotConfig[] }) {
-  const { isDark } = useAppConfig();
+  const { isDark, artScale } = useAppConfig();
   const baseOpacity = isDark ? 0.19 : 0.24;
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {spots.map((s, i) => (
+      {spots.map((sp, i) => (
         <View
           key={i}
           style={{
             position: 'absolute',
-            top: s.top,
-            bottom: s.bottom,
-            left: s.left,
-            right: s.right,
-            transform: [{ rotate: `${s.rotate ?? 0}deg` }],
+            top: sp.top,
+            bottom: sp.bottom,
+            left: sp.left,
+            right: sp.right,
+            transform: [{ rotate: `${sp.rotate ?? 0}deg` }],
           }}
         >
           <Art
-            name={s.art}
-            size={s.size ?? 100}
-            opacity={s.opacity ?? baseOpacity}
-            withHighlight={s.withHighlight}
+            name={sp.art}
+            size={Math.round((sp.size ?? 100) * artScale)}
+            opacity={sp.opacity ?? baseOpacity}
+            withHighlight={sp.withHighlight}
           />
         </View>
       ))}
@@ -125,7 +126,7 @@ export function Button({
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
-  const { colors } = useAppConfig();
+  const { colors, s } = useAppConfig();
   const isPrimary = variant === 'primary';
   const isLime = variant === 'lime';
   const bg = isLime ? colors.lime : isPrimary ? colors.cobalt : colors.tile;
@@ -137,18 +138,24 @@ export function Button({
       disabled={disabled}
       style={[
         styles.btn,
-        { backgroundColor: bg },
+        {
+          height: s(54),
+          borderRadius: s(16),
+          backgroundColor: bg,
+        },
         disabled && styles.btnDisabled,
         style,
       ]}
     >
-      <Text style={[styles.btnText, { color: fg }]}>{children}</Text>
+      <Text style={[styles.btnText, { color: fg, fontSize: s(16) }]}>
+        {children}
+      </Text>
     </Press>
   );
 }
 
 export function KV({ rows }: { rows: [string, React.ReactNode][] }) {
-  const { colors } = useAppConfig();
+  const { colors, s } = useAppConfig();
   return (
     <View style={[styles.kvWrap, { borderColor: colors.line }]}>
       {rows.map(([k, v], i) => (
@@ -156,12 +163,21 @@ export function KV({ rows }: { rows: [string, React.ReactNode][] }) {
           key={k}
           style={[
             styles.kvRow,
+            { paddingVertical: s(14) },
             i > 0 && { borderTopWidth: 1, borderTopColor: colors.line },
           ]}
         >
-          <Text style={[styles.kvKey, { color: colors.mute }]}>{k}</Text>
+          <Text
+            style={[styles.kvKey, { color: colors.mute, fontSize: s(15) }]}
+          >
+            {k}
+          </Text>
           {typeof v === 'string' || typeof v === 'number' ? (
-            <Text style={[styles.kvVal, { color: colors.ink }]}>{v}</Text>
+            <Text
+              style={[styles.kvVal, { color: colors.ink, fontSize: s(15) }]}
+            >
+              {v}
+            </Text>
           ) : (
             v
           )}
@@ -178,7 +194,24 @@ export function Toggle({
   value: boolean;
   onToggle: (next: boolean) => void;
 }) {
-  const { colors, isDark } = useAppConfig();
+  const { colors, isDark, reduceMotion } = useAppConfig();
+  const knobAnim = useRef(new Animated.Value(value ? 18 : 0)).current;
+
+  useEffect(() => {
+    const target = value ? 18 : 0;
+    if (reduceMotion) {
+      knobAnim.setValue(target);
+    } else {
+      Animated.spring(knobAnim, {
+        toValue: target,
+        useNativeDriver: true,
+        stiffness: 280,
+        damping: 22,
+        mass: 0.7,
+      }).start();
+    }
+  }, [value, knobAnim, reduceMotion]);
+
   const activeBg = isDark ? colors.lime : colors.cobalt;
   const inactiveBg = isDark ? '#252b3d' : '#d5dbe6';
   const knobColor = value && isDark ? colors.limeInk : '#ffffff';
@@ -192,12 +225,12 @@ export function Toggle({
         { backgroundColor: value ? activeBg : inactiveBg },
       ]}
     >
-      <View
+      <Animated.View
         style={[
           styles.toggleKnob,
           {
             backgroundColor: knobColor,
-            transform: [{ translateX: value ? 18 : 0 }],
+            transform: [{ translateX: knobAnim }],
           },
         ]}
       />
@@ -209,42 +242,111 @@ export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  variant = 'surface',
+  height,
 }: {
   options: { key: T; label: string }[];
   value: T;
   onChange: (next: T) => void;
+  variant?: 'surface' | 'accent';
+  height?: number;
 }) {
-  const { colors } = useAppConfig();
+  const { colors, isDark, reduceMotion, s } = useAppConfig();
+  const [innerWidth, setInnerWidth] = useState(0);
+  const count = Math.max(1, options.length);
+  const activeIdx = Math.max(
+    0,
+    options.findIndex((o) => o.key === value),
+  );
+  const animIndex = useRef(new Animated.Value(activeIdx)).current;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      animIndex.setValue(activeIdx);
+    } else {
+      Animated.spring(animIndex, {
+        toValue: activeIdx,
+        useNativeDriver: true,
+        stiffness: 240,
+        damping: 22,
+        mass: 0.75,
+      }).start();
+    }
+  }, [activeIdx, animIndex, reduceMotion]);
+
+  const handleLayout = (e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width - 8; // 4px padding left + right
+    if (w > 0) setInnerWidth(w);
+  };
+
+  const tabWidth = innerWidth > 0 ? innerWidth / count : 0;
+  const inputRange = options.map((_, i) => i);
+  const outputRange = options.map((_, i) => i * tabWidth);
+
+  const translateX =
+    tabWidth > 0 && count > 1
+      ? animIndex.interpolate({
+          inputRange,
+          outputRange,
+        })
+      : 0;
+
+  const isAccent = variant === 'accent';
+  const pillBg = isAccent
+    ? isDark
+      ? colors.lime
+      : colors.cobalt
+    : colors.surface;
+  const activeTextColor = isAccent
+    ? isDark
+      ? colors.limeInk
+      : '#ffffff'
+    : colors.ink;
+  const btnHeight = height ? s(height) : s(36);
+
   return (
-    <View style={[styles.segWrap, { backgroundColor: colors.tile }]}>
+    <View
+      onLayout={handleLayout}
+      style={[
+        styles.segWrap,
+        { backgroundColor: colors.tile, borderRadius: s(14) },
+      ]}
+    >
+      {tabWidth > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.segPill,
+            {
+              width: tabWidth,
+              borderRadius: s(10),
+              backgroundColor: pillBg,
+              transform: [{ translateX }],
+            },
+          ]}
+        />
+      )}
       {options.map((opt) => {
         const active = opt.key === value;
         return (
-          <Press
+          <Pressable
             key={opt.key}
             onPress={() => onChange(opt.key)}
-            scaleTo={0.98}
-            style={[
-              styles.segBtn,
-              active && {
-                backgroundColor: colors.surface,
-                shadowColor: '#030407',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.08,
-                shadowRadius: 6,
-                elevation: 2,
-              },
-            ]}
+            style={[styles.segBtn, { height: btnHeight }]}
           >
             <Text
+              numberOfLines={1}
               style={[
                 styles.segText,
-                { color: active ? colors.ink : colors.mute },
+                {
+                  fontSize: s(13),
+                  color: active ? activeTextColor : colors.mute,
+                },
               ]}
             >
               {opt.label}
             </Text>
-          </Press>
+          </Pressable>
         );
       })}
     </View>
@@ -767,7 +869,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 14,
     padding: 4,
-    gap: 4,
+    position: 'relative',
+    alignItems: 'center',
+  },
+  segPill: {
+    position: 'absolute',
+    top: 4,
+    bottom: 4,
+    left: 4,
+    borderRadius: 10,
+    shadowColor: '#030407',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3,
   },
   segBtn: {
     flex: 1,

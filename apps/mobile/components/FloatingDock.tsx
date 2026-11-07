@@ -25,7 +25,7 @@ export function FloatingDock({
   activeTab: DockTab;
   onSelectTab: (tab: DockTab) => void;
 }) {
-  const { colors, reduceMotion } = useAppConfig();
+  const { colors, reduceMotion, s } = useAppConfig();
   const [innerWidth, setInnerWidth] = useState(0);
   const activeIdx = Math.max(
     0,
@@ -41,9 +41,9 @@ export function FloatingDock({
       Animated.spring(animIndex, {
         toValue: activeIdx,
         useNativeDriver: true,
-        stiffness: 260,
-        damping: 24,
-        mass: 0.8,
+        stiffness: 240,
+        damping: 22,
+        mass: 0.75,
       }).start();
     }
   }, [activeIdx, animIndex, reduceMotion]);
@@ -63,12 +63,14 @@ export function FloatingDock({
       : 0;
 
   return (
-    <View style={styles.dockWrap} pointerEvents="box-none">
+    <View style={[styles.dockWrap, { backgroundColor: colors.bg }]}>
       <View
         onLayout={handleLayout}
         style={[
           styles.dock,
           {
+            height: s(58),
+            borderRadius: s(29),
             backgroundColor: colors.dockBg,
             borderColor: colors.dockBorder,
           },
@@ -81,6 +83,7 @@ export function FloatingDock({
               styles.pill,
               {
                 width: tabWidth,
+                borderRadius: s(23),
                 backgroundColor: colors.dockActiveBg,
                 transform: [{ translateX }],
               },
@@ -120,17 +123,22 @@ export function FloatingDock({
               <Animated.View
                 style={[styles.tabInner, { transform: [{ scale }] }]}
               >
-                {tab.key === 'home' && <HomeIcon color={iconColor} size={17} />}
+                {tab.key === 'home' && (
+                  <HomeIcon color={iconColor} size={s(17)} />
+                )}
                 {tab.key === 'activity' && (
-                  <ActivityIcon color={iconColor} size={17} />
+                  <ActivityIcon color={iconColor} size={s(17)} />
                 )}
                 {tab.key === 'account' && (
-                  <UserIcon color={iconColor} size={17} />
+                  <UserIcon color={iconColor} size={s(17)} />
                 )}
                 <Text
                   style={[
                     styles.tabLabel,
-                    { color: isActive ? colors.dockActiveInk : colors.mute },
+                    {
+                      fontSize: s(13),
+                      color: isActive ? colors.dockActiveInk : colors.mute,
+                    },
                   ]}
                 >
                   {tab.label}
