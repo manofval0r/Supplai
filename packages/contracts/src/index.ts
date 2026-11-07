@@ -494,3 +494,301 @@ export type MedicineFixture = z.infer<typeof medicineFixtureSchema>;
 export type StockFixture = z.infer<typeof stockFixtureSchema>;
 export type RiderFixture = z.infer<typeof riderFixtureSchema>;
 export type DashboardDirectory = z.infer<typeof dashboardDirectorySchema>;
+
+// =========================================================================
+// Cross-Platform Supplai Chat & Operational Assistant Contracts (Round 6)
+// =========================================================================
+
+export const chatRoleSchema = z.enum(['user', 'assistant', 'system']);
+
+export const chatCategorySchema = z.enum([
+  'availability',
+  'safety',
+  'handover',
+  'recall',
+  'status',
+  'dispensing',
+  'lga_ops',
+  'general',
+]);
+
+export const facilityAvailabilityCardSchema = z.object({
+  type: z.literal('facility_availability'),
+  facilityName: z.string().min(1),
+  distanceKm: z.number().nonnegative(),
+  etaMinutes: z.number().int().positive(),
+  commodity: z.enum(['ors', 'zinc']),
+  quantityOnHand: z.number().int().nonnegative(),
+  transferableQuantity: z.number().int().nonnegative(),
+  batchNumber: z.string().min(1),
+  expiresOn: z.string().min(1),
+  canRequest: z.boolean(),
+  requestActionText: z.string().min(1),
+});
+
+export const safetyGuidelineCardSchema = z.object({
+  type: z.literal('safety_guideline'),
+  medicineName: z.string().min(1),
+  storageType: z.enum(['ambient', 'cold_chain']),
+  temperatureRange: z.string().min(1),
+  packagingRule: z.string().min(1),
+  tamperSealRequired: z.boolean(),
+  nafdacGsdpRule: z.string().min(1),
+  warnings: z.array(z.string().min(1)),
+});
+
+export const orderStatusCardSchema = z.object({
+  type: z.literal('order_status'),
+  orderReference: z.string().min(1),
+  riderName: z.string().min(1),
+  currentStatus: z.string().min(1),
+  etaMinutes: z.number().int().positive(),
+  pickedUpAt: z.string().min(1),
+  originFacility: z.string().min(1),
+  destinationFacility: z.string().min(1),
+});
+
+export const handoverHelpCardSchema = z.object({
+  type: z.literal('handover_help'),
+  orderReference: z.string().min(1),
+  expectedPin: z.string().min(1),
+  sealNumber: z.string().min(1),
+  attemptsRemaining: z.number().int().min(0).max(3),
+  refusalChecklist: z.array(z.string().min(1)),
+});
+
+export const dispensingGuideCardSchema = z.object({
+  type: z.literal('dispensing_guide'),
+  medicineName: z.string().min(1),
+  reconstitution: z.string().min(1),
+  dosageSchedule: z.string().min(1),
+  treatmentDuration: z.string().min(1),
+  clinicalDisclaimer: z.string().min(1),
+});
+
+export const chatContextCardSchema = z.discriminatedUnion('type', [
+  facilityAvailabilityCardSchema,
+  safetyGuidelineCardSchema,
+  orderStatusCardSchema,
+  handoverHelpCardSchema,
+  dispensingGuideCardSchema,
+]);
+
+export const chatQuickPromptSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  query: z.string().min(1),
+  category: chatCategorySchema,
+  iconName: z.string().optional(),
+});
+
+export const chatMessageSchema = z.object({
+  id: z.string().min(1),
+  threadId: z.string().min(1),
+  role: chatRoleSchema,
+  content: z.string().min(1),
+  timestamp: z.string().min(1),
+  quickPrompts: z.array(chatQuickPromptSchema).optional(),
+  contextCard: chatContextCardSchema.optional(),
+});
+
+export const chatThreadSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  category: chatCategorySchema,
+  orderReference: z.string().optional(),
+  facilityId: z.string().optional(),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+  messages: z.array(chatMessageSchema),
+});
+
+export const routeSnapshotSchema = z.object({
+  originName: z.string().min(1),
+  destinationName: z.string().min(1),
+  routeCoordinates: z.array(z.tuple([z.number(), z.number()])),
+  distanceKm: z.number().positive(),
+  estimatedMinutes: z.number().int().positive(),
+  activeCourier: z
+    .object({
+      name: z.string().min(1),
+      progressPct: z.number().min(0).max(100),
+      currentLocation: z.tuple([z.number(), z.number()]),
+      speedKmh: z.number().positive(),
+    })
+    .optional(),
+});
+
+export type ChatRole = z.infer<typeof chatRoleSchema>;
+export type ChatCategory = z.infer<typeof chatCategorySchema>;
+export type FacilityAvailabilityCard = z.infer<
+  typeof facilityAvailabilityCardSchema
+>;
+export type SafetyGuidelineCard = z.infer<typeof safetyGuidelineCardSchema>;
+export type OrderStatusCard = z.infer<typeof orderStatusCardSchema>;
+export type HandoverHelpCard = z.infer<typeof handoverHelpCardSchema>;
+export type DispensingGuideCard = z.infer<typeof dispensingGuideCardSchema>;
+export type ChatContextCard = z.infer<typeof chatContextCardSchema>;
+export type ChatQuickPrompt = z.infer<typeof chatQuickPromptSchema>;
+export type ChatMessage = z.infer<typeof chatMessageSchema>;
+export type ChatThread = z.infer<typeof chatThreadSchema>;
+export type RouteSnapshot = z.infer<typeof routeSnapshotSchema>;
+
+export const defaultChatQuickPrompts: ChatQuickPrompt[] = [
+  {
+    id: 'qp-avail',
+    label: 'Nearby ORS / Zinc',
+    query:
+      'Which clinic near Aiyetoro Central has ORS or Zinc available right now?',
+    category: 'availability',
+    iconName: 'pills',
+  },
+  {
+    id: 'qp-safe',
+    label: 'Transport safety rules',
+    query:
+      'What are the transport and weather packaging rules for ORS and Zinc?',
+    category: 'safety',
+    iconName: 'shield',
+  },
+  {
+    id: 'qp-seal',
+    label: 'Check seal 7842',
+    query: 'How do I verify tamper seal 7842 before accepting custody?',
+    category: 'handover',
+    iconName: 'lock',
+  },
+  {
+    id: 'qp-pin',
+    label: 'Handover PIN help',
+    query: 'Courier is here but handover PIN failed — how do I resolve it?',
+    category: 'handover',
+    iconName: 'key',
+  },
+  {
+    id: 'qp-cold',
+    label: 'Can we move vaccines?',
+    query: 'Can a motorcycle courier transport Oxytocin or vaccines?',
+    category: 'safety',
+    iconName: 'snowflake',
+  },
+];
+
+export function resolveSupplaiAssistantQuery(query: string): {
+  reply: string;
+  category: ChatCategory;
+  contextCard?: ChatContextCard;
+} {
+  const q = query.toLowerCase();
+
+  // 1. Cold chain safety question
+  if (
+    q.includes('vaccine') ||
+    q.includes('oxytocin') ||
+    q.includes('cold') ||
+    q.includes('refrigerat')
+  ) {
+    return {
+      category: 'safety',
+      reply:
+        'Blocked by protocol: Motorcycle couriers in Supplai ONLY transport ambient-stable, non-cold-chain commodities (ORS 20.5 g and Zinc Sulfate 20 mg). Oxytocin and vaccines require continuous 2°C–8°C cold-chain verification and must be requisitioned directly through the Ota LGA Cold Store.',
+      contextCard: {
+        type: 'safety_guideline',
+        medicineName: 'Cold-Chain Products (Oxytocin / Vaccines)',
+        storageType: 'cold_chain',
+        temperatureRange: '2°C to 8°C (Strict Cold Chain)',
+        packagingRule:
+          'Validated vaccine carrier with conditioned icepacks; temperature logger required.',
+        tamperSealRequired: true,
+        nafdacGsdpRule:
+          'NAFDAC GSDP 2021 Part IV: Peer motorbike redistribution of refrigerated products is strictly prohibited.',
+        warnings: [
+          'Never dispatch via peer motorcycle courier',
+          'Escalate cold-chain stockouts directly to LGA Immunization Officer',
+        ],
+      },
+    };
+  }
+
+  // 2. ORS / Zinc Availability query
+  if (
+    q.includes('nearby') ||
+    q.includes('avail') ||
+    q.includes('close') ||
+    q.includes('ors') ||
+    q.includes('zinc')
+  ) {
+    const isZinc = q.includes('zinc');
+    return {
+      category: 'availability',
+      reply: isZinc
+        ? 'Demo PHC B has 120 Zinc Sulfate 20 mg dispersible tablets on hand with 80 tablets transferable above its safety floor. Estimated delivery by courier Ade Okafor is ~7 minutes (1.8 km).'
+        : 'Demo PHC B has 80 Oral Rehydration Salts (20.5 g) sachets on hand with 60 sachets transferable above its safety floor. Batch B209 is verified intact, expiring 10/2027.',
+      contextCard: {
+        type: 'facility_availability',
+        facilityName: 'Demo PHC B',
+        distanceKm: 1.8,
+        etaMinutes: 7,
+        commodity: isZinc ? 'zinc' : 'ors',
+        quantityOnHand: isZinc ? 120 : 80,
+        transferableQuantity: isZinc ? 80 : 60,
+        batchNumber: 'B209',
+        expiresOn: '2027-10-31',
+        canRequest: true,
+        requestActionText: isZinc
+          ? 'Request 30 Zinc tablets from Demo PHC B'
+          : 'Request 20 ORS sachets from Demo PHC B',
+      },
+    };
+  }
+
+  // 3. Handover PIN and Tamper Seal Troubleshooting
+  if (
+    q.includes('pin') ||
+    q.includes('code') ||
+    q.includes('seal') ||
+    q.includes('7842') ||
+    q.includes('handover')
+  ) {
+    return {
+      category: 'handover',
+      reply:
+        'Every peer handover requires physical verification of tamper seal 7842 before entering the 4-digit handover PIN (5082). If the seal is broken or numbers do not match, refuse receipt immediately.',
+      contextCard: {
+        type: 'handover_help',
+        orderReference: 'REQ-0001',
+        expectedPin: '5082',
+        sealNumber: '7842',
+        attemptsRemaining: 2,
+        refusalChecklist: [
+          'Verify tamper seal 7842 is completely unbroken',
+          'Ensure foil sachets / blister packs are dry and undamaged',
+          'Count items before entering code (5082 signs off full quantity)',
+          'If seal is broken: Refuse delivery and log incident in app',
+        ],
+      },
+    };
+  }
+
+  // 4. Default Transport Safety Guidelines
+  return {
+    category: 'safety',
+    reply:
+      'ORS 20.5 g and Zinc Sulfate 20 mg are ambient-stable (15°C–30°C). During motorbike transit, they must be housed in a sealed, waterproof HDPE carrier with tamper seal 7842 applied at the donor clinic.',
+    contextCard: {
+      type: 'safety_guideline',
+      medicineName: 'WHO Low-Osmolarity ORS & Zinc Sulfate 20 mg',
+      storageType: 'ambient',
+      temperatureRange: '15°C to 30°C (Ambient, Dry)',
+      packagingRule:
+        'Waterproof sealed container; protect from direct rain and solar heat.',
+      tamperSealRequired: true,
+      nafdacGsdpRule:
+        'NAFDAC Guidelines for Good Storage & Distribution Practices (GSDP 2021).',
+      warnings: [
+        'Do not expose sachets to standing moisture',
+        'Check seal 7842 upon arrival before entering custody PIN',
+      ],
+    },
+  };
+}
