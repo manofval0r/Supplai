@@ -808,6 +808,22 @@ export function UsersIcon({ color }: { color?: string }) {
   );
 }
 
+export function CodeIcon({ color }: { color?: string }) {
+  const { colors, isDark } = useAppConfig();
+  const c = color ?? (isDark ? colors.lime : colors.cobalt);
+  return (
+    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M16 18l6-6-6-6M8 6l-6 6 6 6"
+        stroke={c}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 const styles = StyleSheet.create({
   btn: {
     height: 54,

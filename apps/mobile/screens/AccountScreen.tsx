@@ -28,12 +28,19 @@ import {
   FlagIcon,
   LockIcon,
   UsersIcon,
+  CodeIcon,
 } from '../components/ui';
 import { type DockTab } from '../components/FloatingDock';
 import { type AppMode } from '../components/RolePicker';
 
 export type AccountSubView =
-  'hub' | 'settings' | 'saved-places' | 'payment' | 'support' | 'safety';
+  | 'hub'
+  | 'settings'
+  | 'developer'
+  | 'saved-places'
+  | 'payment'
+  | 'support'
+  | 'safety';
 
 export function AccountScreen({
   initialSubView = 'hub',
@@ -207,10 +214,155 @@ export function AccountScreen({
             </View>
           </View>
 
-          {/* DEVELOPER & SIMULATION MENU */}
           <Text style={[styles.secLbl, { color: colors.mute }]}>
-            DEVELOPER & SIMULATION
+            PREFERENCES
           </Text>
+          <View style={[styles.groupCard, { backgroundColor: colors.tile }]}>
+            <View style={styles.row}>
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                <BikeIcon color={isDark ? colors.lime : colors.cobalt} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  Active delivery
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  Show courier on Home & Activity
+                </Text>
+              </View>
+              <Toggle value={activeDelivery} onToggle={setActiveDelivery} />
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: colors.line },
+              ]}
+            >
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                <BellIcon />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  Delivery alerts
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  Push when courier is 2 min away
+                </Text>
+              </View>
+              <Toggle value={deliveryAlerts} onToggle={setDeliveryAlerts} />
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: colors.line },
+              ]}
+            >
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                <VibrateIcon />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  Haptics
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  Vibrate on PIN and confirmation
+                </Text>
+              </View>
+              <Toggle value={haptics} onToggle={setHaptics} />
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: colors.line },
+              ]}
+            >
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                <MotionIcon />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  Reduce motion
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  Simpler transitions
+                </Text>
+              </View>
+              <Toggle value={reduceMotion} onToggle={setReduceMotion} />
+            </View>
+
+            <View
+              style={[
+                styles.row,
+                { borderTopWidth: 1, borderTopColor: colors.line },
+              ]}
+            >
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                <GlobeIcon />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  Language
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  English
+                </Text>
+              </View>
+              <ChevronRightIcon />
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // 2. DEVELOPER & SIMULATION SUB-SCREEN
+  if (subView === 'developer') {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'crate',
+              bottom: 24,
+              right: -18,
+              size: 112,
+              rotate: -8,
+              withHighlight: true,
+            },
+            {
+              art: 'route',
+              top: 48,
+              right: -18,
+              size: 104,
+              rotate: 6,
+            },
+          ]}
+        />
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.subScroll}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.topRow}>
+            <Press
+              onPress={handleBack}
+              style={[styles.backBtn, { backgroundColor: colors.tile }]}
+            >
+              <ChevronLeftIcon />
+            </Press>
+          </View>
+          <Text
+            style={[styles.pageTitle, { color: colors.ink, fontSize: s(28) }]}
+          >
+            Developer menu{'\u00A0'}
+          </Text>
+          <Text style={[styles.leadSub, { color: colors.mute }]}>
+            Configure simulations, test PIN handover, and customize UI & 2D art scale.
+          </Text>
+
           <View
             style={[
               styles.groupCard,
@@ -537,112 +689,12 @@ export function AccountScreen({
               </Press>
             </View>
           </View>
-
-          <Text style={[styles.secLbl, { color: colors.mute }]}>
-            PREFERENCES
-          </Text>
-          <View style={[styles.groupCard, { backgroundColor: colors.tile }]}>
-            <View style={styles.row}>
-              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
-                <BikeIcon color={isDark ? colors.lime : colors.cobalt} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Active delivery
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  Show courier on Home & Activity
-                </Text>
-              </View>
-              <Toggle value={activeDelivery} onToggle={setActiveDelivery} />
-            </View>
-
-            <View
-              style={[
-                styles.row,
-                { borderTopWidth: 1, borderTopColor: colors.line },
-              ]}
-            >
-              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
-                <BellIcon />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Delivery alerts
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  Push when courier is 2 min away
-                </Text>
-              </View>
-              <Toggle value={deliveryAlerts} onToggle={setDeliveryAlerts} />
-            </View>
-
-            <View
-              style={[
-                styles.row,
-                { borderTopWidth: 1, borderTopColor: colors.line },
-              ]}
-            >
-              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
-                <VibrateIcon />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Haptics
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  Vibrate on PIN and confirmation
-                </Text>
-              </View>
-              <Toggle value={haptics} onToggle={setHaptics} />
-            </View>
-
-            <View
-              style={[
-                styles.row,
-                { borderTopWidth: 1, borderTopColor: colors.line },
-              ]}
-            >
-              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
-                <MotionIcon />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Reduce motion
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  Simpler transitions
-                </Text>
-              </View>
-              <Toggle value={reduceMotion} onToggle={setReduceMotion} />
-            </View>
-
-            <View
-              style={[
-                styles.row,
-                { borderTopWidth: 1, borderTopColor: colors.line },
-              ]}
-            >
-              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
-                <GlobeIcon />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Language
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  English
-                </Text>
-              </View>
-              <ChevronRightIcon />
-            </View>
-          </View>
         </ScrollView>
       </View>
     );
   }
 
-  // 2. SAVED PLACES SUB-SCREEN
+  // 3. SAVED PLACES SUB-SCREEN
   if (subView === 'saved-places') {
     return (
       <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -1298,7 +1350,7 @@ export function AccountScreen({
                   { color: colors.ink, fontSize: s(15) },
                 ]}
               >
-                Settings & Developer
+                Settings
               </Text>
               <Text
                 style={[
@@ -1306,7 +1358,39 @@ export function AccountScreen({
                   { color: colors.mute, fontSize: s(12.5) },
                 ]}
               >
-                Dark mode, simulations, PIN test, UI scale
+                Appearance, dark mode, alerts, haptics
+              </Text>
+            </View>
+            <ChevronRightIcon />
+          </Press>
+
+          <Press
+            onPress={() => changeSubView('developer')}
+            scaleTo={0.99}
+            style={[
+              styles.row,
+              { borderTopWidth: 1, borderTopColor: colors.line },
+            ]}
+          >
+            <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+              <CodeIcon />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
+                Developer menu
+              </Text>
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
+                Simulations, handover PIN test, UI scale
               </Text>
             </View>
             <ChevronRightIcon />

@@ -60,7 +60,6 @@ function MainNavigator() {
     >
       <StatusBar
         barStyle={showSplash || isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={showSplash ? '#030407' : colors.bg}
       />
 
       <View style={styles.mainContent}>
