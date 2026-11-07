@@ -20,6 +20,8 @@ import {
   faTriangleExclamation,
   faTruckFast,
   faUser,
+  faBell,
+  faComments,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -39,6 +41,14 @@ import {
 import nigeriaMapHtml from '../Nigeria_Map_14e11598.html?raw';
 import { transferStatusLabel } from './lib/statusLabels';
 import LandingPage from './components/landing/LandingPage';
+import { MapLibreMap } from './components/MapLibreMap';
+import { NotificationDrawer } from './components/NotificationDrawer';
+import { ChatAssistantDrawer } from './components/ChatAssistantDrawer';
+import {
+  TransferDetailModal,
+  type TransferDetailData,
+} from './components/TransferDetailModal';
+import { ScenarioLabControls } from './components/ScenarioLabControls';
 
 type Theme = 'light' | 'dark';
 
@@ -268,6 +278,9 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [overview, setOverview] = useState(fixtureOverview);
   const [failures, setFailures] = useState(fixtureFailures);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [selectedTransfer, setSelectedTransfer] = useState<TransferDetailData | null>(null);
 
   const transitionTo = (callback: () => void) => {
     setIsPageTransitioning(true);
@@ -442,19 +455,41 @@ export default function App() {
               <p className="eyebrow">LGA COMMAND CENTER</p>
               <h1>{activeNav}</h1>
             </div>
-            {activeNav !== 'Overview' && (
+            <div className="topbar-actions">
+              {activeNav !== 'Overview' && (
+                <button
+                  className="back-dashboard-button"
+                  onClick={() => setActiveNav('Overview')}
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                  Back to dashboard
+                </button>
+              )}
               <button
-                className="back-dashboard-button"
-                onClick={() => setActiveNav('Overview')}
+                type="button"
+                className={`topbar-btn ${notificationsOpen ? 'is-active' : ''}`}
+                onClick={() => setNotificationsOpen(true)}
+                aria-label="Alerts"
               >
-                <FontAwesomeIcon icon={faArrowLeft} />
-                Back to dashboard
+                <FontAwesomeIcon icon={faBell} />
+                <span>Alerts</span>
+                <span className="badge-count">3</span>
               </button>
-            )}
+              <button
+                type="button"
+                className={`topbar-btn ${chatOpen ? 'is-active' : ''}`}
+                onClick={() => setChatOpen(true)}
+                aria-label="LGA Assistant"
+              >
+                <FontAwesomeIcon icon={faComments} />
+                <span>Assistant</span>
+              </button>
+            </div>
           </header>
           <div
             className={`content ${activeNav !== 'Overview' ? 'service-page' : ''}`}
           >
+            <ScenarioLabControls />
             <section className="metric-grid" aria-label="LGA summary metrics">
               {[
                 [
@@ -562,14 +597,14 @@ export default function App() {
               <section className="panel map-panel">
                 <div className="panel-heading">
                   <div>
-                    <p className="eyebrow">FACILITY NETWORK</p>
-                    <h3>Live LGA position</h3>
+                    <p className="eyebrow">FACILITY NETWORK & CORRIDOR</p>
+                    <h3>Live LGA Corridor Map</h3>
                   </div>
                   <span className="facility-count">
                     {fixtureFacilities.length} facilities
                   </span>
                 </div>
-                <NigeriaMap />
+                <MapLibreMap />
               </section>
               <section className="panel transfer-panel">
                 <div className="panel-heading">
@@ -577,12 +612,42 @@ export default function App() {
                     <p className="eyebrow">ACTIVE TRANSFERS</p>
                     <h3>Moving now</h3>
                   </div>
-                  <button className="text-button">All transfers</button>
+                  <button
+                    className="text-button"
+                    onClick={() => setActiveNav('Transfers')}
+                  >
+                    All transfers
+                  </button>
                 </div>
                 {overview.transfers
                   .filter((transfer) => transfer.status !== 'delivered')
                   .map((transfer) => (
-                    <div className="transfer-card" key={transfer.id}>
+                    <div
+                      className="transfer-card"
+                      key={transfer.id}
+                      onClick={() =>
+                        setSelectedTransfer({
+                          id: transfer.id,
+                          reference: transfer.reference,
+                          status: transfer.status,
+                          drug:
+                            transfer.drug === 'Oral Rehydration Salts'
+                              ? 'ORS sachets'
+                              : 'Zinc tablets',
+                          quantity: transfer.quantity,
+                          fromFacility: transfer.fromFacility,
+                          toFacility: transfer.toFacility,
+                          batchNumber: 'B209',
+                          expiryDate: '10/2027',
+                          sealNumber: '7842',
+                          courierName: 'Ade Okafor',
+                          etaMinutes: 4,
+                        })
+                      }
+                      style={{ cursor: 'pointer' }}
+                      role="button"
+                      tabIndex={0}
+                    >
                       <div className="transfer-card__top">
                         <span className="transfer-ref">
                           {transfer.reference}
@@ -607,7 +672,7 @@ export default function App() {
                         {transfer.drug === 'Oral Rehydration Salts'
                           ? 'ORS sachets'
                           : 'Zinc tablets'}{' '}
-                        · Rider assigned
+                        · Rider assigned · Tap to manage
                       </small>
                     </div>
                   ))}
@@ -688,7 +753,29 @@ export default function App() {
                 </div>
                 {activeNav === 'Transfers' &&
                   overview.transfers.map((transfer) => (
-                    <div className="table-row" key={transfer.id}>
+                    <div
+                      className="table-row"
+                      key={transfer.id}
+                      onClick={() =>
+                        setSelectedTransfer({
+                          id: transfer.id,
+                          reference: transfer.reference,
+                          status: transfer.status,
+                          drug: transfer.drug,
+                          quantity: transfer.quantity,
+                          fromFacility: transfer.fromFacility,
+                          toFacility: transfer.toFacility,
+                          batchNumber: 'B209',
+                          expiryDate: '10/2027',
+                          sealNumber: '7842',
+                          courierName: 'Ade Okafor',
+                          etaMinutes: 4,
+                        })
+                      }
+                      style={{ cursor: 'pointer' }}
+                      role="button"
+                      tabIndex={0}
+                    >
                       <strong>{transfer.reference}</strong>
                       <span>
                         {transfer.fromFacility} to {transfer.toFacility}
@@ -745,6 +832,7 @@ export default function App() {
                 )}
                 {activeNav === 'Facilities' && (
                   <>
+                    <NigeriaMap />
                     <WardMap />
                     <div className="facility-grid">
                       {fixtureFacilities.map((facility) => (
@@ -787,9 +875,52 @@ export default function App() {
             )}
           </div>
         </main>
-        <button className="help-button" aria-label="Open help and information">
-          ?
+        <button
+          className="help-button"
+          aria-label="Open Supplai Assistant"
+          onClick={() => setChatOpen(true)}
+        >
+          <FontAwesomeIcon icon={faComments} />
         </button>
+
+        <NotificationDrawer
+          isOpen={notificationsOpen}
+          onClose={() => setNotificationsOpen(false)}
+          onSelectOrder={(ref) => {
+            const found = overview.transfers.find((t) => t.reference === ref);
+            if (found) {
+              setSelectedTransfer({
+                id: found.id,
+                reference: found.reference,
+                status: found.status,
+                drug: found.drug,
+                quantity: found.quantity,
+                fromFacility: found.fromFacility,
+                toFacility: found.toFacility,
+                batchNumber: 'B209',
+                expiryDate: '10/2027',
+                sealNumber: '7842',
+                courierName: 'Ade Okafor',
+                etaMinutes: 4,
+              });
+            }
+          }}
+        />
+
+        <ChatAssistantDrawer
+          isOpen={chatOpen}
+          onClose={() => setChatOpen(false)}
+          onRequestTransfer={(facName, drug, qty) => {
+            alert(
+              `Initiating transfer request: ${qty} units of ${drug} from ${facName}. Dispatching to local queue.`,
+            );
+          }}
+        />
+
+        <TransferDetailModal
+          transfer={selectedTransfer}
+          onClose={() => setSelectedTransfer(null)}
+        />
       </div>
     </>
   );

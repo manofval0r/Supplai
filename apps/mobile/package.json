@@ -16,7 +16,8 @@
     "react-native-safe-area-context": "~5.11.1",
     "react-native-svg": "15.16.0",
     "react-native-webview": "14.0.1",
-    "three": "^0.160.0"
+    "three": "^0.160.0",
+    "@supplai/contracts": "0.1.0"
   },
   "devDependencies": {
     "@types/react": "~19.3.0",

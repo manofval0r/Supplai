@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ui, useAppConfig, type ThemeMode } from '../lib/theme';
+import { ui, useAppConfig, type ThemeColors, type ThemeMode } from '../lib/theme';
 import { Art } from '../components/LineArt';
 import {
   Press,
@@ -30,6 +30,12 @@ import {
   UsersIcon,
   CodeIcon,
 } from '../components/ui';
+import {
+  resolveSupplaiAssistantQuery,
+  defaultChatQuickPrompts,
+  type ChatMessage,
+  type ChatContextCard,
+} from '@supplai/contracts';
 import { type DockTab } from '../components/FloatingDock';
 import { type AppMode } from '../components/RolePicker';
 
@@ -40,7 +46,8 @@ export type AccountSubView =
   | 'saved-places'
   | 'payment'
   | 'support'
-  | 'safety';
+  | 'safety'
+  | 'chat';
 
 export function AccountScreen({
   initialSubView = 'hub',
@@ -103,6 +110,43 @@ export function AccountScreen({
   const [supportQuery, setSupportQuery] = useState('');
   const [supportToast, setSupportToast] = useState<string | null>(null);
 
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: 'm-welcome',
+      threadId: 'th-mob-0',
+      role: 'assistant',
+      content:
+        'Hello! I am your Supplai Clinical & Logistics Assistant. Ask me about nearby clinic stock availability, WHO/NAFDAC medicine transport rules, tamper seals, or handover codes.',
+      timestamp: new Date().toISOString(),
+      quickPrompts: defaultChatQuickPrompts,
+    },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  const handleMobileSend = (query: string) => {
+    const text = query.trim();
+    if (!text) return;
+    const userMsg: ChatMessage = {
+      id: `m-usr-${Date.now()}`,
+      threadId: 'th-mob-0',
+      role: 'user',
+      content: text,
+      timestamp: new Date().toISOString(),
+    };
+    const res = resolveSupplaiAssistantQuery(text);
+    const asstMsg: ChatMessage = {
+      id: `m-ast-${Date.now()}`,
+      threadId: 'th-mob-0',
+      role: 'assistant',
+      content: res.reply,
+      timestamp: new Date().toISOString(),
+      contextCard: res.contextCard,
+      quickPrompts: defaultChatQuickPrompts,
+    };
+    setChatMessages((prev) => [...prev, userMsg, asstMsg]);
+    setChatInput('');
+  };
+
   const changeSubView = (next: AccountSubView) => {
     setSubView(next);
     onSubViewChange?.(next);
@@ -116,6 +160,10 @@ export function AccountScreen({
   const handleBack = () => {
     if (subView === 'saved-places' && onBackFromSavedPlacesToHome) {
       onBackFromSavedPlacesToHome();
+      return;
+    }
+    if (subView === 'chat') {
+      changeSubView('support');
       return;
     }
     changeSubView('hub');
@@ -1029,9 +1077,7 @@ export function AccountScreen({
           {/* Quick-action 2-column grid */}
           <View style={styles.supportGrid}>
             <Press
-              onPress={() =>
-                setSupportToast('Dispatcher chat connected (Ogun desk).')
-              }
+              onPress={() => changeSubView('chat')}
               style={[styles.supportTile, { backgroundColor: colors.tile }]}
             >
               <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
@@ -1039,10 +1085,10 @@ export function AccountScreen({
               </View>
               <View>
                 <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                  Chat
+                  Chat Assistant
                 </Text>
                 <Text style={[styles.rowSub, { color: colors.mute }]}>
-                  2 min reply
+                  Instant answers
                 </Text>
               </View>
             </Press>
@@ -1074,26 +1120,33 @@ export function AccountScreen({
                 icon: <ClockIcon />,
                 title: 'Delivery is taking long',
                 sub: 'Check rider GPS or reassign',
+                query: 'Where is my active delivery right now and what is the ETA?',
               },
               {
                 icon: <FlagIcon />,
                 title: 'Wrong or damaged items',
                 sub: 'Report broken seal or count mismatch',
+                query: 'The crate seal 7842 is broken or damaged. What is the refusal protocol?',
               },
               {
                 icon: <LockIcon />,
                 title: 'Handover code problems',
                 sub: 'Reset 4-digit custody code',
+                query: 'How do I verify handover code 5082 or reset it?',
               },
               {
                 icon: <HelpIcon />,
-                title: 'Help centre',
-                sub: 'Guides for clinic leads',
+                title: 'Medicine transport rules',
+                sub: 'Ambient vs cold-chain standards',
+                query: 'What are the transport and weather packaging rules for ORS and Zinc?',
               },
             ].map((topic, idx) => (
               <Press
                 key={topic.title}
-                onPress={() => setSupportToast(`Opened: ${topic.title}`)}
+                onPress={() => {
+                  handleMobileSend(topic.query);
+                  changeSubView('chat');
+                }}
                 scaleTo={0.99}
                 style={[
                   styles.row,
@@ -1277,6 +1330,138 @@ export function AccountScreen({
             ))}
           </View>
         </ScrollView>
+      </View>
+    );
+  }
+
+  // 7. CHAT ASSISTANT SUB-SCREEN
+  if (subView === 'chat') {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'pills',
+              bottom: 18,
+              right: -14,
+              size: 110,
+              rotate: -8,
+              withHighlight: true,
+            },
+          ]}
+        />
+        <View style={styles.topRow}>
+          <Press
+            onPress={handleBack}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
+          <View style={{ flex: 1, marginLeft: 12 }}>
+            <Text style={[styles.chatHeaderTitle, { color: colors.ink }]}>
+              Supplai Assistant
+            </Text>
+            <Text style={[styles.chatHeaderSub, { color: colors.mute }]}>
+              Clinical safety & dispatch copilot
+            </Text>
+          </View>
+        </View>
+
+        {/* Message Thread */}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.chatScroll}
+          showsVerticalScrollIndicator={false}
+        >
+          {chatMessages.map((msg) => (
+            <View
+              key={msg.id}
+              style={[
+                styles.mobileBubbleRow,
+                msg.role === 'user' ? styles.bubbleRowUser : styles.bubbleRowAsst,
+              ]}
+            >
+              <View
+                style={[
+                  styles.mobileBubble,
+                  msg.role === 'user'
+                    ? { backgroundColor: colors.cobalt }
+                    : { backgroundColor: colors.tile, borderColor: colors.line, borderWidth: 1 },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.mobileBubbleText,
+                    { color: msg.role === 'user' ? '#fff' : colors.ink },
+                  ]}
+                >
+                  {msg.content}
+                </Text>
+
+                {/* Render Rich Context Card */}
+                {msg.contextCard && (
+                  <View style={styles.mobileCardWrap}>
+                    <MobileContextCard
+                      card={msg.contextCard}
+                      colors={colors}
+                      isDark={isDark}
+                      onRequest={() => {
+                        onOpenMode?.('request');
+                      }}
+                    />
+                  </View>
+                )}
+
+                <Text
+                  style={[
+                    styles.mobileBubbleTime,
+                    { color: msg.role === 'user' ? 'rgba(255,255,255,0.7)' : colors.mute },
+                  ]}
+                >
+                  {new Date(msg.timestamp).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Suggested Quick Prompts */}
+        <View style={[styles.mobilePromptBar, { backgroundColor: colors.bg, borderTopColor: colors.line }]}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+            {defaultChatQuickPrompts.map((p) => (
+              <Press
+                key={p.id}
+                onPress={() => handleMobileSend(p.query)}
+                style={[styles.mobilePromptChip, { backgroundColor: colors.tile, borderColor: colors.line }]}
+              >
+                <Text style={[styles.mobilePromptText, { color: colors.ink }]}>
+                  {p.label}
+                </Text>
+              </Press>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Chat Input Bar */}
+        <View style={[styles.mobileInputBar, { backgroundColor: colors.tile, borderTopColor: colors.line }]}>
+          <TextInput
+            value={chatInput}
+            onChangeText={setChatInput}
+            placeholder="Ask about nearby stock, safety rules, or PIN..."
+            placeholderTextColor={colors.mute}
+            style={[styles.mobileTextInput, { color: colors.ink, backgroundColor: colors.bg }]}
+            onSubmitEditing={() => handleMobileSend(chatInput)}
+          />
+          <Press
+            onPress={() => handleMobileSend(chatInput)}
+            style={[styles.mobileSendBtn, { backgroundColor: colors.cobalt }]}
+          >
+            <ChatIcon color="#fff" />
+          </Press>
+        </View>
       </View>
     );
   }
@@ -1897,4 +2082,301 @@ const styles = StyleSheet.create({
     letterSpacing: -0.1,
     paddingRight: 2,
   },
+  chatHeaderTitle: {
+    fontFamily: ui.font.bold,
+    fontSize: 18,
+    letterSpacing: -0.4,
+  },
+  chatHeaderSub: {
+    fontFamily: ui.font.medium,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  chatScroll: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 24,
+    gap: 12,
+  },
+  mobileBubbleRow: {
+    width: '100%',
+    flexDirection: 'row',
+  },
+  bubbleRowUser: {
+    justifyContent: 'flex-end',
+  },
+  bubbleRowAsst: {
+    justifyContent: 'flex-start',
+  },
+  mobileBubble: {
+    maxWidth: '86%',
+    padding: 12,
+    borderRadius: 16,
+  },
+  mobileBubbleText: {
+    fontFamily: ui.font.medium,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  mobileBubbleTime: {
+    fontFamily: ui.font.regular,
+    fontSize: 10,
+    marginTop: 6,
+    textAlign: 'right',
+  },
+  mobileCardWrap: {
+    marginTop: 10,
+  },
+  mobilePromptBar: {
+    paddingVertical: 10,
+    borderTopWidth: 1,
+  },
+  mobilePromptChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  mobilePromptText: {
+    fontFamily: ui.font.bold,
+    fontSize: 12,
+  },
+  mobileInputBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    gap: 8,
+    borderTopWidth: 1,
+  },
+  mobileTextInput: {
+    flex: 1,
+    height: 42,
+    borderRadius: 21,
+    paddingHorizontal: 16,
+    fontFamily: ui.font.medium,
+    fontSize: 14,
+  },
+  mobileSendBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mCard: {
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 12,
+    marginTop: 4,
+  },
+  mCardTitle: {
+    fontFamily: ui.font.bold,
+    fontSize: 14,
+  },
+  mCardSub: {
+    fontFamily: ui.font.medium,
+    fontSize: 11,
+    marginTop: 2,
+  },
+  mCardStatRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 8,
+  },
+  mCardStat: {
+    alignItems: 'center',
+  },
+  mCardStatLabel: {
+    fontFamily: ui.font.medium,
+    fontSize: 10,
+    textTransform: 'uppercase',
+  },
+  mCardStatVal: {
+    fontFamily: ui.font.bold,
+    fontSize: 14,
+    marginTop: 2,
+  },
+  mCardLot: {
+    fontFamily: ui.font.medium,
+    fontSize: 11,
+    marginTop: 4,
+  },
+  mCardCta: {
+    marginTop: 10,
+    height: 36,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mCardCtaText: {
+    fontFamily: ui.font.bold,
+    fontSize: 12,
+  },
+  mCardWarn: {
+    padding: 8,
+    borderRadius: 6,
+    marginVertical: 6,
+  },
+  mCardRule: {
+    fontFamily: ui.font.medium,
+    fontSize: 12,
+    marginTop: 3,
+  },
 });
+
+function MobileContextCard({
+  card,
+  colors,
+  isDark,
+  onRequest,
+}: {
+  card: ChatContextCard;
+  colors: ThemeColors;
+  isDark: boolean;
+  onRequest: () => void;
+}) {
+  if (card.type === 'facility_availability') {
+    return (
+      <View
+        style={[
+          styles.mCard,
+          {
+            backgroundColor: isDark ? '#0b0e15' : '#f0f4f9',
+            borderColor: colors.line,
+          },
+        ]}
+      >
+        <Text style={[styles.mCardTitle, { color: colors.ink }]}>
+          {card.facilityName}
+        </Text>
+        <Text style={[styles.mCardSub, { color: colors.mute }]}>
+          {card.distanceKm} km away · ~{card.etaMinutes} min by rider
+        </Text>
+        <View style={styles.mCardStatRow}>
+          <View style={styles.mCardStat}>
+            <Text style={[styles.mCardStatLabel, { color: colors.mute }]}>
+              On hand
+            </Text>
+            <Text style={[styles.mCardStatVal, { color: colors.ink }]}>
+              {card.quantityOnHand}
+            </Text>
+          </View>
+          <View style={styles.mCardStat}>
+            <Text style={[styles.mCardStatLabel, { color: colors.mute }]}>
+              Safety floor
+            </Text>
+            <Text style={[styles.mCardStatVal, { color: colors.ink }]}>
+              {card.quantityOnHand - card.transferableQuantity}
+            </Text>
+          </View>
+          <View style={styles.mCardStat}>
+            <Text style={[styles.mCardStatLabel, { color: colors.mute }]}>
+              Transferable
+            </Text>
+            <Text
+              style={[
+                styles.mCardStatVal,
+                { color: isDark ? colors.lime : colors.cobalt },
+              ]}
+            >
+              {card.transferableQuantity}
+            </Text>
+          </View>
+        </View>
+        <Text style={[styles.mCardLot, { color: colors.mute }]}>
+          Batch {card.batchNumber} · Exp {card.expiresOn}
+        </Text>
+        {card.canRequest && (
+          <Press
+            onPress={onRequest}
+            style={[
+              styles.mCardCta,
+              { backgroundColor: isDark ? colors.lime : colors.cobalt },
+            ]}
+          >
+            <Text
+              style={[
+                styles.mCardCtaText,
+                { color: isDark ? colors.limeInk : '#fff' },
+              ]}
+            >
+              {card.requestActionText}
+            </Text>
+          </Press>
+        )}
+      </View>
+    );
+  }
+
+  if (card.type === 'safety_guideline') {
+    return (
+      <View
+        style={[
+          styles.mCard,
+          {
+            backgroundColor: isDark ? '#0b0e15' : '#f0f4f9',
+            borderColor: colors.line,
+          },
+        ]}
+      >
+        <Text style={[styles.mCardTitle, { color: colors.ink }]}>
+          {card.medicineName} Safety Guide
+        </Text>
+        <Text style={[styles.mCardSub, { color: colors.mute }]}>
+          {card.temperatureRange} · {card.storageType}
+        </Text>
+        {card.warnings.length > 0 && (
+          <View
+            style={[
+              styles.mCardWarn,
+              { backgroundColor: 'rgba(237, 76, 92, 0.12)' },
+            ]}
+          >
+            <Text style={{ color: '#ed4c5c', fontSize: 12, fontWeight: '700' }}>
+              {card.warnings[0]}
+            </Text>
+          </View>
+        )}
+        <Text style={[styles.mCardRule, { color: colors.ink }]}>
+          • Packaging: {card.packagingRule}
+        </Text>
+        <Text style={[styles.mCardRule, { color: colors.ink }]}>
+          • Compliance: {card.nafdacGsdpRule}
+        </Text>
+        <Text style={[styles.mCardLot, { color: colors.mute }]}>
+          Tamper seal required:{' '}
+          {card.tamperSealRequired ? 'Yes (4-digit)' : 'No'}
+        </Text>
+      </View>
+    );
+  }
+
+  if (card.type === 'handover_help') {
+    return (
+      <View
+        style={[
+          styles.mCard,
+          {
+            backgroundColor: isDark ? '#0b0e15' : '#f0f4f9',
+            borderColor: colors.line,
+          },
+        ]}
+      >
+        <Text style={[styles.mCardTitle, { color: colors.ink }]}>
+          Handover PIN Verification
+        </Text>
+        <Text style={[styles.mCardSub, { color: colors.mute }]}>
+          Expected code: {card.expectedPin} · Seal #{card.sealNumber}
+        </Text>
+        {card.refusalChecklist.map((c, i) => (
+          <Text key={i} style={[styles.mCardRule, { color: colors.ink }]}>
+            {i + 1}. {c}
+          </Text>
+        ))}
+      </View>
+    );
+  }
+
+  return null;
+}

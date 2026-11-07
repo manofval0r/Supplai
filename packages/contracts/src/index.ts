@@ -710,7 +710,39 @@ export function resolveSupplaiAssistantQuery(query: string): {
     };
   }
 
-  // 2. ORS / Zinc Availability query
+  // 2. Transport & packaging safety question
+  if (
+    q.includes('transport') ||
+    q.includes('weather') ||
+    q.includes('packag') ||
+    q.includes('rain') ||
+    q.includes('heat') ||
+    q.includes('rule') ||
+    q.includes('standard')
+  ) {
+    return {
+      category: 'safety',
+      reply:
+        'ORS 20.5 g and Zinc Sulfate 20 mg are ambient-stable (15°C–30°C). During motorbike transit, they must be housed in a sealed, waterproof HDPE carrier with tamper seal 7842 applied at the donor clinic.',
+      contextCard: {
+        type: 'safety_guideline',
+        medicineName: 'WHO Low-Osmolarity ORS & Zinc Sulfate 20 mg',
+        storageType: 'ambient',
+        temperatureRange: '15°C to 30°C (Ambient, Dry)',
+        packagingRule:
+          'Waterproof sealed container; protect from direct rain and solar heat.',
+        tamperSealRequired: true,
+        nafdacGsdpRule:
+          'NAFDAC Guidelines for Good Storage & Distribution Practices (GSDP 2021).',
+        warnings: [
+          'Do not expose sachets to standing moisture',
+          'Check seal 7842 upon arrival before entering custody PIN',
+        ],
+      },
+    };
+  }
+
+  // 3. ORS / Zinc Availability query
   if (
     q.includes('nearby') ||
     q.includes('avail') ||
