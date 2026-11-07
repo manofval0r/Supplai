@@ -400,13 +400,42 @@ export function deriveOrderNotifications(
     });
 }
 
+export const scenarioIdSchema = z.enum([
+  'authorised-ambient-transfer',
+  'source-safety-floor-breach',
+  'shelf-batch-mismatch',
+  'fefo-priority-reroute',
+  'delayed-rider-eta-adjustment',
+  'refusal-at-receipt-tamper-seal',
+  'demand-shock-lga-buffer',
+]);
+
+export const scenarioOutcomeSchema = z.enum([
+  'authorised_transfer_received',
+  'declined_safety_floor_protected',
+  'quarantined_shelf_mismatch',
+  'rerouted_fefo_priority',
+  'delayed_eta_escalated',
+  'refused_tamper_seal_broken',
+  'escalated_lga_buffer_release',
+]);
+
+export const scenarioDefinitionSchema = z.object({
+  id: scenarioIdSchema,
+  name: z.string().min(1),
+  learningGoal: z.string().min(1),
+  expectedOutcome: scenarioOutcomeSchema,
+  nextAccountableOwner: z.string().min(1),
+  eventCount: z.number().int().positive(),
+});
+
 export const scenarioRunSchema = z.object({
-  scenarioId: z.literal('authorised-ambient-transfer'),
+  scenarioId: scenarioIdSchema,
   fixtureVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
   runId: z.string().min(1),
   cursor: z.number().int().nonnegative(),
   state: z.enum(['ready', 'running', 'completed']),
-  outcome: z.enum(['authorised_transfer_received']).nullable(),
+  outcome: scenarioOutcomeSchema.nullable(),
   events: z.array(canonicalEventSchema),
 });
 
@@ -480,6 +509,9 @@ export type DeliveryResult = z.infer<typeof deliveryResultSchema>;
 export type StockEvidence = z.infer<typeof stockEvidenceSchema>;
 export type CanonicalEvent = z.infer<typeof canonicalEventSchema>;
 export type OrderDetail = z.infer<typeof orderDetailSchema>;
+export type ScenarioId = z.infer<typeof scenarioIdSchema>;
+export type ScenarioOutcome = z.infer<typeof scenarioOutcomeSchema>;
+export type ScenarioDefinition = z.infer<typeof scenarioDefinitionSchema>;
 export type ScenarioRun = z.infer<typeof scenarioRunSchema>;
 export type Commodity = z.infer<typeof commoditySchema>;
 export type CreateAppRequest = z.infer<typeof createAppRequestSchema>;

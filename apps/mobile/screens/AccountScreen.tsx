@@ -38,6 +38,7 @@ import {
 } from '@supplai/contracts';
 import { type DockTab } from '../components/FloatingDock';
 import { type AppMode } from '../components/RolePicker';
+import { ScenarioLabRunner } from '../components/ScenarioLabRunner';
 
 export type AccountSubView =
   | 'hub'
@@ -736,6 +737,28 @@ export function AccountScreen({
                 </Text>
               </Press>
             </View>
+          </View>
+
+          {/* SCENARIO LAB RUNNER (ROUND 7) */}
+          <Text style={[styles.secLbl, { color: colors.mute, marginTop: 4 }]}>
+            SCENARIO LAB RUNNER (ROUND 7)
+          </Text>
+          <View
+            style={[
+              styles.groupCard,
+              {
+                backgroundColor: colors.tile,
+                marginBottom: 28,
+                paddingVertical: 14,
+                paddingHorizontal: 16,
+              },
+            ]}
+          >
+            <ScenarioLabRunner
+              colors={colors}
+              isDark={isDark}
+              uiScale={uiScale}
+            />
           </View>
         </ScrollView>
       </View>

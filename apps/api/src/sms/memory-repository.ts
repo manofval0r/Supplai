@@ -85,9 +85,8 @@ const aliases = new Map<string, 'ors' | 'zinc'>([
   ['zinc dispersible', 'zinc'],
 ]);
 
-const demoFacilities: FacilityStock[] = Array.from(
-  { length: 8 },
-  (_, index) => ({
+function createDemoFacilities(): FacilityStock[] {
+  return Array.from({ length: 8 }, (_, index) => ({
     id: `PHC-${String.fromCharCode(65 + index)}`,
     name:
       index === 0
@@ -102,8 +101,8 @@ const demoFacilities: FacilityStock[] = Array.from(
       ors: index === 0 ? 0 : 20,
       zinc: index === 0 ? 0 : 10,
     },
-  }),
-);
+  }));
+}
 
 export class InMemorySmsRepository
   implements SmsRepository, OperationsRepository
@@ -123,7 +122,27 @@ export class InMemorySmsRepository
     requestReference?: string;
   }> = [];
 
-  constructor(private readonly facilities = demoFacilities) {}
+  private facilities: FacilityStock[];
+
+  constructor(facilities?: FacilityStock[]) {
+    this.facilities = facilities
+      ? facilities.map((f) => ({
+          ...f,
+          stock: { ...f.stock },
+          safetyFloor: { ...f.safetyFloor },
+        }))
+      : createDemoFacilities();
+  }
+
+  reset(): void {
+    this.messageIds.clear();
+    this.offers.clear();
+    this.transfers.clear();
+    this.movements.length = 0;
+    this.outbound.length = 0;
+    this.sequence = 1;
+    this.facilities = createDemoFacilities();
+  }
 
   recordInbound(event: InboundSmsEvent) {
     const key = `${event.provider}:${event.providerMessageId}`;

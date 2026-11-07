@@ -61,4 +61,5 @@ export interface OperationsRepository {
   listOrders(view: OrderView): Promise<OrderDetail[]>;
   getOverview(now: Date): Promise<LgaOverview>;
   getFailures(now: Date): Promise<OperationalFailure[]>;
+  reset?(): void;
 }

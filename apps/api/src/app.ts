@@ -6,6 +6,7 @@ import {
   demoSmsRequestSchema,
   healthResponseSchema,
   orderActionSchema,
+  scenarioIdSchema,
   verifyDeliverySchema,
 } from '@supplai/contracts';
 
@@ -169,9 +170,54 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   });
   app.get('/api/failures', () => repository.getFailures(new Date()));
   app.get('/api/operations/failures', () => repository.getFailures(new Date()));
+  app.post('/api/demo/reset', async (request, reply) => {
+    if (!authorizeScenarioControl(request))
+      return reply.code(401).send({ error: 'Unauthorized demo control' });
+    if (typeof repository.reset === 'function') {
+      repository.reset();
+    }
+    scenarios.resetAll();
+    return reply.code(200).send({
+      ok: true,
+      timestamp: new Date().toISOString(),
+      message: 'Demo environment reset to baseline',
+    });
+  });
+
+  app.get('/demo/scenarios', (request, reply) =>
+    authorizeScenarioControl(request)
+      ? scenarios.listScenarios()
+      : reply.code(401).send({ error: 'Unauthorized demo control' }),
+  );
+
+  app.get('/demo/scenarios/:id', (request, reply) => {
+    if (!authorizeScenarioControl(request))
+      return reply.code(401).send({ error: 'Unauthorized demo control' });
+    const { id } = request.params as { id: string };
+    const parsedId = scenarioIdSchema.safeParse(id);
+    if (!parsedId.success) {
+      return reply.code(404).send({ error: `Unknown scenario: ${id}` });
+    }
+    return scenarios.read(parsedId.data);
+  });
+
+  for (const action of ['start', 'tick', 'replay', 'reset'] as const) {
+    app.post(`/demo/scenarios/:id/${action}`, (request, reply) => {
+      if (!authorizeScenarioControl(request))
+        return reply.code(401).send({ error: 'Unauthorized demo control' });
+      const { id } = request.params as { id: string };
+      const parsedId = scenarioIdSchema.safeParse(id);
+      if (!parsedId.success) {
+        return reply.code(404).send({ error: `Unknown scenario: ${id}` });
+      }
+      return scenarios[action](parsedId.data);
+    });
+  }
+
+  // Backwards compatibility for single-scenario endpoints
   app.get('/demo/scenarios/authorised-ambient-transfer', (request, reply) =>
     authorizeScenarioControl(request)
-      ? scenarios.read()
+      ? scenarios.read('authorised-ambient-transfer')
       : reply.code(401).send({ error: 'Unauthorized demo control' }),
   );
   for (const action of ['start', 'tick', 'replay', 'reset'] as const) {
@@ -180,7 +226,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       (request, reply) => {
         if (!authorizeScenarioControl(request))
           return reply.code(401).send({ error: 'Unauthorized demo control' });
-        return scenarios[action]();
+        return scenarios[action]('authorised-ambient-transfer');
       },
     );
   }
