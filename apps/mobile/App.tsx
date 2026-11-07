@@ -37,9 +37,10 @@ function MainNavigator() {
   }, []);
 
   const showDock =
-    mode === 'home' ||
-    mode === 'activity' ||
-    (mode === 'account' && accountSubView === 'hub');
+    !showSplash &&
+    (mode === 'home' ||
+      mode === 'activity' ||
+      (mode === 'account' && accountSubView === 'hub'));
 
   const activeDockTab: DockTab =
     mode === 'activity' ? 'activity' : mode === 'account' ? 'account' : 'home';
@@ -48,11 +49,18 @@ function MainNavigator() {
     <SafeAreaView
       style={[
         styles.safeArea,
-        { backgroundColor: mode === 'rider' ? '#e8ecf2' : colors.bg },
+        {
+          backgroundColor: showSplash
+            ? '#030407'
+            : mode === 'rider'
+              ? '#e8ecf2'
+              : colors.bg,
+        },
       ]}
     >
       <StatusBar
         barStyle={showSplash || isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={showSplash ? '#030407' : colors.bg}
       />
 
       <View style={styles.mainContent}>

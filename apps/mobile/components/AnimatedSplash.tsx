@@ -440,12 +440,13 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
 const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
-    top: 0,
+    top: -48,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: -24,
     backgroundColor: '#030407',
     zIndex: 999,
+    elevation: 999,
   },
   pressFill: {
     flex: 1,
