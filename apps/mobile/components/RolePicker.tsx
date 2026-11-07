@@ -4,7 +4,6 @@ import { ui, useAppConfig } from '../lib/theme';
 import { Stage3D } from './Stage3D';
 import { Art, HomeCorridorScene } from './LineArt';
 import { Press, ScreenBackdrop, PinIcon, ChevronRightIcon } from './ui';
-import { FloatingDock, type DockTab } from './FloatingDock';
 
 export type AppMode =
   | 'home'
@@ -18,12 +17,11 @@ export type AppMode =
 
 export function RolePicker({
   onSelectMode,
-  onSelectTab,
 }: {
   onSelectMode: (mode: AppMode) => void;
-  onSelectTab: (tab: DockTab) => void;
 }) {
-  const { colors, activeDelivery, savedPlace } = useAppConfig();
+  const { colors, activeDelivery, savedPlace, simCommodity, simEtaMin, s } =
+    useAppConfig();
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -40,7 +38,7 @@ export function RolePicker({
           { art: 'pills', top: 310, left: -24, size: 100, rotate: -14 },
           {
             art: 'route',
-            bottom: 130,
+            bottom: 80,
             right: -18,
             size: 108,
             rotate: -6,
@@ -51,7 +49,10 @@ export function RolePicker({
 
       <View style={styles.body}>
         <Text
-          style={[styles.heroHeadline, { color: colors.ink }]}
+          style={[
+            styles.heroHeadline,
+            { color: colors.ink, fontSize: s(22.5), lineHeight: s(28) },
+          ]}
           numberOfLines={1}
           adjustsFontSizeToFit
         >
@@ -68,7 +69,10 @@ export function RolePicker({
               <PinIcon color={colors.limeInk} size={14} />
             </View>
             <Text
-              style={[styles.placeText, { color: colors.mute }]}
+              style={[
+                styles.placeText,
+                { color: colors.mute, fontSize: s(13) },
+              ]}
               numberOfLines={1}
             >
               Delivering to{' '}
@@ -86,13 +90,34 @@ export function RolePicker({
             {/* Tile 1: Request stock */}
             <Press
               onPress={() => onSelectMode('request')}
-              style={[styles.tileLg, { backgroundColor: colors.tile }]}
+              style={[
+                styles.tileLg,
+                {
+                  backgroundColor: colors.tile,
+                  height: s(176),
+                  borderRadius: s(24),
+                },
+              ]}
             >
               <View>
-                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                <Text
+                  style={[
+                    styles.tileTitle,
+                    { color: colors.ink, fontSize: s(17), lineHeight: s(20) },
+                  ]}
+                >
                   Request stock{'\u00A0'}
                 </Text>
-                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                <Text
+                  style={[
+                    styles.tileSub,
+                    {
+                      color: colors.mute,
+                      fontSize: s(12.5),
+                      lineHeight: s(16),
+                    },
+                  ]}
+                >
                   Nearest clinic is 7 min away
                 </Text>
               </View>
@@ -109,13 +134,34 @@ export function RolePicker({
             {/* Tile 2: Release surplus */}
             <Press
               onPress={() => onSelectMode('release')}
-              style={[styles.tileLg, { backgroundColor: colors.tile }]}
+              style={[
+                styles.tileLg,
+                {
+                  backgroundColor: colors.tile,
+                  height: s(176),
+                  borderRadius: s(24),
+                },
+              ]}
             >
               <View>
-                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                <Text
+                  style={[
+                    styles.tileTitle,
+                    { color: colors.ink, fontSize: s(17), lineHeight: s(20) },
+                  ]}
+                >
                   Release surplus{'\u00A0'}
                 </Text>
-                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                <Text
+                  style={[
+                    styles.tileSub,
+                    {
+                      color: colors.mute,
+                      fontSize: s(12.5),
+                      lineHeight: s(16),
+                    },
+                  ]}
+                >
                   Send what you can spare
                 </Text>
               </View>
@@ -134,27 +180,44 @@ export function RolePicker({
           {activeDelivery ? (
             <Press
               onPress={() => onSelectMode('rider')}
-              style={[styles.tileWide, { backgroundColor: colors.heroTileBg }]}
+              style={[
+                styles.tileWide,
+                {
+                  backgroundColor: colors.heroTileBg,
+                  height: s(104),
+                  borderRadius: s(24),
+                },
+              ]}
             >
               <View style={styles.tileWideCopy}>
-                <Text style={[styles.tileTitle, { color: '#ffffff' }]}>
+                <Text
+                  style={[
+                    styles.tileTitle,
+                    { color: '#ffffff', fontSize: s(17), lineHeight: s(20) },
+                  ]}
+                >
                   Track delivery{'\u00A0'}
                 </Text>
                 <Text
                   style={[
                     styles.tileSub,
-                    { color: colors.heroSubColor, maxWidth: '100%' },
+                    {
+                      color: colors.heroSubColor,
+                      fontSize: s(12.5),
+                      lineHeight: s(16),
+                      maxWidth: '100%',
+                    },
                   ]}
                   numberOfLines={1}
                 >
-                  Zinc 20 mg,{' '}
+                  {simCommodity},{' '}
                   <Text
                     style={{
                       color: colors.lime,
                       fontFamily: ui.font.bold,
                     }}
                   >
-                    4 min away{'\u00A0'}
+                    {simEtaMin} min away{'\u00A0'}
                   </Text>
                 </Text>
               </View>
@@ -173,14 +236,30 @@ export function RolePicker({
                 styles.tileIdle,
                 {
                   borderColor: colors.line,
+                  height: s(84),
+                  borderRadius: s(24),
                 },
               ]}
             >
               <View style={{ flex: 1 }}>
-                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                <Text
+                  style={[
+                    styles.tileTitle,
+                    { color: colors.ink, fontSize: s(17), lineHeight: s(20) },
+                  ]}
+                >
                   No delivery on the way{'\u00A0'}
                 </Text>
-                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                <Text
+                  style={[
+                    styles.tileSub,
+                    {
+                      color: colors.mute,
+                      fontSize: s(12.5),
+                      lineHeight: s(16),
+                    },
+                  ]}
+                >
                   Orders you place show up here
                 </Text>
               </View>
@@ -195,8 +274,6 @@ export function RolePicker({
 
         <HomeCorridorScene />
       </View>
-
-      <FloatingDock activeTab="home" onSelectTab={onSelectTab} />
     </View>
   );
 }

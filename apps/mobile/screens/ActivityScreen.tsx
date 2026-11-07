@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ui, useAppConfig } from '../lib/theme';
 import { Art, type ArtName } from '../components/LineArt';
 import { Press, ScreenBackdrop, SegmentedControl } from '../components/ui';
-import { FloatingDock, type DockTab } from '../components/FloatingDock';
 
 type ActivityFilter = 'all' | 'active' | 'done';
 
@@ -41,12 +40,10 @@ const HISTORY_ITEMS: {
 
 export function ActivityScreen({
   onOpenLiveDelivery,
-  onSelectTab,
 }: {
   onOpenLiveDelivery: () => void;
-  onSelectTab: (tab: DockTab) => void;
 }) {
-  const { colors, activeDelivery } = useAppConfig();
+  const { colors, activeDelivery, simCommodity, simEtaMin, s } = useAppConfig();
   const [filter, setFilter] = useState<ActivityFilter>('all');
 
   const showActiveSection = filter === 'all' || filter === 'active';
@@ -66,7 +63,7 @@ export function ActivityScreen({
           },
           {
             art: 'crate',
-            bottom: 120,
+            bottom: 80,
             left: -20,
             size: 104,
             rotate: 12,
@@ -79,25 +76,35 @@ export function ActivityScreen({
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.pageTitle, { color: colors.ink }]}>
+        <Text
+          style={[styles.pageTitle, { color: colors.ink, fontSize: s(28) }]}
+        >
           Activity{'\u00A0'}
         </Text>
 
         {/* Stats Row */}
         <View style={styles.statRow}>
           <View style={[styles.statBox, { backgroundColor: colors.tile }]}>
-            <Text style={[styles.statNum, { color: colors.ink }]}>
+            <Text
+              style={[styles.statNum, { color: colors.ink, fontSize: s(26) }]}
+            >
               12{'\u00A0'}
             </Text>
-            <Text style={[styles.statLbl, { color: colors.mute }]}>
+            <Text
+              style={[styles.statLbl, { color: colors.mute, fontSize: s(12) }]}
+            >
               Requests this month
             </Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: colors.tile }]}>
-            <Text style={[styles.statNum, { color: colors.ink }]}>
+            <Text
+              style={[styles.statNum, { color: colors.ink, fontSize: s(26) }]}
+            >
               8{'\u00A0'}
             </Text>
-            <Text style={[styles.statLbl, { color: colors.mute }]}>
+            <Text
+              style={[styles.statLbl, { color: colors.mute, fontSize: s(12) }]}
+            >
               Released to others
             </Text>
           </View>
@@ -129,13 +136,20 @@ export function ActivityScreen({
               >
                 <View style={styles.liveCardTop}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.liveTitle}>
+                    <Text style={[styles.liveTitle, { fontSize: s(16) }]}>
                       Courier on the way{'\u00A0'}
                     </Text>
-                    <Text style={styles.liveSub}>Zinc 20 mg, Ade Okafor</Text>
+                    <Text style={[styles.liveSub, { fontSize: s(13) }]}>
+                      {simCommodity}, Ade Okafor
+                    </Text>
                   </View>
-                  <Text style={[styles.liveEta, { color: colors.lime }]}>
-                    4 min{'\u00A0'}
+                  <Text
+                    style={[
+                      styles.liveEta,
+                      { color: colors.lime, fontSize: s(22) },
+                    ]}
+                  >
+                    {simEtaMin} min{'\u00A0'}
                   </Text>
                 </View>
                 <View style={styles.liveTrack}>
@@ -195,10 +209,20 @@ export function ActivityScreen({
                     <Art name={item.art} size={28} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                    <Text
+                      style={[
+                        styles.rowTitle,
+                        { color: colors.ink, fontSize: s(15) },
+                      ]}
+                    >
                       {item.title}
                     </Text>
-                    <Text style={[styles.rowSub, { color: colors.mute }]}>
+                    <Text
+                      style={[
+                        styles.rowSub,
+                        { color: colors.mute, fontSize: s(12.5) },
+                      ]}
+                    >
                       {item.sub}
                     </Text>
                   </View>
@@ -221,8 +245,6 @@ export function ActivityScreen({
           </View>
         )}
       </ScrollView>
-
-      <FloatingDock activeTab="activity" onSelectTab={onSelectTab} />
     </View>
   );
 }

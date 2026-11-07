@@ -221,9 +221,8 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [activeDelivery, setActiveDelivery] = useState<boolean>(true);
   const [savedPlace, setSavedPlace] = useState<string>('Aiyetoro Central');
-  const [savedPlaces, setSavedPlaces] = useState<SavedPlaceItem[]>(
-    DEFAULT_SAVED_PLACES
-  );
+  const [savedPlaces, setSavedPlaces] =
+    useState<SavedPlaceItem[]>(DEFAULT_SAVED_PLACES);
   const [walletBalance, setWalletBalance] = useState<number>(24500);
   const [deliveryAlerts, setDeliveryAlerts] = useState<boolean>(true);
   const [haptics, setHaptics] = useState<boolean>(true);
@@ -237,7 +236,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [expectedPin, setExpectedPin] = useState<string>('5082');
   const [courierSpeed, setCourierSpeed] = useState<number>(1);
   const [simCommodity, setSimCommodity] = useState<'Zinc 20 mg' | 'ORS 20.5 g'>(
-    'Zinc 20 mg'
+    'Zinc 20 mg',
   );
   const [simEtaMin, setSimEtaMin] = useState<number>(4);
   const [simOrsStock, setSimOrsStock] = useState<number>(80);
@@ -250,12 +249,12 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
 
   const s = useCallback(
     (size: number) => Math.round(size * uiScale * 10) / 10,
-    [uiScale]
+    [uiScale],
   );
 
   const addSavedPlace = useCallback((place: SavedPlaceItem) => {
     setSavedPlaces((prev) =>
-      prev.some((p) => p.name === place.name) ? prev : [...prev, place]
+      prev.some((p) => p.name === place.name) ? prev : [...prev, place],
     );
     setSavedPlace(place.name);
   }, []);
@@ -356,7 +355,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       showSplash,
       triggerSplash,
       resetDemoState,
-    ]
+    ],
   );
 
   return React.createElement(AppConfigContext.Provider, { value }, children);

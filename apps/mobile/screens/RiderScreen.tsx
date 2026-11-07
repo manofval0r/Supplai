@@ -19,7 +19,8 @@ export function RiderScreen({
   onSwitchRole?: () => void;
   onOpenHandover?: () => void;
 }) {
-  const { colors, isDark, savedPlace } = useAppConfig();
+  const { colors, isDark, savedPlace, courierSpeed, simCommodity, s } =
+    useAppConfig();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [progress, setProgress] = useState<number>(0.45);
 
@@ -79,10 +80,14 @@ export function RiderScreen({
     ? `Delivering ${order.quantity} ${
         order.commodity === 'ors' ? 'ORS sachets' : 'zinc blisters'
       }`
-    : 'Delivering 20 ORS sachets';
+    : `Delivering 20 ${simCommodity}`;
 
   const distKm = ((1 - progress) * 2.8).toFixed(2);
-  const etaMin = Math.max(1, Math.ceil((1 - progress) * 7));
+  const etaMin = Math.max(
+    1,
+    Math.ceil(((1 - progress) * 7) / Math.max(0.5, courierSpeed)),
+  );
+  const speedKmh = Math.round(34 * courierSpeed);
   const pct = Math.max(8, Math.min(100, Math.round(progress * 100)));
   const initials = riderName
     .split(' ')
@@ -146,15 +151,28 @@ export function RiderScreen({
 
         <View style={styles.etaRow}>
           <View style={styles.etaLeft}>
-            <Text style={[styles.etaBig, { color: colors.ink }]}>{etaMin}</Text>
-            <Text style={[styles.etaUnit, { color: colors.ink }]}>min</Text>
+            <Text
+              style={[
+                styles.etaBig,
+                { color: colors.ink, fontSize: s(44), lineHeight: s(48) },
+              ]}
+            >
+              {etaMin}
+            </Text>
+            <Text
+              style={[styles.etaUnit, { color: colors.ink, fontSize: s(20) }]}
+            >
+              min
+            </Text>
           </View>
           <View style={styles.etaRight}>
-            <Text style={[styles.distBold, { color: colors.ink }]}>
+            <Text
+              style={[styles.distBold, { color: colors.ink, fontSize: s(15) }]}
+            >
               {distKm} km
             </Text>
             <Text style={[styles.speedSub, { color: colors.mute }]}>
-              34 km/h
+              {speedKmh} km/h
             </Text>
           </View>
         </View>

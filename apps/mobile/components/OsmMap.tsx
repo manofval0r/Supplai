@@ -22,11 +22,13 @@ function html(
   topPad: number,
   bottomPad: number,
   isDark: boolean,
+  speedMult: number,
 ) {
   const tileFilter = isDark
     ? 'invert(1) hue-rotate(185deg) saturate(.6) brightness(.78) contrast(1.08)'
     : 'saturate(.72) contrast(.97) brightness(1.03)';
   const bg = isDark ? '#0b0e15' : '#e8ecf2';
+  const periodSec = Math.max(4, Math.round(26 / Math.max(0.5, speedMult)));
 
   return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -57,7 +59,7 @@ var seg=[],tot=0;for(var i=1;i<route.length;i++){var d=Math.hypot(route[i][0]-ro
 function at(u){var d=u*tot;for(var i=0;i<seg.length;i++){if(d<=seg[i]){var f=d/seg[i];return[route[i][0]+(route[i+1][0]-route[i][0])*f,route[i][1]+(route[i+1][1]-route[i][1])*f]}d-=seg[i]}return route[route.length-1]}
 var t0=Date.now(),lastPost=0;
 function loop(){requestAnimationFrame(loop);
- var u=${moving ? '.18+(((Date.now()-t0)/1000)%26)/26*.72' : '.12'};
+ var u=${moving ? `.18+(((Date.now()-t0)/1000)%${periodSec})/${periodSec}*.72` : '.12'};
  puck.setLatLng(at(u));
  if(Date.now()-lastPost>500&&window.ReactNativeWebView){lastPost=Date.now();window.ReactNativeWebView.postMessage(String(u))}}
 loop();
@@ -80,14 +82,14 @@ export function OsmMap({
   bottomPad?: number;
   onProgress?: (u: number) => void;
 }) {
-  const { isDark } = useAppConfig();
+  const { isDark, courierSpeed } = useAppConfig();
   const bg = isDark ? '#0b0e15' : '#e8ecf2';
   const source = useMemo(
     () => ({
-      html: html(origin, dest, moving, topPad, bottomPad, isDark),
+      html: html(origin, dest, moving, topPad, bottomPad, isDark, courierSpeed),
       baseUrl: 'https://supplai-1.vercel.app',
     }),
-    [origin, dest, moving, topPad, bottomPad, isDark],
+    [origin, dest, moving, topPad, bottomPad, isDark, courierSpeed],
   );
   return (
     <View style={{ flex: 1, backgroundColor: bg }}>

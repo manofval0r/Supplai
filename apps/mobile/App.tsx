@@ -16,20 +16,33 @@ import {
 } from '@expo-google-fonts/inter';
 
 import { RolePicker, type AppMode } from './components/RolePicker';
-import { type DockTab } from './components/FloatingDock';
+import { FloatingDock, type DockTab } from './components/FloatingDock';
+import { AnimatedSplash } from './components/AnimatedSplash';
 import { FacilityScreen } from './screens/FacilityScreen';
 import { RiderScreen } from './screens/RiderScreen';
 import { ActivityScreen } from './screens/ActivityScreen';
-import { AccountScreen } from './screens/AccountScreen';
+import { AccountScreen, type AccountSubView } from './screens/AccountScreen';
 import { AppConfigProvider, useAppConfig } from './lib/theme';
 
 function MainNavigator() {
-  const { colors, isDark } = useAppConfig();
+  const { colors, isDark, showSplash, setShowSplash } = useAppConfig();
   const [mode, setMode] = useState<AppMode>('home');
+  const [accountSubView, setAccountSubView] = useState<AccountSubView>('hub');
 
   const handleSelectTab = useCallback((tab: DockTab) => {
+    if (tab === 'account') {
+      setAccountSubView('hub');
+    }
     setMode(tab);
   }, []);
+
+  const showDock =
+    mode === 'home' ||
+    mode === 'activity' ||
+    (mode === 'account' && accountSubView === 'hub');
+
+  const activeDockTab: DockTab =
+    mode === 'activity' ? 'activity' : mode === 'account' ? 'account' : 'home';
 
   return (
     <SafeAreaView
@@ -38,48 +51,64 @@ function MainNavigator() {
         { backgroundColor: mode === 'rider' ? '#e8ecf2' : colors.bg },
       ]}
     >
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <StatusBar
+        barStyle={showSplash || isDark ? 'light-content' : 'dark-content'}
+      />
 
       <View style={styles.mainContent}>
-        {mode === 'home' && (
-          <RolePicker onSelectMode={setMode} onSelectTab={handleSelectTab} />
-        )}
+        <View style={{ flex: 1 }}>
+          {mode === 'home' && <RolePicker onSelectMode={setMode} />}
 
-        {mode === 'activity' && (
-          <ActivityScreen
-            onOpenLiveDelivery={() => setMode('rider')}
+          {mode === 'activity' && (
+            <ActivityScreen onOpenLiveDelivery={() => setMode('rider')} />
+          )}
+
+          {mode === 'account' && (
+            <AccountScreen
+              initialSubView="hub"
+              onSelectTab={handleSelectTab}
+              onOpenMode={setMode}
+              onSubViewChange={setAccountSubView}
+            />
+          )}
+
+          {mode === 'saved-places' && (
+            <AccountScreen
+              initialSubView="saved-places"
+              onSelectTab={handleSelectTab}
+              onOpenMode={setMode}
+              onBackFromSavedPlacesToHome={() => setMode('home')}
+            />
+          )}
+
+          {(mode === 'request' ||
+            mode === 'release' ||
+            mode === 'handover') && (
+            <FacilityScreen
+              facilityName="Aiyetoro Central"
+              mode={mode}
+              onSwitchRole={() => setMode('home')}
+              onOpenRider={() => setMode('rider')}
+            />
+          )}
+
+          {mode === 'rider' && (
+            <RiderScreen
+              riderName="Ade Okafor"
+              onSwitchRole={() => setMode('home')}
+              onOpenHandover={() => setMode('handover')}
+            />
+          )}
+        </View>
+
+        {showDock && (
+          <FloatingDock
+            activeTab={activeDockTab}
             onSelectTab={handleSelectTab}
           />
         )}
 
-        {mode === 'account' && (
-          <AccountScreen initialSubView="hub" onSelectTab={handleSelectTab} />
-        )}
-
-        {mode === 'saved-places' && (
-          <AccountScreen
-            initialSubView="saved-places"
-            onSelectTab={handleSelectTab}
-            onBackFromSavedPlacesToHome={() => setMode('home')}
-          />
-        )}
-
-        {(mode === 'request' || mode === 'release' || mode === 'handover') && (
-          <FacilityScreen
-            facilityName="Aiyetoro Central"
-            mode={mode}
-            onSwitchRole={() => setMode('home')}
-            onOpenRider={() => setMode('rider')}
-          />
-        )}
-
-        {mode === 'rider' && (
-          <RiderScreen
-            riderName="Ade Okafor"
-            onSwitchRole={() => setMode('home')}
-            onOpenHandover={() => setMode('handover')}
-          />
-        )}
+        {showSplash && <AnimatedSplash onFinish={() => setShowSplash(false)} />}
       </View>
     </SafeAreaView>
   );

@@ -22,6 +22,7 @@ import {
   Press,
   Button,
   KV,
+  SegmentedControl,
   ChevronLeftIcon,
   PinIcon,
   CheckIcon,
@@ -57,7 +58,17 @@ export function FacilityScreen({
   onSwitchRole?: () => void;
   onOpenRider?: () => void;
 }) {
-  const { colors, isDark, haptics, savedPlace } = useAppConfig();
+  const {
+    colors,
+    isDark,
+    haptics,
+    savedPlace,
+    expectedPin,
+    requireCode,
+    simOrsStock,
+    simZincStock,
+    s,
+  } = useAppConfig();
   const activeFacility = savedPlace || facilityName;
 
   const [drug, setDrug] = useState<'ors' | 'zinc'>('ors');
@@ -336,7 +347,7 @@ export function FacilityScreen({
     }
 
     if (cleaned.length === 4) {
-      if (cleaned === '5082') {
+      if (expectedPin === 'ANY' || cleaned === expectedPin) {
         void triggerConfirmedTransition(cleaned);
       } else {
         triggerErrorShake();
@@ -349,7 +360,7 @@ export function FacilityScreen({
     setPin('');
     setPinState('idle');
     setOkSlots([false, false, false, false]);
-    const code = '5082';
+    const code = expectedPin === 'ANY' ? '5082' : expectedPin;
     [0, 1, 2, 3].forEach((i) => {
       setTimeout(() => {
         handlePinChange(code.slice(0, i + 1));
@@ -621,11 +632,12 @@ export function FacilityScreen({
   // 4. HANDOVER PIN ENTRY SCREEN (NATIVE KEYBOARD + MICRO-INTERACTIONS)
   if (mode === 'handover') {
     const progressPct = (pin.length / 4) * 100;
+    const displayPinHint = expectedPin === 'ANY' ? 'any 4 digits' : expectedPin;
     const statusText =
       pinState === 'ok'
         ? 'Code verified — transferring custody...'
         : pinState === 'error'
-          ? "Wrong code — check courier's screen (5082)"
+          ? `Wrong code — check courier's screen (${displayPinHint})`
           : pin.length === 0
             ? 'Tap slots to open your phone keyboard'
             : `${4 - pin.length} more digit${4 - pin.length === 1 ? '' : 's'}...`;
@@ -817,10 +829,26 @@ export function FacilityScreen({
             >
               <Text style={[styles.demoChipText, { color: colors.ink }]}>
                 Demo code:{' '}
-                <Text style={{ fontFamily: ui.font.bold }}>5082</Text> (tap to
-                enter)
+                <Text style={{ fontFamily: ui.font.bold }}>
+                  {expectedPin === 'ANY' ? 'ANY (5082)' : expectedPin}
+                </Text>{' '}
+                (tap to auto-enter)
               </Text>
             </Press>
+            {!requireCode && (
+              <View style={{ width: '100%', marginTop: 12 }}>
+                <Button
+                  variant="lime"
+                  onPress={() => {
+                    void triggerConfirmedTransition(
+                      expectedPin === 'ANY' ? '5082' : expectedPin,
+                    );
+                  }}
+                >
+                  Confirm Handover (PIN Bypassed)
+                </Button>
+              </View>
+            )}
           </View>
         </View>
       </View>
@@ -831,7 +859,7 @@ export function FacilityScreen({
   const isRequest = mode === 'request';
   const qty = isRequest ? reqQty : relQty;
   const setQty = isRequest ? setReqQty : setRelQty;
-  const maxStock = d.stock;
+  const maxStock = drug === 'ors' ? simOrsStock : simZincStock;
   const pct = Math.min(100, Math.round((qty / maxStock) * 100));
 
   return (
@@ -920,42 +948,21 @@ export function FacilityScreen({
           </Press>
         </View>
 
-        <Text style={[styles.h1, { color: colors.ink }]}>
+        <Text style={[styles.h1, { color: colors.ink, fontSize: s(28) }]}>
           {isRequest ? 'Request stock\u00A0' : 'Release surplus\u00A0'}
         </Text>
 
-        {/* Segmented Control */}
-        <View
-          style={[
-            styles.seg,
-            { backgroundColor: colors.tile, marginTop: isRequest ? 8 : 6 },
-          ]}
-        >
-          {(['ors', 'zinc'] as const).map((k) => {
-            const active = drug === k;
-            return (
-              <Press
-                key={k}
-                onPress={() => setDrug(k)}
-                style={[
-                  styles.segBtn,
-                  active && [
-                    styles.segBtnActive,
-                    { backgroundColor: colors.surface },
-                  ],
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.segText,
-                    { color: active ? colors.ink : colors.mute },
-                  ]}
-                >
-                  {DRUGS[k].short}
-                </Text>
-              </Press>
-            );
-          })}
+        {/* Fluid Spring Segmented Control */}
+        <View style={{ marginTop: isRequest ? 8 : 6 }}>
+          <SegmentedControl<'ors' | 'zinc'>
+            options={[
+              { key: 'ors', label: DRUGS.ors.short },
+              { key: 'zinc', label: DRUGS.zinc.short },
+            ]}
+            value={drug}
+            onChange={setDrug}
+            height={38}
+          />
         </View>
 
         {/* Interactive 3D Stage */}

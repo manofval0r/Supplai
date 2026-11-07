@@ -29,7 +29,8 @@ import {
   LockIcon,
   UsersIcon,
 } from '../components/ui';
-import { FloatingDock, type DockTab } from '../components/FloatingDock';
+import { type DockTab } from '../components/FloatingDock';
+import { type AppMode } from '../components/RolePicker';
 
 export type AccountSubView =
   'hub' | 'settings' | 'saved-places' | 'payment' | 'support' | 'safety';
@@ -37,10 +38,14 @@ export type AccountSubView =
 export function AccountScreen({
   initialSubView = 'hub',
   onSelectTab,
+  onOpenMode,
+  onSubViewChange,
   onBackFromSavedPlacesToHome,
 }: {
   initialSubView?: AccountSubView;
   onSelectTab: (tab: DockTab) => void;
+  onOpenMode?: (mode: AppMode) => void;
+  onSubViewChange?: (sub: AccountSubView) => void;
   onBackFromSavedPlacesToHome?: () => void;
 }) {
   const {
@@ -66,22 +71,47 @@ export function AccountScreen({
     setShareLga,
     requireCode,
     setRequireCode,
+    uiScale,
+    setUiScale,
+    artScale,
+    setArtScale,
+    expectedPin,
+    setExpectedPin,
+    courierSpeed,
+    setCourierSpeed,
+    simCommodity,
+    setSimCommodity,
+    simEtaMin,
+    setSimEtaMin,
+    simOrsStock,
+    setSimOrsStock,
+    simZincStock,
+    setSimZincStock,
+    triggerSplash,
+    resetDemoState,
+    s,
   } = useAppConfig();
 
   const [subView, setSubView] = useState<AccountSubView>(initialSubView);
   const [supportQuery, setSupportQuery] = useState('');
   const [supportToast, setSupportToast] = useState<string | null>(null);
 
+  const changeSubView = (next: AccountSubView) => {
+    setSubView(next);
+    onSubViewChange?.(next);
+  };
+
   useEffect(() => {
     setSubView(initialSubView);
-  }, [initialSubView]);
+    onSubViewChange?.(initialSubView);
+  }, [initialSubView, onSubViewChange]);
 
   const handleBack = () => {
     if (subView === 'saved-places' && onBackFromSavedPlacesToHome) {
       onBackFromSavedPlacesToHome();
       return;
     }
-    setSubView('hub');
+    changeSubView('hub');
   };
 
   const iconBoxBg = isDark ? 'rgba(212, 255, 36, 0.12)' : colors.cobaltSoft;
@@ -115,7 +145,9 @@ export function AccountScreen({
               <ChevronLeftIcon />
             </Press>
           </View>
-          <Text style={[styles.pageTitle, { color: colors.ink }]}>
+          <Text
+            style={[styles.pageTitle, { color: colors.ink, fontSize: s(28) }]}
+          >
             Settings{'\u00A0'}
           </Text>
 
@@ -172,6 +204,337 @@ export function AccountScreen({
               <Text style={[styles.swatchHex, { color: 'rgba(3,4,7,0.75)' }]}>
                 #D4FF24
               </Text>
+            </View>
+          </View>
+
+          {/* DEVELOPER & SIMULATION MENU */}
+          <Text style={[styles.secLbl, { color: colors.mute }]}>
+            DEVELOPER & SIMULATION
+          </Text>
+          <View
+            style={[
+              styles.groupCard,
+              {
+                backgroundColor: colors.tile,
+                marginBottom: 18,
+                paddingVertical: 14,
+                paddingHorizontal: 16,
+                gap: 14,
+              },
+            ]}
+          >
+            {/* UI Element Size Scale */}
+            <View>
+              <View style={styles.devHeaderRow}>
+                <Text
+                  style={[
+                    styles.rowTitle,
+                    { color: colors.ink, fontSize: s(14.5) },
+                  ]}
+                >
+                  Element & text size
+                </Text>
+                <Text style={[styles.devBadgeText, { color: colors.cobalt }]}>
+                  {Math.round(uiScale * 100)}%
+                </Text>
+              </View>
+              <Text
+                style={[styles.rowSub, { color: colors.mute, marginBottom: 8 }]}
+              >
+                Scale cards, buttons, dock, and typography across the app
+              </Text>
+              <SegmentedControl<'0.92' | '1' | '1.1' | '1.18'>
+                options={[
+                  { key: '0.92', label: '0.92x' },
+                  { key: '1', label: '1.0x' },
+                  { key: '1.1', label: '1.1x' },
+                  { key: '1.18', label: '1.18x' },
+                ]}
+                value={String(uiScale) as '0.92' | '1' | '1.1' | '1.18'}
+                onChange={(v) => setUiScale(Number(v))}
+              />
+            </View>
+
+            <View style={{ height: 1, backgroundColor: colors.line }} />
+
+            {/* 2D Line Art & Corridor Scale */}
+            <View>
+              <View style={styles.devHeaderRow}>
+                <Text
+                  style={[
+                    styles.rowTitle,
+                    { color: colors.ink, fontSize: s(14.5) },
+                  ]}
+                >
+                  2D line art & corridor scale
+                </Text>
+                <Text style={[styles.devBadgeText, { color: colors.cobalt }]}>
+                  {artScale}x
+                </Text>
+              </View>
+              <Text
+                style={[styles.rowSub, { color: colors.mute, marginBottom: 8 }]}
+              >
+                Resize background medical illustrations and corridor scene
+              </Text>
+              <SegmentedControl<'0.9' | '1' | '1.15' | '1.3'>
+                options={[
+                  { key: '0.9', label: '0.9x' },
+                  { key: '1', label: '1.0x' },
+                  { key: '1.15', label: '1.15x' },
+                  { key: '1.3', label: '1.3x' },
+                ]}
+                value={String(artScale) as '0.9' | '1' | '1.15' | '1.3'}
+                onChange={(v) => setArtScale(Number(v))}
+              />
+            </View>
+
+            <View style={{ height: 1, backgroundColor: colors.line }} />
+
+            {/* Handover PIN Simulation */}
+            <View>
+              <View style={styles.devHeaderRow}>
+                <Text
+                  style={[
+                    styles.rowTitle,
+                    { color: colors.ink, fontSize: s(14.5) },
+                  ]}
+                >
+                  Handover PIN code
+                </Text>
+                <Text style={[styles.devBadgeText, { color: colors.cobalt }]}>
+                  {expectedPin === 'ANY' ? 'Any 4 digits' : expectedPin}
+                </Text>
+              </View>
+              <Text
+                style={[styles.rowSub, { color: colors.mute, marginBottom: 8 }]}
+              >
+                Choose which 4-digit PIN unlocks custody transfer
+              </Text>
+              <SegmentedControl<'5082' | '1234' | '0000' | 'ANY'>
+                options={[
+                  { key: '5082', label: '5082' },
+                  { key: '1234', label: '1234' },
+                  { key: '0000', label: '0000' },
+                  { key: 'ANY', label: 'Any 4' },
+                ]}
+                value={expectedPin as '5082' | '1234' | '0000' | 'ANY'}
+                onChange={(v) => setExpectedPin(v)}
+              />
+              <View style={[styles.devInlineRow, { marginTop: 10 }]}>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[
+                      styles.rowTitle,
+                      { color: colors.ink, fontSize: s(14) },
+                    ]}
+                  >
+                    Require PIN on handover
+                  </Text>
+                  <Text style={[styles.rowSub, { color: colors.mute }]}>
+                    Turn off for 1-tap instant handover bypass
+                  </Text>
+                </View>
+                <Toggle value={requireCode} onToggle={setRequireCode} />
+              </View>
+            </View>
+
+            <View style={{ height: 1, backgroundColor: colors.line }} />
+
+            {/* Courier & Corridor Animation Speed */}
+            <View>
+              <View style={styles.devHeaderRow}>
+                <Text
+                  style={[
+                    styles.rowTitle,
+                    { color: colors.ink, fontSize: s(14.5) },
+                  ]}
+                >
+                  Courier & animation speed
+                </Text>
+                <Text style={[styles.devBadgeText, { color: colors.cobalt }]}>
+                  {courierSpeed}x
+                </Text>
+              </View>
+              <Text
+                style={[styles.rowSub, { color: colors.mute, marginBottom: 8 }]}
+              >
+                Speeds up GPS map rider and 2D corridor cyclist
+              </Text>
+              <SegmentedControl<'0.5' | '1' | '2' | '4'>
+                options={[
+                  { key: '0.5', label: '0.5x' },
+                  { key: '1', label: '1x' },
+                  { key: '2', label: '2x' },
+                  { key: '4', label: '4x' },
+                ]}
+                value={String(courierSpeed) as '0.5' | '1' | '2' | '4'}
+                onChange={(v) => setCourierSpeed(Number(v))}
+              />
+            </View>
+
+            <View style={{ height: 1, backgroundColor: colors.line }} />
+
+            {/* Simulated Active Cargo & ETA */}
+            <View>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(14.5), marginBottom: 6 },
+                ]}
+              >
+                Simulated active cargo
+              </Text>
+              <SegmentedControl<'Zinc 20 mg' | 'ORS 20.5 g'>
+                options={[
+                  { key: 'Zinc 20 mg', label: 'Zinc 20 mg' },
+                  { key: 'ORS 20.5 g', label: 'ORS 20.5 g' },
+                ]}
+                value={simCommodity}
+                onChange={setSimCommodity}
+              />
+
+              <View style={[styles.devInlineRow, { marginTop: 12 }]}>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[
+                      styles.rowTitle,
+                      { color: colors.ink, fontSize: s(14) },
+                    ]}
+                  >
+                    Simulated courier ETA
+                  </Text>
+                  <Text style={[styles.rowSub, { color: colors.mute }]}>
+                    Shown on Home & Activity cards
+                  </Text>
+                </View>
+                <View style={styles.miniStepper}>
+                  <Press
+                    onPress={() => setSimEtaMin(Math.max(1, simEtaMin - 1))}
+                    style={[
+                      styles.miniStepBtn,
+                      { backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <Text style={[styles.miniStepTxt, { color: colors.ink }]}>
+                      −
+                    </Text>
+                  </Press>
+                  <Text style={[styles.miniStepVal, { color: colors.ink }]}>
+                    {simEtaMin}m
+                  </Text>
+                  <Press
+                    onPress={() => setSimEtaMin(Math.min(25, simEtaMin + 1))}
+                    style={[
+                      styles.miniStepBtn,
+                      { backgroundColor: colors.cobalt },
+                    ]}
+                  >
+                    <Text style={[styles.miniStepTxt, { color: '#ffffff' }]}>
+                      +
+                    </Text>
+                  </Press>
+                </View>
+              </View>
+
+              <View style={[styles.devInlineRow, { marginTop: 10 }]}>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    style={[
+                      styles.rowTitle,
+                      { color: colors.ink, fontSize: s(14) },
+                    ]}
+                  >
+                    Donor PHC B stock (ORS / Zinc)
+                  </Text>
+                  <Text style={[styles.rowSub, { color: colors.mute }]}>
+                    {simOrsStock} sachets / {simZincStock} tablets
+                  </Text>
+                </View>
+                <View style={styles.miniStepper}>
+                  <Press
+                    onPress={() => {
+                      setSimOrsStock(Math.max(20, simOrsStock - 10));
+                      setSimZincStock(Math.max(20, simZincStock - 10));
+                    }}
+                    style={[
+                      styles.miniStepBtn,
+                      { backgroundColor: colors.surface },
+                    ]}
+                  >
+                    <Text style={[styles.miniStepTxt, { color: colors.ink }]}>
+                      −
+                    </Text>
+                  </Press>
+                  <Text style={[styles.miniStepVal, { color: colors.ink }]}>
+                    {simOrsStock}
+                  </Text>
+                  <Press
+                    onPress={() => {
+                      setSimOrsStock(Math.min(200, simOrsStock + 10));
+                      setSimZincStock(Math.min(240, simZincStock + 10));
+                    }}
+                    style={[
+                      styles.miniStepBtn,
+                      { backgroundColor: colors.cobalt },
+                    ]}
+                  >
+                    <Text style={[styles.miniStepTxt, { color: '#ffffff' }]}>
+                      +
+                    </Text>
+                  </Press>
+                </View>
+              </View>
+            </View>
+
+            <View style={{ height: 1, backgroundColor: colors.line }} />
+
+            {/* Quick Launch Simulation Actions */}
+            <View style={{ gap: 8 }}>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <Press
+                  onPress={() => onOpenMode?.('handover')}
+                  style={[
+                    styles.devActionBtn,
+                    { backgroundColor: colors.cobalt, flex: 1 },
+                  ]}
+                >
+                  <Text style={[styles.devActionTxt, { color: '#ffffff' }]}>
+                    Test Handover PIN
+                  </Text>
+                </Press>
+                <Press
+                  onPress={() => {
+                    onSelectTab('home');
+                    triggerSplash();
+                  }}
+                  style={[
+                    styles.devActionBtn,
+                    { backgroundColor: colors.lime, flex: 1 },
+                  ]}
+                >
+                  <Text
+                    style={[styles.devActionTxt, { color: colors.limeInk }]}
+                  >
+                    Replay 2D Splash
+                  </Text>
+                </Press>
+              </View>
+              <Press
+                onPress={resetDemoState}
+                style={[
+                  styles.devActionBtn,
+                  {
+                    backgroundColor: colors.surface,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                  },
+                ]}
+              >
+                <Text style={[styles.devActionTxt, { color: colors.ink }]}>
+                  Reset All Simulation Defaults
+                </Text>
+              </Press>
             </View>
           </View>
 
@@ -921,7 +1284,7 @@ export function AccountScreen({
           ]}
         >
           <Press
-            onPress={() => setSubView('settings')}
+            onPress={() => changeSubView('settings')}
             scaleTo={0.99}
             style={styles.row}
           >
@@ -929,18 +1292,28 @@ export function AccountScreen({
               <GearIcon />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.rowTitle, { color: colors.ink }]}>
-                Settings
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
+                Settings & Developer
               </Text>
-              <Text style={[styles.rowSub, { color: colors.mute }]}>
-                Dark mode, alerts, motion
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
+                Dark mode, simulations, PIN test, UI scale
               </Text>
             </View>
             <ChevronRightIcon />
           </Press>
 
           <Press
-            onPress={() => setSubView('payment')}
+            onPress={() => changeSubView('payment')}
             scaleTo={0.99}
             style={[
               styles.row,
@@ -951,10 +1324,20 @@ export function AccountScreen({
               <CardIcon />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.rowTitle, { color: colors.ink }]}>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
                 Payment
               </Text>
-              <Text style={[styles.rowSub, { color: colors.mute }]}>
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
                 Simulated wallet, NGN {walletBalance.toLocaleString('en-US')}
               </Text>
             </View>
@@ -962,7 +1345,7 @@ export function AccountScreen({
           </Press>
 
           <Press
-            onPress={() => setSubView('saved-places')}
+            onPress={() => changeSubView('saved-places')}
             scaleTo={0.99}
             style={[
               styles.row,
@@ -973,10 +1356,20 @@ export function AccountScreen({
               <PinIcon color={isDark ? colors.lime : colors.cobalt} size={18} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.rowTitle, { color: colors.ink }]}>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
                 Saved places
               </Text>
-              <Text style={[styles.rowSub, { color: colors.mute }]}>
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
                 {savedPlace
                   ? `${savedPlace} selected`
                   : 'None selected — tap to pick one'}
@@ -994,7 +1387,7 @@ export function AccountScreen({
           ]}
         >
           <Press
-            onPress={() => setSubView('support')}
+            onPress={() => changeSubView('support')}
             scaleTo={0.99}
             style={styles.row}
           >
@@ -1002,10 +1395,20 @@ export function AccountScreen({
               <HelpIcon />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.rowTitle, { color: colors.ink }]}>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
                 Support
               </Text>
-              <Text style={[styles.rowSub, { color: colors.mute }]}>
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
                 Call dispatcher or report issue
               </Text>
             </View>
@@ -1013,7 +1416,7 @@ export function AccountScreen({
           </Press>
 
           <Press
-            onPress={() => setSubView('safety')}
+            onPress={() => changeSubView('safety')}
             scaleTo={0.99}
             style={[
               styles.row,
@@ -1024,10 +1427,20 @@ export function AccountScreen({
               <ShieldIcon />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.rowTitle, { color: colors.ink }]}>
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(15) },
+                ]}
+              >
                 Safety
               </Text>
-              <Text style={[styles.rowSub, { color: colors.mute }]}>
+              <Text
+                style={[
+                  styles.rowSub,
+                  { color: colors.mute, fontSize: s(12.5) },
+                ]}
+              >
                 Seal check, handover rules
               </Text>
             </View>
@@ -1041,13 +1454,13 @@ export function AccountScreen({
           scaleTo={0.99}
           style={[styles.signOutBtn, { backgroundColor: colors.tile }]}
         >
-          <Text style={[styles.signOutText, { color: colors.red }]}>
+          <Text
+            style={[styles.signOutText, { color: colors.red, fontSize: s(15) }]}
+          >
             Sign out
           </Text>
         </Press>
       </ScrollView>
-
-      <FloatingDock activeTab="account" onSelectTab={onSelectTab} />
     </View>
   );
 }
@@ -1348,5 +1761,56 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  devHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  devBadgeText: {
+    fontFamily: ui.font.bold,
+    fontSize: 12.5,
+  },
+  devInlineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  miniStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  miniStepBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniStepTxt: {
+    fontFamily: ui.font.bold,
+    fontSize: 18,
+    lineHeight: 20,
+  },
+  miniStepVal: {
+    fontFamily: ui.font.bold,
+    fontSize: 13.5,
+    minWidth: 32,
+    textAlign: 'center',
+  },
+  devActionBtn: {
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  devActionTxt: {
+    fontFamily: ui.font.bold,
+    fontSize: 12.5,
+    letterSpacing: -0.1,
+    paddingRight: 2,
   },
 });

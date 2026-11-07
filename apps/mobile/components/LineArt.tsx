@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
-import { DARK_PALETTE, useAppConfig } from '../lib/theme';
+import { darkColors, useAppConfig } from '../lib/theme';
 
 export type ArtName =
   | 'cyclist'
@@ -159,7 +159,7 @@ export function HomeCorridorScene({
   height?: number;
 } = {}) {
   const { colors, reduceMotion, courierSpeed, artScale } = useAppConfig();
-  const palette = forceDark ? DARK_PALETTE : colors;
+  const palette = forceDark ? darkColors : colors;
   const c = palette.artStroke;
   const f = palette.artFill;
   const hl = palette.artHighlight;
@@ -191,13 +191,11 @@ export function HomeCorridorScene({
         Animated.timing(rideAnim, {
           toValue: 1,
           duration: rideDuration,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(rideAnim, {
           toValue: 0,
           duration: rideDuration,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ]),
@@ -208,13 +206,11 @@ export function HomeCorridorScene({
         Animated.timing(bobAnim, {
           toValue: 1,
           duration: Math.round(320 / speed),
-          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
         Animated.timing(bobAnim, {
           toValue: 0,
           duration: Math.round(320 / speed),
-          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
       ]),
@@ -225,13 +221,11 @@ export function HomeCorridorScene({
         Animated.timing(floatAnim, {
           toValue: 1,
           duration: 1800,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(floatAnim, {
           toValue: 0,
           duration: 1800,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ]),

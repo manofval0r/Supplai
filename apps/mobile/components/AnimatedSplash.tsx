@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import {
-  Animated,
-  Easing,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
 import { ui, useAppConfig } from '../lib/theme';
 import { Art, HomeCorridorScene } from './LineArt';
@@ -40,19 +33,16 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
       Animated.timing(skyTranslateY, {
         toValue: -46,
         duration: 520,
-        easing: Easing.inOut(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.timing(logoScale, {
         toValue: 0.92,
         duration: 480,
-        easing: Easing.inOut(Easing.cubic),
         useNativeDriver: true,
       }),
       Animated.timing(hillsTranslateY, {
         toValue: 90,
         duration: 520,
-        easing: Easing.inOut(Easing.cubic),
         useNativeDriver: true,
       }),
       // Morph the splash bottom corridor directly into the Home screen's bottom corridor slot
@@ -74,7 +64,6 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
         toValue: 0,
         duration: 540,
         delay: 80,
-        easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -119,13 +108,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
         Animated.timing(cloudDriftA, {
           toValue: 1,
           duration: 3600,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(cloudDriftA, {
           toValue: 0,
           duration: 3600,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ]),
@@ -136,13 +123,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
         Animated.timing(cloudDriftB, {
           toValue: 1,
           duration: 4200,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
         Animated.timing(cloudDriftB, {
           toValue: 0,
           duration: 4200,
-          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
       ]),
@@ -152,7 +137,6 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
       Animated.timing(curbScroll, {
         toValue: 1,
         duration: 900,
-        easing: Easing.linear,
         useNativeDriver: true,
       }),
     );
@@ -335,10 +319,7 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             styles.centerBrand,
             {
               opacity: logoOpacity,
-              transform: [
-                { translateY: skyTranslateY },
-                { scale: logoScale },
-              ],
+              transform: [{ translateY: skyTranslateY }, { scale: logoScale }],
             },
           ]}
         >
@@ -458,7 +439,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: '#030407',
     zIndex: 999,
   },
@@ -467,7 +452,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   skyContainer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   cloudTopLeft: {
     position: 'absolute',

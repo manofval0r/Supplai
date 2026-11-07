@@ -167,9 +167,7 @@ export function KV({ rows }: { rows: [string, React.ReactNode][] }) {
             i > 0 && { borderTopWidth: 1, borderTopColor: colors.line },
           ]}
         >
-          <Text
-            style={[styles.kvKey, { color: colors.mute, fontSize: s(15) }]}
-          >
+          <Text style={[styles.kvKey, { color: colors.mute, fontSize: s(15) }]}>
             {k}
           </Text>
           {typeof v === 'string' || typeof v === 'number' ? (
