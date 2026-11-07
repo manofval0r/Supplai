@@ -193,48 +193,116 @@ export function RolePicker({
                 styles.tileWide,
                 {
                   backgroundColor: colors.heroTileBg,
-                  height: s(104),
+                  minHeight: s(124),
                   borderRadius: s(24),
                 },
               ]}
             >
               <View style={styles.tileWideCopy}>
-                <Text
-                  style={[
-                    styles.tileTitle,
-                    { color: '#ffffff', fontSize: s(17), lineHeight: s(20) },
-                  ]}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 2,
+                  }}
                 >
-                  Track delivery{'\u00A0'}
-                </Text>
+                  <Text
+                    style={[
+                      styles.tileTitle,
+                      { color: '#ffffff', fontSize: s(16.5), lineHeight: s(20) },
+                    ]}
+                  >
+                    Track delivery{'\u00A0'}
+                  </Text>
+                  <View
+                    style={{
+                      backgroundColor: 'rgba(212, 255, 36, 0.18)',
+                      paddingHorizontal: 7,
+                      paddingVertical: 2,
+                      borderRadius: 999,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: colors.lime,
+                        fontFamily: ui.font.bold,
+                        fontSize: s(11),
+                      }}
+                    >
+                      {simEtaMin}m away
+                    </Text>
+                  </View>
+                </View>
                 <Text
                   style={[
                     styles.tileSub,
                     {
                       color: colors.heroSubColor,
-                      fontSize: s(12.5),
-                      lineHeight: s(16),
+                      fontSize: s(12),
+                      lineHeight: s(15),
                       maxWidth: '100%',
+                      marginTop: 2,
                     },
                   ]}
                   numberOfLines={1}
                 >
-                  {simCommodity},{' '}
-                  <Text
+                  {simCommodity} • Ade Okafor
+                </Text>
+
+                {/* Delivery Progress Bar */}
+                <View style={{ marginTop: 10 }}>
+                  <View
                     style={{
-                      color: colors.lime,
-                      fontFamily: ui.font.bold,
+                      height: 5,
+                      width: '100%',
+                      backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                      borderRadius: 3,
+                      overflow: 'hidden',
                     }}
                   >
-                    {simEtaMin} min away{'\u00A0'}
-                  </Text>
-                </Text>
+                    <View
+                      style={{
+                        height: '100%',
+                        width: '68%',
+                        backgroundColor: colors.lime,
+                        borderRadius: 3,
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginTop: 4,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: 'rgba(255, 255, 255, 0.55)',
+                        fontSize: s(10),
+                        fontFamily: ui.font.medium,
+                      }}
+                    >
+                      Picked up 09:34
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'rgba(255, 255, 255, 0.85)',
+                        fontSize: s(10),
+                        fontFamily: ui.font.bold,
+                      }}
+                    >
+                      Arrives 09:41
+                    </Text>
+                  </View>
+                </View>
               </View>
               <View style={styles.miniCanvasWide} pointerEvents="none">
                 <Stage3D
                   kind="mini-trk"
-                  width={96}
-                  height={88}
+                  width={106}
+                  height={96}
                   interactive={false}
                 />
               </View>
@@ -387,10 +455,10 @@ const styles = StyleSheet.create({
   },
   miniCanvasWide: {
     position: 'absolute',
-    right: 6,
+    right: 4,
     bottom: 6,
-    width: 96,
-    height: 88,
+    width: 106,
+    height: 96,
   },
   tileIdle: {
     width: '100%',

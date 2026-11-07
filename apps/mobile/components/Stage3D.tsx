@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import {
+  Dimensions,
   PanResponder,
   View,
   type StyleProp,
@@ -8,27 +9,25 @@ import {
 import { GLView, type ExpoWebGLRenderingContext } from 'expo-gl';
 import { Renderer } from 'expo-three';
 import * as THREE from 'three';
-import {
-  getOrsTexture,
-  getZincTexture,
-  getSealTexture,
-  getMiniOrsTexture,
-} from '../lib/three/textures';
 
-// Neutralize Three.js r163+ WebGL 1 deprecation check that throws on expo-gl context
-try {
-  const g = globalThis as unknown as Record<
-    string,
-    { [Symbol.hasInstance]?: () => boolean }
-  >;
-  if (g.WebGLRenderingContext) {
-    Object.defineProperty(g.WebGLRenderingContext, Symbol.hasInstance, {
-      value: () => false,
-    });
+function neutralizeWebGL1Check() {
+  try {
+    const g = globalThis as unknown as Record<
+      string,
+      { [Symbol.hasInstance]?: () => boolean }
+    >;
+    if (g.WebGLRenderingContext) {
+      Object.defineProperty(g.WebGLRenderingContext, Symbol.hasInstance, {
+        value: () => false,
+        configurable: true,
+      });
+    }
+  } catch (err) {
+    void err;
   }
-} catch (err) {
-  void err;
 }
+
+neutralizeWebGL1Check();
 
 function makeRoundedBox(
   w: number,
@@ -64,8 +63,36 @@ function makeRoundedBox(
   return g;
 }
 
+function makeCross(
+  size: number,
+  thickness: number,
+  depth: number,
+  color: number,
+) {
+  const grp = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.22,
+    metalness: 0.08,
+  });
+  const v = new THREE.Mesh(
+    makeRoundedBox(thickness, size, depth, thickness * 0.22, 2),
+    mat,
+  );
+  const h = new THREE.Mesh(
+    makeRoundedBox(size, thickness, depth, thickness * 0.22, 2),
+    mat,
+  );
+  grp.add(v, h);
+  return grp;
+}
+
 export type Stage3DKind =
-  'drug' | 'crate' | 'mini-req' | 'mini-rel' | 'mini-trk';
+  | 'drug'
+  | 'crate'
+  | 'mini-req'
+  | 'mini-rel'
+  | 'mini-trk';
 
 export function Stage3D({
   kind,
@@ -82,6 +109,9 @@ export function Stage3D({
   interactive?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
+  const winWidth = Dimensions.get('window').width;
+  const finalWidth = width ?? Math.max(280, winWidth - 44);
+
   const stateRef = useRef<{
     drug: 'ors' | 'zinc';
     orsGrp?: THREE.Group;
@@ -102,13 +132,19 @@ export function Stage3D({
     raf: 0,
   });
 
+  stateRef.current.drug = drug;
+  if (stateRef.current.orsGrp && stateRef.current.zincGrp) {
+    stateRef.current.orsGrp.visible = drug === 'ors';
+    stateRef.current.zincGrp.visible = drug === 'zinc';
+  }
+
   useEffect(() => {
     stateRef.current.drug = drug;
     if (stateRef.current.orsGrp && stateRef.current.zincGrp) {
       stateRef.current.orsGrp.visible = drug === 'ors';
       stateRef.current.zincGrp.visible = drug === 'zinc';
-      stateRef.current.targetX = 0.18;
-      stateRef.current.targetY = -0.32;
+      stateRef.current.targetX = drug === 'ors' ? 0.14 : 0.22;
+      stateRef.current.targetY = drug === 'ors' ? -0.26 : -0.42;
     }
   }, [drug]);
 
@@ -154,381 +190,499 @@ export function Stage3D({
 
   const onContextCreate = (gl: ExpoWebGLRenderingContext) => {
     try {
-      const renderer = new Renderer({ gl }) as unknown as THREE.WebGLRenderer;
-    renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
-    renderer.setClearColor(0x000000, 0);
+      neutralizeWebGL1Check();
+      const g = globalThis as unknown as Record<string, unknown>;
+      const savedWGL = g.WebGLRenderingContext;
+      g.WebGLRenderingContext = undefined;
+      let renderer: THREE.WebGLRenderer;
+      try {
+        renderer = new Renderer({ gl }) as unknown as THREE.WebGLRenderer;
+      } finally {
+        if (savedWGL !== undefined) {
+          g.WebGLRenderingContext = savedWGL;
+        }
+      }
+      const isMini = kind.startsWith('mini-');
+      const dw =
+        gl.drawingBufferWidth > 0
+          ? gl.drawingBufferWidth
+          : Math.round(finalWidth * 3);
+      const dh =
+        gl.drawingBufferHeight > 0
+          ? gl.drawingBufferHeight
+          : Math.round(height * 3);
+      renderer.setSize(dw, dh);
+      renderer.setClearColor(0x000000, 0);
 
-    const isMini = kind.startsWith('mini-');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      isMini ? 32 : 30,
-      gl.drawingBufferWidth / Math.max(1, gl.drawingBufferHeight),
-      0.1,
-      50,
-    );
-    camera.position.set(0, 0, isMini ? 5.1 : 6.4);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        isMini ? 32 : 30,
+        dw / Math.max(1, dh),
+        0.1,
+        50,
+      );
+      camera.position.set(0, 0, isMini ? 5.1 : 4.8);
 
-    scene.add(new THREE.AmbientLight(0xffffff, isMini ? 1.25 : 1.15));
-    const key = new THREE.DirectionalLight(0xffffff, 1.5);
-    key.position.set(3, 5, 5);
-    scene.add(key);
-    const rim = new THREE.DirectionalLight(0xbfd4ff, 0.7);
-    rim.position.set(-4, -2, -3);
-    scene.add(rim);
+      scene.add(new THREE.AmbientLight(0xffffff, isMini ? 1.3 : 1.2));
+      const key = new THREE.DirectionalLight(0xffffff, 1.55);
+      key.position.set(3, 5, 5);
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0xbfd4ff, 0.75);
+      rim.position.set(-4, -2, -3);
+      scene.add(rim);
 
-    let rootGrp: THREE.Group | null = null;
-    let miniAnim: ((t: number) => void) | null = null;
+      let rootGrp: THREE.Group | null = null;
+      let miniAnim: ((t: number) => void) | null = null;
 
-    if (kind === 'mini-req') {
-      const g = new THREE.Group();
-      const body = new THREE.Mesh(
-        makeRoundedBox(1.45, 1.9, 0.28, 0.14, 3),
-        new THREE.MeshStandardMaterial({
-          color: 0xf4f7fc,
-          roughness: 0.3,
-          metalness: 0.08,
-        }),
-      );
-      g.add(body);
-      const face = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.2, 1.62),
-        new THREE.MeshStandardMaterial({
-          map: getMiniOrsTexture(),
-          roughness: 0.35,
-        }),
-      );
-      face.position.z = 0.145;
-      g.add(face);
-      const tabGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.14, 20);
-      tabGeo.rotateX(Math.PI / 2);
-      const t1 = new THREE.Mesh(
-        tabGeo,
-        new THREE.MeshStandardMaterial({ color: 0xd4ff24, roughness: 0.25 }),
-      );
-      t1.position.set(0.82, -0.5, 0.45);
-      t1.rotation.set(0.3, -0.4, 0.2);
-      g.add(t1);
-      const t2 = new THREE.Mesh(
-        tabGeo,
-        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25 }),
-      );
-      t2.position.set(-0.78, 0.48, 0.38);
-      t2.rotation.set(-0.3, 0.4, -0.2);
-      g.add(t2);
-      scene.add(g);
-      miniAnim = (t) => {
-        g.rotation.y = Math.sin(t * 1.1) * 0.38 - 0.22;
-        g.rotation.x = 0.14 + Math.cos(t * 0.9) * 0.08;
-        g.position.y = Math.sin(t * 1.5) * 0.07;
-      };
-    } else if (kind === 'mini-rel') {
-      const g = new THREE.Group();
-      const box = new THREE.Mesh(
-        makeRoundedBox(1.75, 1.1, 1.35, 0.14, 3),
-        new THREE.MeshStandardMaterial({
-          color: 0x1558c9,
-          roughness: 0.28,
-          metalness: 0.08,
-        }),
-      );
-      box.position.y = -0.22;
-      g.add(box);
-      const lid = new THREE.Mesh(
-        makeRoundedBox(1.82, 0.22, 1.42, 0.07, 3),
-        new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.35 }),
-      );
-      lid.position.y = 0.38;
-      g.add(lid);
-      const arrowGrp = new THREE.Group();
-      const arrowMat = new THREE.MeshStandardMaterial({
-        color: 0xd4ff24,
-        roughness: 0.22,
-      });
-      const stem = new THREE.Mesh(
-        makeRoundedBox(0.28, 0.65, 0.22, 0.06, 2),
-        arrowMat,
-      );
-      stem.position.y = 0.82;
-      const head = new THREE.Mesh(
-        new THREE.ConeGeometry(0.42, 0.52, 4),
-        arrowMat,
-      );
-      head.position.y = 1.28;
-      head.rotation.y = Math.PI / 4;
-      arrowGrp.add(stem, head);
-      g.add(arrowGrp);
-      scene.add(g);
-      miniAnim = (t) => {
-        g.rotation.y = 0.55 + Math.sin(t * 0.9) * 0.28;
-        g.rotation.x = 0.28;
-        arrowGrp.position.y = Math.sin(t * 2.2) * 0.12 - 0.1;
-      };
-    } else if (kind === 'mini-trk') {
-      const g = new THREE.Group();
-      const pinGrp = new THREE.Group();
-      const limeMat = new THREE.MeshStandardMaterial({
-        color: 0xd4ff24,
-        roughness: 0.2,
-        metalness: 0.05,
-      });
-      const head = new THREE.Mesh(
-        new THREE.SphereGeometry(0.68, 22, 22),
-        limeMat,
-      );
-      head.position.y = 0.38;
-      const tip = new THREE.Mesh(
-        new THREE.ConeGeometry(0.52, 0.95, 22),
-        limeMat,
-      );
-      tip.position.y = -0.22;
-      tip.rotation.x = Math.PI;
-      const core = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.26, 0.26, 1.4, 18),
-        new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.3 }),
-      );
-      core.rotation.x = Math.PI / 2;
-      core.position.y = 0.38;
-      pinGrp.add(head, tip, core);
-      g.add(pinGrp);
+      if (kind === 'mini-req') {
+        const grp = new THREE.Group();
 
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(0.88, 0.06, 12, 32),
-        new THREE.MeshBasicMaterial({
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.55,
-        }),
-      );
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = -0.82;
-      g.add(ring);
+        // 3D Sachet body (white/pearl medical foil)
+        const body = new THREE.Mesh(
+          makeRoundedBox(1.5, 1.95, 0.24, 0.12, 3),
+          new THREE.MeshStandardMaterial({
+            color: 0xf8faff,
+            roughness: 0.25,
+            metalness: 0.18,
+          }),
+        );
+        grp.add(body);
 
-      const ring2 = new THREE.Mesh(
-        new THREE.TorusGeometry(1.22, 0.04, 12, 32),
-        new THREE.MeshBasicMaterial({
+        // Top & bottom crimped foil seal bands
+        const crimpMat = new THREE.MeshStandardMaterial({
+          color: 0xd8e3f2,
+          roughness: 0.25,
+          metalness: 0.58,
+        });
+        const topCrimp = new THREE.Mesh(
+          makeRoundedBox(1.54, 0.22, 0.26, 0.04, 2),
+          crimpMat,
+        );
+        topCrimp.position.y = 0.96;
+        const botCrimp = new THREE.Mesh(
+          makeRoundedBox(1.54, 0.22, 0.26, 0.04, 2),
+          crimpMat,
+        );
+        botCrimp.position.y = -0.96;
+        grp.add(topCrimp, botCrimp);
+
+        // Cobalt Blue central brand label plate
+        const labelPlate = new THREE.Mesh(
+          makeRoundedBox(1.24, 1.05, 0.04, 0.06, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0x1558c9,
+            roughness: 0.25,
+            metalness: 0.08,
+          }),
+        );
+        labelPlate.position.z = 0.135;
+        grp.add(labelPlate);
+
+        // 3D Acid Lime Medical Cross
+        const cross = makeCross(0.52, 0.16, 0.04, 0xd4ff24);
+        cross.position.set(0, 0.14, 0.165);
+        grp.add(cross);
+
+        // Acid Lime dosage badge
+        const dosageBadge = new THREE.Mesh(
+          makeRoundedBox(0.82, 0.18, 0.03, 0.04, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0xd4ff24,
+            roughness: 0.2,
+          }),
+        );
+        dosageBadge.position.set(0, -0.32, 0.16);
+        grp.add(dosageBadge);
+
+        // Floating orbiting pills
+        const tabGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.12, 20);
+        tabGeo.rotateX(Math.PI / 2);
+        const t1 = new THREE.Mesh(
+          tabGeo,
+          new THREE.MeshStandardMaterial({ color: 0xd4ff24, roughness: 0.22 }),
+        );
+        t1.position.set(0.95, -0.52, 0.45);
+        t1.rotation.set(0.3, -0.4, 0.2);
+        grp.add(t1);
+
+        const t2 = new THREE.Mesh(
+          tabGeo,
+          new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22 }),
+        );
+        t2.position.set(-0.92, 0.52, 0.38);
+        t2.rotation.set(-0.3, 0.4, -0.2);
+        grp.add(t2);
+
+        scene.add(grp);
+        miniAnim = (t) => {
+          grp.rotation.y = Math.sin(t * 1.1) * 0.38 - 0.22;
+          grp.rotation.x = 0.14 + Math.cos(t * 0.9) * 0.08;
+          grp.position.y = Math.sin(t * 1.5) * 0.07;
+          t1.rotation.z = t * 0.8;
+          t2.rotation.z = -t * 0.8;
+        };
+      } else if (kind === 'mini-rel') {
+        const grp = new THREE.Group();
+        const box = new THREE.Mesh(
+          makeRoundedBox(1.75, 1.1, 1.35, 0.14, 3),
+          new THREE.MeshStandardMaterial({
+            color: 0x1558c9,
+            roughness: 0.28,
+            metalness: 0.08,
+          }),
+        );
+        box.position.y = -0.22;
+        grp.add(box);
+
+        const lid = new THREE.Mesh(
+          makeRoundedBox(1.82, 0.22, 1.42, 0.07, 3),
+          new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.35 }),
+        );
+        lid.position.y = 0.38;
+        grp.add(lid);
+
+        // White cross on crate front
+        const cross = makeCross(0.42, 0.12, 0.03, 0xffffff);
+        cross.position.set(0, -0.22, 0.7);
+        grp.add(cross);
+
+        // Floating Acid Lime Arrow
+        const arrowGrp = new THREE.Group();
+        const arrowMat = new THREE.MeshStandardMaterial({
           color: 0xd4ff24,
-          transparent: true,
-          opacity: 0.45,
-        }),
-      );
-      ring2.rotation.x = Math.PI / 2;
-      ring2.position.y = -0.82;
-      g.add(ring2);
+          roughness: 0.22,
+        });
+        const stem = new THREE.Mesh(
+          makeRoundedBox(0.28, 0.65, 0.22, 0.06, 2),
+          arrowMat,
+        );
+        stem.position.y = 0.82;
+        const head = new THREE.Mesh(
+          new THREE.ConeGeometry(0.42, 0.52, 4),
+          arrowMat,
+        );
+        head.position.y = 1.28;
+        head.rotation.y = Math.PI / 4;
+        arrowGrp.add(stem, head);
+        grp.add(arrowGrp);
 
-      scene.add(g);
-      miniAnim = (t) => {
-        pinGrp.position.y = Math.sin(t * 2.3) * 0.14 + 0.08;
-        pinGrp.rotation.y = Math.sin(t * 1.1) * 0.45;
-        g.rotation.x = 0.22;
-        const s = 1 + ((t * 0.7) % 1) * 0.35;
-        ring2.scale.set(s, s, 1);
-      };
-    } else if (kind === 'drug') {
-      rootGrp = new THREE.Group();
+        scene.add(grp);
+        miniAnim = (t) => {
+          grp.rotation.y = 0.55 + Math.sin(t * 0.9) * 0.28;
+          grp.rotation.x = 0.28;
+          arrowGrp.position.y = Math.sin(t * 2.2) * 0.12 - 0.1;
+        };
+      } else if (kind === 'mini-trk') {
+        const grp = new THREE.Group();
 
-      // ORS Sachet
-      const orsGrp = new THREE.Group();
-      const bodyGeo = makeRoundedBox(1.85, 2.45, 0.34, 0.14, 4);
-      const pos = bodyGeo.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        const x = pos.getX(i);
-        const y = pos.getY(i);
-        const z = pos.getZ(i);
-        const pillow =
-          Math.cos((x / 0.95) * (Math.PI / 2)) *
-          Math.cos((y / 1.25) * (Math.PI / 2));
-        pos.setZ(i, z + Math.sign(z) * Math.max(0, pillow) * 0.12);
-      }
-      bodyGeo.computeVertexNormals();
-      const body = new THREE.Mesh(
-        bodyGeo,
-        new THREE.MeshStandardMaterial({
-          color: 0xf1f5fb,
-          roughness: 0.3,
-          metalness: 0.14,
-        }),
-      );
-      orsGrp.add(body);
+        // 3D Dispatch Medical Courier Crate
+        const crateSubGrp = new THREE.Group();
+        const cBox = new THREE.Mesh(
+          makeRoundedBox(1.32, 0.76, 1.02, 0.1, 3),
+          new THREE.MeshStandardMaterial({
+            color: 0x1558c9,
+            roughness: 0.26,
+            metalness: 0.08,
+          }),
+        );
+        cBox.position.y = -0.42;
 
-      const labelTex = getOrsTexture();
-      const labelMat = new THREE.MeshStandardMaterial({
-        map: labelTex,
-        roughness: 0.36,
-        metalness: 0.05,
-      });
-      const front = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.62, 2.22),
-        labelMat,
-      );
-      front.position.z = 0.295;
-      orsGrp.add(front);
-      const back = new THREE.Mesh(
-        new THREE.PlaneGeometry(1.62, 2.22),
-        labelMat,
-      );
-      back.position.z = -0.295;
-      back.rotation.y = Math.PI;
-      orsGrp.add(back);
+        const cLid = new THREE.Mesh(
+          makeRoundedBox(1.38, 0.16, 1.08, 0.05, 3),
+          new THREE.MeshStandardMaterial({
+            color: 0xf4f7fc,
+            roughness: 0.3,
+          }),
+        );
+        cLid.position.y = 0.02;
 
-      // Zinc Blister Pack
-      const zincGrp = new THREE.Group();
-      const card = new THREE.Mesh(
-        makeRoundedBox(2.55, 1.62, 0.08, 0.03, 4),
-        new THREE.MeshStandardMaterial({
-          color: 0xdbe3ef,
-          roughness: 0.32,
-          metalness: 0.38,
-        }),
-      );
-      zincGrp.add(card);
-      const zFace = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.38, 1.46),
-        new THREE.MeshStandardMaterial({
-          map: getZincTexture(),
-          roughness: 0.35,
-          metalness: 0.12,
-        }),
-      );
-      zFace.position.z = 0.046;
-      zincGrp.add(zFace);
+        const cCross = makeCross(0.34, 0.1, 0.03, 0xd4ff24);
+        cCross.position.set(0, -0.42, 0.53);
 
-      const tabMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        roughness: 0.25,
-      });
-      const domeMat = new THREE.MeshStandardMaterial({
-        color: 0xeaf2ff,
-        roughness: 0.12,
-        metalness: 0.1,
-        transparent: true,
-        opacity: 0.48,
-      });
-      const tabGeo = new THREE.CylinderGeometry(0.17, 0.17, 0.08, 18);
-      tabGeo.rotateX(Math.PI / 2);
-      const domeGeo = new THREE.SphereGeometry(
-        0.21,
-        16,
-        12,
-        0,
-        Math.PI * 2,
-        0,
-        Math.PI / 2,
-      );
-      domeGeo.rotateX(Math.PI / 2);
-      const scoreMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e4 });
+        crateSubGrp.add(cBox, cLid, cCross);
+        grp.add(crateSubGrp);
 
-      for (let r = 0; r < 2; r++) {
-        for (let col = 0; col < 5; col++) {
-          const x = (col - 2) * 0.44;
-          const y = (r === 0 ? 0.15 : -0.3) - 0.05;
-          const t = new THREE.Mesh(tabGeo, tabMat);
-          t.position.set(x, y, 0.085);
-          zincGrp.add(t);
-          const sc = new THREE.Mesh(
-            new THREE.BoxGeometry(0.26, 0.018, 0.02),
-            scoreMat,
-          );
-          sc.position.set(x, y, 0.13);
-          zincGrp.add(sc);
-          const dm = new THREE.Mesh(domeGeo, domeMat);
-          dm.position.set(x, y, 0.05);
-          dm.scale.set(1, 1, 0.72);
-          zincGrp.add(dm);
-        }
-      }
-
-      orsGrp.visible = stateRef.current.drug === 'ors';
-      zincGrp.visible = stateRef.current.drug === 'zinc';
-      stateRef.current.orsGrp = orsGrp;
-      stateRef.current.zincGrp = zincGrp;
-
-      rootGrp.add(orsGrp, zincGrp);
-      scene.add(rootGrp);
-    } else if (kind === 'crate') {
-      rootGrp = new THREE.Group();
-      const box = new THREE.Mesh(
-        makeRoundedBox(2.25, 1.45, 1.65, 0.14, 4),
-        new THREE.MeshStandardMaterial({
-          color: 0x1558c9,
-          roughness: 0.28,
+        // Hovering Acid Lime GPS Beacon Pin
+        const pinGrp = new THREE.Group();
+        const limeMat = new THREE.MeshStandardMaterial({
+          color: 0xd4ff24,
+          roughness: 0.18,
           metalness: 0.06,
-        }),
-      );
-      box.position.y = -0.08;
-      rootGrp.add(box);
+        });
+        const head = new THREE.Mesh(
+          new THREE.SphereGeometry(0.48, 22, 22),
+          limeMat,
+        );
+        head.position.y = 0.74;
+        const tip = new THREE.Mesh(
+          new THREE.ConeGeometry(0.36, 0.68, 22),
+          limeMat,
+        );
+        tip.position.y = 0.34;
+        tip.rotation.x = Math.PI;
+        const core = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.18, 0.18, 1.04, 18),
+          new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.3 }),
+        );
+        core.rotation.x = Math.PI / 2;
+        core.position.y = 0.74;
+        pinGrp.add(head, tip, core);
+        grp.add(pinGrp);
 
-      const lid = new THREE.Mesh(
-        makeRoundedBox(2.34, 0.28, 1.74, 0.09, 3),
-        new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.34 }),
-      );
-      lid.position.y = 0.68;
-      rootGrp.add(lid);
+        // Pulsating Radar Rings
+        const ring1 = new THREE.Mesh(
+          new THREE.TorusGeometry(0.92, 0.05, 12, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.65,
+          }),
+        );
+        ring1.rotation.x = Math.PI / 2;
+        ring1.position.y = -0.84;
+        grp.add(ring1);
 
-      const handle = new THREE.Mesh(
-        makeRoundedBox(0.75, 0.14, 0.24, 0.05, 3),
-        new THREE.MeshStandardMaterial({ color: 0x1f2738, roughness: 0.4 }),
-      );
-      handle.position.y = 0.87;
-      rootGrp.add(handle);
+        const ring2 = new THREE.Mesh(
+          new THREE.TorusGeometry(1.24, 0.045, 12, 32),
+          new THREE.MeshBasicMaterial({
+            color: 0xd4ff24,
+            transparent: true,
+            opacity: 0.55,
+          }),
+        );
+        ring2.rotation.x = Math.PI / 2;
+        ring2.position.y = -0.84;
+        grp.add(ring2);
 
-      const badge = new THREE.Mesh(
-        makeRoundedBox(0.68, 0.68, 0.04, 0.03, 3),
-        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22 }),
-      );
-      badge.position.set(-0.56, -0.08, 0.84);
-      rootGrp.add(badge);
+        scene.add(grp);
+        miniAnim = (t) => {
+          pinGrp.position.y = Math.sin(t * 2.3) * 0.11 + 0.06;
+          pinGrp.rotation.y = Math.sin(t * 1.1) * 0.45;
+          crateSubGrp.rotation.y = 0.38 + Math.sin(t * 0.9) * 0.24;
+          grp.rotation.x = 0.22;
+          const s = 1 + ((t * 0.7) % 1) * 0.32;
+          ring2.scale.set(s, s, 1);
+        };
+      } else if (kind === 'drug') {
+        rootGrp = new THREE.Group();
 
-      const crossMat = new THREE.MeshStandardMaterial({
-        color: 0x1558c9,
-        roughness: 0.28,
-      });
-      const c1 = new THREE.Mesh(
-        makeRoundedBox(0.4, 0.13, 0.03, 0.015, 2),
-        crossMat,
-      );
-      c1.position.set(-0.56, -0.08, 0.875);
-      const c2 = new THREE.Mesh(
-        makeRoundedBox(0.13, 0.4, 0.03, 0.015, 2),
-        crossMat,
-      );
-      c2.position.set(-0.56, -0.08, 0.875);
-      rootGrp.add(c1, c2);
+        // 1. ORS Sachet (Full procedural)
+        const orsGrp = new THREE.Group();
+        const bodyGeo = makeRoundedBox(1.85, 2.45, 0.28, 0.14, 4);
+        const body = new THREE.Mesh(
+          bodyGeo,
+          new THREE.MeshStandardMaterial({
+            color: 0xf8faff,
+            roughness: 0.28,
+            metalness: 0.16,
+          }),
+        );
+        orsGrp.add(body);
 
-      const sealTag = new THREE.Mesh(
-        new THREE.PlaneGeometry(0.95, 0.56),
-        new THREE.MeshStandardMaterial({
-          map: getSealTexture(),
-          roughness: 0.3,
-        }),
-      );
-      sealTag.position.set(0.46, 0.32, 0.855);
-      rootGrp.add(sealTag);
+        // Top & bottom crimp seals
+        const crimpMat = new THREE.MeshStandardMaterial({
+          color: 0xdde7f5,
+          roughness: 0.35,
+          metalness: 0.55,
+        });
+        const topCrimp = new THREE.Mesh(
+          makeRoundedBox(1.9, 0.24, 0.3, 0.04, 2),
+          crimpMat,
+        );
+        topCrimp.position.y = 1.18;
+        const botCrimp = new THREE.Mesh(
+          makeRoundedBox(1.9, 0.24, 0.3, 0.04, 2),
+          crimpMat,
+        );
+        botCrimp.position.y = -1.18;
+        orsGrp.add(topCrimp, botCrimp);
 
-      scene.add(rootGrp);
-    }
+        // Cobalt brand label plate
+        const labelPlate = new THREE.Mesh(
+          makeRoundedBox(1.6, 1.48, 0.04, 0.06, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0x1558c9,
+            roughness: 0.25,
+            metalness: 0.08,
+          }),
+        );
+        labelPlate.position.z = 0.155;
+        orsGrp.add(labelPlate);
 
-    const t0 = Date.now();
-    const animate = () => {
-      stateRef.current.raf = requestAnimationFrame(animate);
-      const t = (Date.now() - t0) / 1000;
-      if (miniAnim) {
-        miniAnim(t);
-      } else if (rootGrp) {
-        if (!stateRef.current.dragging) {
-          stateRef.current.targetY += 0.0045;
+        // 3D Acid Lime Medical Cross
+        const cross = makeCross(0.65, 0.2, 0.05, 0xd4ff24);
+        cross.position.set(0, 0.22, 0.19);
+        orsGrp.add(cross);
+
+        // Dosage plaque
+        const dosage = new THREE.Mesh(
+          makeRoundedBox(1.05, 0.24, 0.03, 0.04, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0xd4ff24,
+            roughness: 0.2,
+          }),
+        );
+        dosage.position.set(0, -0.4, 0.18);
+        orsGrp.add(dosage);
+
+        // 2. Zinc Blister Pack (Full procedural)
+        const zincGrp = new THREE.Group();
+        const card = new THREE.Mesh(
+          makeRoundedBox(2.65, 1.68, 0.08, 0.05, 4),
+          new THREE.MeshStandardMaterial({
+            color: 0xd8e3f4,
+            roughness: 0.24,
+            metalness: 0.68,
+          }),
+        );
+        zincGrp.add(card);
+
+        // 2x5 grid of blister bubbles with white zinc tablets inside
+        const domeMat = new THREE.MeshStandardMaterial({
+          color: 0xeaf2ff,
+          roughness: 0.1,
+          metalness: 0.15,
+          transparent: true,
+          opacity: 0.52,
+        });
+        const tabMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          roughness: 0.22,
+        });
+        const tabGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.08, 18);
+        tabGeo.rotateX(Math.PI / 2);
+        const domeGeo = new THREE.SphereGeometry(
+          0.22,
+          16,
+          12,
+          0,
+          Math.PI * 2,
+          0,
+          Math.PI / 2,
+        );
+        domeGeo.rotateX(Math.PI / 2);
+        const scoreMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e4 });
+
+        for (let r = 0; r < 2; r++) {
+          for (let col = 0; col < 5; col++) {
+            const x = (col - 2) * 0.46;
+            const y = (r === 0 ? 0.42 : -0.42);
+            const t = new THREE.Mesh(tabGeo, tabMat);
+            t.position.set(x, y, 0.06);
+            zincGrp.add(t);
+            const sc = new THREE.Mesh(
+              new THREE.BoxGeometry(0.24, 0.02, 0.02),
+              scoreMat,
+            );
+            sc.position.set(x, y, 0.105);
+            zincGrp.add(sc);
+            const dm = new THREE.Mesh(domeGeo, domeMat);
+            dm.position.set(x, y, 0.05);
+            dm.scale.set(1, 1, 0.65);
+            zincGrp.add(dm);
+          }
         }
-        stateRef.current.rotX +=
-          (stateRef.current.targetX - stateRef.current.rotX) * 0.1;
-        stateRef.current.rotY +=
-          (stateRef.current.targetY - stateRef.current.rotY) * 0.1;
-        rootGrp.rotation.x = stateRef.current.rotX;
-        rootGrp.rotation.y = stateRef.current.rotY;
-        rootGrp.position.y = Math.sin(t * 1.5) * 0.04;
+
+        // Zinc header stripe in Cobalt
+        const zStripe = new THREE.Mesh(
+          makeRoundedBox(2.5, 0.18, 0.02, 0.02, 2),
+          new THREE.MeshStandardMaterial({ color: 0x1558c9, roughness: 0.3 }),
+        );
+        zStripe.position.set(0, 0.72, 0.05);
+        zincGrp.add(zStripe);
+
+        orsGrp.visible = stateRef.current.drug === 'ors';
+        zincGrp.visible = stateRef.current.drug === 'zinc';
+        stateRef.current.orsGrp = orsGrp;
+        stateRef.current.zincGrp = zincGrp;
+
+        rootGrp.add(orsGrp, zincGrp);
+        scene.add(rootGrp);
+      } else if (kind === 'crate') {
+        rootGrp = new THREE.Group();
+        const box = new THREE.Mesh(
+          makeRoundedBox(2.25, 1.45, 1.65, 0.14, 4),
+          new THREE.MeshStandardMaterial({
+            color: 0x1558c9,
+            roughness: 0.28,
+            metalness: 0.06,
+          }),
+        );
+        box.position.y = -0.08;
+        rootGrp.add(box);
+
+        const lid = new THREE.Mesh(
+          makeRoundedBox(2.34, 0.28, 1.74, 0.09, 3),
+          new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.34 }),
+        );
+        lid.position.y = 0.68;
+        rootGrp.add(lid);
+
+        const handle = new THREE.Mesh(
+          makeRoundedBox(0.75, 0.14, 0.24, 0.05, 3),
+          new THREE.MeshStandardMaterial({ color: 0x1f2738, roughness: 0.4 }),
+        );
+        handle.position.y = 0.87;
+        rootGrp.add(handle);
+
+        const badge = new THREE.Mesh(
+          makeRoundedBox(0.68, 0.68, 0.04, 0.03, 3),
+          new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22 }),
+        );
+        badge.position.set(-0.56, -0.08, 0.84);
+        rootGrp.add(badge);
+
+        const cross = makeCross(0.42, 0.13, 0.03, 0x1558c9);
+        cross.position.set(-0.56, -0.08, 0.875);
+        rootGrp.add(cross);
+
+        // 3D Tamper-evident Seal Tag in Acid Lime
+        const sealTag = new THREE.Mesh(
+          makeRoundedBox(0.92, 0.52, 0.03, 0.04, 2),
+          new THREE.MeshStandardMaterial({
+            color: 0xd4ff24,
+            roughness: 0.22,
+          }),
+        );
+        sealTag.position.set(0.46, 0.32, 0.875);
+        rootGrp.add(sealTag);
+
+        const sealStripe = new THREE.Mesh(
+          makeRoundedBox(0.72, 0.14, 0.03, 0.02, 2),
+          new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 0.3 }),
+        );
+        sealStripe.position.set(0.46, 0.32, 0.895);
+        rootGrp.add(sealStripe);
+
+        scene.add(rootGrp);
       }
-      renderer.render(scene, camera);
-      gl.endFrameEXP();
-    };
-    animate();
+
+      const t0 = Date.now();
+      const animate = () => {
+        stateRef.current.raf = requestAnimationFrame(animate);
+        const t = (Date.now() - t0) / 1000;
+        if (miniAnim) {
+          miniAnim(t);
+        } else if (rootGrp) {
+          if (stateRef.current.orsGrp && stateRef.current.zincGrp) {
+            stateRef.current.orsGrp.visible = stateRef.current.drug === 'ors';
+            stateRef.current.zincGrp.visible = stateRef.current.drug === 'zinc';
+          }
+          if (!stateRef.current.dragging) {
+            stateRef.current.targetY += 0.0045;
+          }
+          stateRef.current.rotX +=
+            (stateRef.current.targetX - stateRef.current.rotX) * 0.1;
+          stateRef.current.rotY +=
+            (stateRef.current.targetY - stateRef.current.rotY) * 0.1;
+          rootGrp.rotation.x = stateRef.current.rotX;
+          rootGrp.rotation.y = stateRef.current.rotY;
+          rootGrp.position.y = Math.sin(t * 1.5) * 0.04;
+        }
+        renderer.render(scene, camera);
+        gl.endFrameEXP();
+      };
+      animate();
     } catch (err) {
       console.warn('[Stage3D] WebGL error:', err);
     }
@@ -538,15 +692,19 @@ export function Stage3D({
     <View
       style={[
         {
-          width: width ?? '100%',
+          width: finalWidth,
           height,
+          alignSelf: 'center',
           overflow: 'hidden',
         },
         style,
       ]}
       {...(interactive ? panResponder.panHandlers : {})}
     >
-      <GLView style={{ flex: 1 }} onContextCreate={onContextCreate} />
+      <GLView
+        style={{ flex: 1, width: '100%', height: '100%' }}
+        onContextCreate={onContextCreate}
+      />
     </View>
   );
 }

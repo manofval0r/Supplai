@@ -711,6 +711,14 @@ export function FacilityScreen({
             </Text>
           </View>
 
+          {/* 3D Sealed Vaccine Crate */}
+          <Stage3D
+            kind="crate"
+            height={130}
+            interactive
+            style={{ marginVertical: 8 }}
+          />
+
           {/* 4 PIN Slots with overlaid native TextInput */}
           <Press
             onPress={() => {

@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ui, useAppConfig } from '../lib/theme';
 import { Art, type ArtName } from '../components/LineArt';
 import { Press, ScreenBackdrop, SegmentedControl } from '../components/ui';
+import { Stage3D } from '../components/Stage3D';
 
 type ActivityFilter = 'all' | 'active' | 'done';
 
@@ -135,7 +136,7 @@ export function ActivityScreen({
                 ]}
               >
                 <View style={styles.liveCardTop}>
-                  <View style={{ flex: 1 }}>
+                  <View style={{ flex: 1, paddingRight: 12 }}>
                     <Text style={[styles.liveTitle, { fontSize: s(16) }]}>
                       Courier on the way{'\u00A0'}
                     </Text>
@@ -163,6 +164,14 @@ export function ActivityScreen({
                 <View style={styles.liveMeta}>
                   <Text style={styles.liveMetaText}>Picked up 09:34</Text>
                   <Text style={styles.liveMetaText}>Arrives 09:41</Text>
+                </View>
+                <View style={styles.liveCanvas} pointerEvents="none">
+                  <Stage3D
+                    kind="mini-trk"
+                    width={76}
+                    height={70}
+                    interactive={false}
+                  />
                 </View>
               </Press>
             ) : (
@@ -293,6 +302,16 @@ const styles = StyleSheet.create({
   liveCard: {
     borderRadius: 22,
     padding: 18,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  liveCanvas: {
+    position: 'absolute',
+    right: 4,
+    bottom: -6,
+    width: 76,
+    height: 70,
+    opacity: 0.85,
   },
   liveCardTop: {
     flexDirection: 'row',
