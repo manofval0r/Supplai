@@ -20,8 +20,15 @@ export function RolePicker({
 }: {
   onSelectMode: (mode: AppMode) => void;
 }) {
-  const { colors, activeDelivery, savedPlace, simCommodity, simEtaMin, s } =
-    useAppConfig();
+  const {
+    colors,
+    activeDelivery,
+    savedPlace,
+    simCommodity,
+    simEtaMin,
+    triggerSplash,
+    s,
+  } = useAppConfig();
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -48,16 +55,18 @@ export function RolePicker({
       />
 
       <View style={styles.body}>
-        <Text
-          style={[
-            styles.heroHeadline,
-            { color: colors.ink, fontSize: s(22.5), lineHeight: s(28) },
-          ]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-        >
-          Medicine, moved in minutes.{'\u00A0'}
-        </Text>
+        <Press onPress={triggerSplash} scaleTo={0.99}>
+          <Text
+            style={[
+              styles.heroHeadline,
+              { color: colors.ink, fontSize: s(22.5), lineHeight: s(28) },
+            ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            Medicine, moved in minutes.{'\u00A0'}
+          </Text>
+        </Press>
 
         {savedPlace ? (
           <Press

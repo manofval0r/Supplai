@@ -5,7 +5,7 @@ import { ui, useAppConfig } from '../lib/theme';
 import { Art, HomeCorridorScene } from './LineArt';
 
 export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
-  const { reduceMotion } = useAppConfig();
+  const { reduceMotion, isDark } = useAppConfig();
 
   const masterOpacity = useRef(new Animated.Value(1)).current;
   const skyTranslateY = useRef(new Animated.Value(0)).current;
@@ -19,6 +19,7 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
   const cloudDriftB = useRef(new Animated.Value(0)).current;
   const curbScroll = useRef(new Animated.Value(0)).current;
   const exitingRef = useRef(false);
+  const canDismissRef = useRef(false);
 
   const triggerExit = useCallback(() => {
     if (exitingRef.current) return;
@@ -149,10 +150,15 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
 
     const timer = setTimeout(() => {
       triggerExit();
-    }, 2350);
+    }, 2600);
+
+    const dismissTimer = setTimeout(() => {
+      canDismissRef.current = true;
+    }, 700);
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(dismissTimer);
       loopA.stop();
       loopB.stop();
       loopCurb.stop();
@@ -189,9 +195,49 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
   const leftTicks = Array.from({ length: 18 }, (_, i) => 28 + i * 5.5);
   const rightTicks = Array.from({ length: 18 }, (_, i) => 232 + i * 5.5);
 
+  // Dynamic Light/Dark Theme Tokens
+  const splashBg = isDark ? '#030407' : '#FFFFFF';
+  const cloudFill = '#1558C9';
+  const cloudFillOpacity = isDark ? 0.28 : 0.08;
+  const cloudStroke = isDark ? '#D4FF24' : '#1558C9';
+  const cloudStrokeOpacity = isDark ? 0.35 : 0.22;
+
+  const artColor = isDark ? '#D4FF24' : '#1558C9';
+  const artFill = isDark ? '#1558C9' : '#E9F0FD';
+  const artHl = isDark ? 'rgba(21,88,201,0.45)' : 'rgba(212,255,36,0.6)';
+  const artOpacity = isDark ? 0.55 : 0.75;
+
+  const wordmarkColor = isDark ? '#F4F7FF' : '#030407';
+  const tagPillBg = isDark ? 'rgba(21, 88, 201, 0.25)' : 'rgba(21, 88, 201, 0.08)';
+  const tagPillBorder = isDark ? 'rgba(212, 255, 36, 0.35)' : 'rgba(21, 88, 201, 0.22)';
+  const tagTextColor = isDark ? '#D4FF24' : '#1558C9';
+
+  const fenceStroke = isDark ? '#D4FF24' : '#1558C9';
+  const fenceOpacity = isDark ? 0.55 : 0.32;
+  const backHillFill = isDark ? '#0A1936' : '#E4EDFB';
+  const midHillFill = isDark ? '#0F2552' : '#D6E4F8';
+  const treeFill = '#1558C9';
+  const treeOpacity = isDark ? 0.55 : 0.28;
+  const stageFill = isDark ? '#030407' : '#F2F4F8';
+
+  const curbWrapBorder = isDark ? '#D4FF24' : '#1558C9';
+  const curbSegmentDark = isDark ? '#030407' : '#1558C9';
+
   return (
-    <Animated.View style={[styles.overlay, { opacity: masterOpacity }]}>
-      <Pressable style={styles.pressFill} onPress={triggerExit}>
+    <Animated.View
+      style={[
+        styles.overlay,
+        { backgroundColor: splashBg, opacity: masterOpacity },
+      ]}
+    >
+      <Pressable
+        style={styles.pressFill}
+        onPress={() => {
+          if (canDismissRef.current) {
+            triggerExit();
+          }
+        }}
+      >
         {/* Animated Upper Sky with 2D Clouds & Medical Line Art */}
         <Animated.View
           style={[
@@ -209,10 +255,10 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Svg width={130} height={74} viewBox="0 0 130 74">
               <Path
                 d="M18 58 H104 A16 16 0 0 0 104 28 A22 22 0 0 0 64 16 A26 26 0 0 0 16 32 A14 14 0 0 0 18 58 Z"
-                fill="#1558C9"
-                fillOpacity={0.22}
-                stroke="#D4FF24"
-                strokeOpacity={0.35}
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity}
+                stroke={cloudStroke}
+                strokeOpacity={cloudStrokeOpacity}
                 strokeWidth={1.5}
               />
             </Svg>
@@ -228,8 +274,8 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Svg width={120} height={44} viewBox="0 0 120 44">
               <Path
                 d="M12 36 H108 C108 24 96 18 86 20 C80 10 64 8 54 16 C44 12 30 16 26 24 C18 24 12 29 12 36 Z"
-                fill="#1558C9"
-                fillOpacity={0.32}
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity + 0.08}
               />
             </Svg>
           </Animated.View>
@@ -244,8 +290,8 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Svg width={90} height={36} viewBox="0 0 90 36">
               <Path
                 d="M10 30 H80 C80 20 70 16 62 18 C56 10 42 10 36 17 C26 15 16 20 10 30 Z"
-                fill="#1558C9"
-                fillOpacity={0.26}
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity + 0.04}
               />
             </Svg>
           </Animated.View>
@@ -266,11 +312,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Art
               name="sachet"
               size={76}
-              color="#D4FF24"
-              fill="#1558C9"
-              hlColor="rgba(21,88,201,0.45)"
+              color={artColor}
+              fill={artFill}
+              hlColor={artHl}
               withHighlight
-              opacity={0.55}
+              opacity={artOpacity}
             />
           </Animated.View>
 
@@ -289,11 +335,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Art
               name="pills"
               size={80}
-              color="#D4FF24"
-              fill="#1558C9"
-              hlColor="rgba(21,88,201,0.45)"
+              color={artColor}
+              fill={artFill}
+              hlColor={artHl}
               withHighlight
-              opacity={0.55}
+              opacity={artOpacity}
             />
           </Animated.View>
 
@@ -306,9 +352,9 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
             <Art
               name="route"
               size={72}
-              color="#D4FF24"
-              fill="#1558C9"
-              opacity={0.35}
+              color={artColor}
+              fill={artFill}
+              opacity={artOpacity - 0.2}
             />
           </Animated.View>
         </Animated.View>
@@ -336,10 +382,20 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
                 />
               </Svg>
             </View>
-            <Text style={styles.brandWordmark}>Supplai</Text>
+            <Text style={[styles.brandWordmark, { color: wordmarkColor }]}>
+              Supplai
+            </Text>
           </View>
-          <View style={styles.brandTagPill}>
-            <Text style={styles.brandTagText}>
+          <View
+            style={[
+              styles.brandTagPill,
+              {
+                backgroundColor: tagPillBg,
+                borderColor: tagPillBorder,
+              },
+            ]}
+          >
+            <Text style={[styles.brandTagText, { color: tagTextColor }]}>
               CLINIC-TO-CLINIC MEDICINE CORRIDOR
             </Text>
           </View>
@@ -356,7 +412,7 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
           >
             <Svg width="100%" height={175} viewBox="0 0 360 175">
               {/* Horizon vertical corridor picket ticks */}
-              <G stroke="#D4FF24" strokeOpacity={0.55} strokeWidth={1.2}>
+              <G stroke={fenceStroke} strokeOpacity={fenceOpacity} strokeWidth={1.2}>
                 {leftTicks.map((x, idx) => (
                   <Path
                     key={`lt-${idx}`}
@@ -374,15 +430,15 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
               {/* Back rolling hill */}
               <Path
                 d="M-20 110 Q 180 42 380 110 L380 175 L-20 175 Z"
-                fill="#0A1936"
+                fill={backHillFill}
               />
               {/* Mid rolling hill */}
               <Path
                 d="M-20 128 Q 110 78 250 118 T 380 120 L380 175 L-20 175 Z"
-                fill="#0F2552"
+                fill={midHillFill}
               />
               {/* stylized 2D trees / canopies along the corridor */}
-              <G fill="#1558C9" fillOpacity={0.55}>
+              <G fill={treeFill} fillOpacity={treeOpacity}>
                 <Circle cx="52" cy="116" r="22" />
                 <Circle cx="74" cy="122" r="16" />
                 <Circle cx="154" cy="118" r="20" />
@@ -390,8 +446,8 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
                 <Circle cx="288" cy="118" r="24" />
                 <Circle cx="316" cy="122" r="18" />
               </G>
-              {/* Foreground dark corridor stage */}
-              <Rect x="0" y="126" width="360" height="49" fill="#030407" />
+              {/* Foreground corridor stage */}
+              <Rect x="0" y="126" width="360" height="49" fill={stageFill} />
             </Svg>
           </Animated.View>
 
@@ -407,14 +463,17 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
               },
             ]}
           >
-            <HomeCorridorScene forceDark height={68} />
+            <HomeCorridorScene forceDark={isDark} height={68} />
           </Animated.View>
 
           {/* Animated scrolling curb bar at the very bottom (like Chowdeck's bottom track) */}
           <Animated.View
             style={[
               styles.curbWrap,
-              { transform: [{ translateY: hillsTranslateY }] },
+              {
+                borderTopColor: curbWrapBorder,
+                transform: [{ translateY: hillsTranslateY }],
+              },
             ]}
           >
             <Animated.View
@@ -426,7 +485,12 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
               {Array.from({ length: 14 }).map((_, i) => (
                 <View key={i} style={styles.curbSegment}>
                   <View style={styles.curbLight} />
-                  <View style={styles.curbDark} />
+                  <View
+                    style={[
+                      styles.curbDark,
+                      { backgroundColor: curbSegmentDark },
+                    ]}
+                  />
                 </View>
               ))}
             </Animated.View>
@@ -444,7 +508,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: -24,
-    backgroundColor: '#030407',
     zIndex: 999,
     elevation: 999,
   },
@@ -509,7 +572,6 @@ const styles = StyleSheet.create({
   brandWordmark: {
     fontFamily: ui.font.bold,
     fontSize: 38,
-    color: '#F4F7FF',
     letterSpacing: -1.1,
     paddingRight: 4,
   },
@@ -518,15 +580,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: 'rgba(21, 88, 201, 0.25)',
     borderWidth: 1,
-    borderColor: 'rgba(212, 255, 36, 0.35)',
   },
   brandTagText: {
     fontFamily: ui.font.bold,
     fontSize: 10,
     letterSpacing: 1.1,
-    color: '#D4FF24',
   },
   bottomStage: {
     width: '100%',
@@ -554,7 +613,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1558C9',
     overflow: 'hidden',
     borderTopWidth: 1.5,
-    borderTopColor: '#D4FF24',
   },
   curbStrip: {
     flexDirection: 'row',
@@ -574,6 +632,5 @@ const styles = StyleSheet.create({
   curbDark: {
     width: 24,
     height: '100%',
-    backgroundColor: '#030407',
   },
 });

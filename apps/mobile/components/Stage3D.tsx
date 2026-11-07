@@ -15,6 +15,21 @@ import {
   getMiniOrsTexture,
 } from '../lib/three/textures';
 
+// Neutralize Three.js r163+ WebGL 1 deprecation check that throws on expo-gl context
+try {
+  const g = globalThis as unknown as Record<
+    string,
+    { [Symbol.hasInstance]?: () => boolean }
+  >;
+  if (g.WebGLRenderingContext) {
+    Object.defineProperty(g.WebGLRenderingContext, Symbol.hasInstance, {
+      value: () => false,
+    });
+  }
+} catch (err) {
+  void err;
+}
+
 function makeRoundedBox(
   w: number,
   h: number,
@@ -138,7 +153,8 @@ export function Stage3D({
   ).current;
 
   const onContextCreate = (gl: ExpoWebGLRenderingContext) => {
-    const renderer = new Renderer({ gl }) as unknown as THREE.WebGLRenderer;
+    try {
+      const renderer = new Renderer({ gl }) as unknown as THREE.WebGLRenderer;
     renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
     renderer.setClearColor(0x000000, 0);
 
@@ -513,6 +529,9 @@ export function Stage3D({
       gl.endFrameEXP();
     };
     animate();
+    } catch (err) {
+      console.warn('[Stage3D] WebGL error:', err);
+    }
   };
 
   return (

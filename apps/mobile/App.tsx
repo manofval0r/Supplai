@@ -29,6 +29,10 @@ function MainNavigator() {
   const [mode, setMode] = useState<AppMode>('home');
   const [accountSubView, setAccountSubView] = useState<AccountSubView>('hub');
 
+  const handleFinishSplash = useCallback(() => {
+    setShowSplash(false);
+  }, [setShowSplash]);
+
   const handleSelectTab = useCallback((tab: DockTab) => {
     if (tab === 'account') {
       setAccountSubView('hub');
@@ -51,7 +55,7 @@ function MainNavigator() {
         styles.safeArea,
         {
           backgroundColor: showSplash
-            ? '#030407'
+            ? (isDark ? '#030407' : colors.bg)
             : mode === 'rider'
               ? '#e8ecf2'
               : colors.bg,
@@ -59,7 +63,7 @@ function MainNavigator() {
       ]}
     >
       <StatusBar
-        barStyle={showSplash || isDark ? 'light-content' : 'dark-content'}
+        barStyle={isDark ? 'light-content' : 'dark-content'}
       />
 
       <View style={styles.mainContent}>
@@ -115,7 +119,7 @@ function MainNavigator() {
           />
         )}
 
-        {showSplash && <AnimatedSplash onFinish={() => setShowSplash(false)} />}
+        {showSplash && <AnimatedSplash onFinish={handleFinishSplash} />}
       </View>
     </SafeAreaView>
   );
