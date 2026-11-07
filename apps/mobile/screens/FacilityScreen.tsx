@@ -1,445 +1,1424 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  View,
+  Animated,
+  Keyboard,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
+  Vibration,
+  View,
 } from 'react-native';
 
 import { supplaiApi, type OrderDetail } from '../lib/api';
 import {
-  NotificationInbox,
-  NotificationBanner,
-} from '../components/NotificationInbox';
-import {
   registerForRemoteNotificationsAsync,
   scheduleCriticalAlert,
 } from '../lib/notifications';
+import { ui, useAppConfig } from '../lib/theme';
+import { Stage3D } from '../components/Stage3D';
+import {
+  ScreenBackdrop,
+  Press,
+  Button,
+  KV,
+  ChevronLeftIcon,
+  PinIcon,
+  CheckIcon,
+} from '../components/ui';
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+const DRUGS = {
+  ors: {
+    short: 'ORS, 20.5 g',
+    name: 'Oral Rehydration Salts',
+    unit: 'sachets',
+    step: 10,
+    stock: 80,
+    OrderName: 'ORS sachets',
   },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#111827' },
-  headerSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  content: { padding: 12 },
-  section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
+  zinc: {
+    short: 'Zinc, 20 mg',
+    name: 'Zinc Sulfate 20 mg',
+    unit: 'tablets',
+    step: 10,
+    stock: 120,
+    OrderName: 'Zinc tablets',
   },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  label: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-    color: '#111827',
-    marginBottom: 10,
-    backgroundColor: '#ffffff',
-  },
-  row: { flexDirection: 'row', gap: 8, marginBottom: 10 },
-  button: {
-    backgroundColor: '#2563eb',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    flex: 1,
-  },
-  buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
-  buttonOutline: {
-    borderWidth: 1,
-    borderColor: '#2563eb',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  buttonOutlineText: { color: '#2563eb', fontWeight: '700', fontSize: 14 },
-  buttonSuccess: { backgroundColor: '#16a34a' },
-  buttonDanger: { backgroundColor: '#dc2626' },
-  buttonDisabled: { backgroundColor: '#9ca3af' },
-  timeline: { marginTop: 8 },
-  eventRow: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#e5e7eb',
-    paddingLeft: 10,
-  },
-  eventRowActive: { borderLeftColor: '#2563eb' },
-  eventDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#9ca3af',
-    marginTop: 2,
-    marginRight: 8,
-  },
-  eventDotActive: { backgroundColor: '#2563eb' },
-  eventText: { fontSize: 13, color: '#374151', flex: 1 },
-  eventMeta: { fontSize: 11, color: '#6b7280' },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#374151',
-    textTransform: 'uppercase',
-  },
-  owner: { fontSize: 12, color: '#6b7280', fontStyle: 'italic', marginTop: 4 },
-  error: {
-    color: '#dc2626',
-    fontSize: 13,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  success: {
-    color: '#16a34a',
-    fontSize: 13,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-});
-
-const statusLabel = (status: string) => {
-  switch (status) {
-    case 'awaiting_source_confirmation':
-      return 'Awaiting source release';
-    case 'awaiting_dispatch':
-      return 'Awaiting dispatch';
-    case 'rider_en_route':
-      return 'Rider en route';
-    case 'received':
-      return 'Received';
-    case 'escalated':
-      return 'Escalated';
-    default:
-      return status;
-  }
-};
+} as const;
 
 export function FacilityScreen({
-  facilityId,
-  phone,
+  facilityName = 'Aiyetoro Central',
+  mode = 'request',
+  onSwitchRole,
+  onOpenRider,
 }: {
-  facilityId: string;
-  phone: string;
+  facilityName?: string;
+  mode?: 'request' | 'release' | 'handover';
+  onSwitchRole?: () => void;
+  onOpenRider?: () => void;
 }) {
-  const [reference, setReference] = useState<string | null>(null);
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [commodity, setCommodity] = useState<'ors' | 'zinc'>('ors');
-  const [quantity, setQuantity] = useState('20');
-  const [proofCode, setProofCode] = useState('');
+  const { colors, isDark, haptics, savedPlace } = useAppConfig();
+  const activeFacility = savedPlace || facilityName;
+
+  const [drug, setDrug] = useState<'ors' | 'zinc'>('ors');
+  const [reqQty, setReqQty] = useState<number>(20);
+  const [relQty, setRelQty] = useState<number>(30);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Sub-step states
+  const [requestSent, setRequestSent] = useState(false);
+  const [releaseDone, setReleaseDone] = useState(false);
+
+  // Native Keyboard Handover PIN state & micro-interaction animations
+  const [pin, setPin] = useState('');
+  const [revealedIndex, setRevealedIndex] = useState<number | null>(null);
+  const [pinState, setPinState] = useState<'idle' | 'error' | 'ok'>('idle');
+  const [handoverConfirmed, setHandoverConfirmed] = useState(false);
+  const [okSlots, setOkSlots] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+  ]);
+
+  const pinInputRef = useRef<{ focus: () => void } | null>(null);
+  const revealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const slotScales = useRef([
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+    new Animated.Value(1),
+  ]).current;
+  const rowShake = useRef(new Animated.Value(0)).current;
+  const rowConvergeScale = useRef(new Animated.Value(1)).current;
+  const rowConvergeOpacity = useRef(new Animated.Value(1)).current;
+  const confirmedCardScale = useRef(new Animated.Value(0.88)).current;
+  const confirmedCardOpacity = useRef(new Animated.Value(0)).current;
+
+  const [activeOrder, setActiveOrder] = useState<OrderDetail | null>(null);
+
+  const loadOrders = useCallback(async () => {
+    try {
+      const ord = await supplaiApi.getOrder('REQ-0001');
+      setActiveOrder(ord);
+    } catch {
+      // Offline fallback
+    }
+  }, []);
 
   useEffect(() => {
     void registerForRemoteNotificationsAsync();
-  }, []);
+    void loadOrders();
+  }, [loadOrders]);
 
-  const fetchOrder = useCallback(async (ref: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await supplaiApi.getOrder(ref);
-      setOrder(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load order');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (handoverConfirmed) {
+      confirmedCardScale.setValue(0.92);
+      confirmedCardOpacity.setValue(0);
+      Animated.parallel([
+        Animated.spring(confirmedCardScale, {
+          toValue: 1,
+          useNativeDriver: true,
+          stiffness: 240,
+          damping: 18,
+        }),
+        Animated.timing(confirmedCardOpacity, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
-  }, []);
+  }, [handoverConfirmed, confirmedCardOpacity, confirmedCardScale]);
 
-  const handleRequest = async () => {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
+  useEffect(() => {
+    setRequestSent(false);
+    setReleaseDone(false);
+    setPin('');
+    setRevealedIndex(null);
+    setPinState('idle');
+    setHandoverConfirmed(false);
+    setOkSlots([false, false, false, false]);
+    rowConvergeScale.setValue(1);
+    rowConvergeOpacity.setValue(1);
+  }, [mode, rowConvergeOpacity, rowConvergeScale]);
+
+  const d = DRUGS[drug];
+
+  const handleCreateRequest = async () => {
+    setSubmitting(true);
     try {
-      const result = await supplaiApi.createRequest({
-        facilityPhone: phone,
-        commodity,
-        quantity: Number(quantity),
+      const created = await supplaiApi.createRequest({
+        facilityPhone: '+2348010000001',
+        commodity: drug,
+        quantity: reqQty,
       });
-      if (result.status === 'offered' && result.requestReference) {
-        setReference(result.requestReference);
-        await fetchOrder(result.requestReference);
-        setSuccess(
-          `Request raised — ${result.sourceFacility} asked to release within 10 minutes.`,
-        );
-        await scheduleCriticalAlert({
-          title: 'Stock request raised',
-          body: `${result.sourceFacility} has been asked to release ${quantity} units.`,
-          data: { reference: result.requestReference },
-        });
-      } else {
-        setError('No eligible source stock without breaching a safety floor.');
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Request failed');
+      await scheduleCriticalAlert({
+        title: 'Request sent',
+        body: `Order ${created.requestReference ?? 'REQ-0001'}: ${reqQty} ${d.OrderName} from Demo PHC B.`,
+        data: { reference: created.requestReference ?? 'REQ-0001' },
+      });
+      await loadOrders();
+    } catch {
+      // Proceed in demo mode even if API already has active seed
     } finally {
-      setLoading(false);
+      setSubmitting(false);
+      setRequestSent(true);
     }
   };
 
-  const handleAction = async (
-    action:
-      'confirm_release' | 'decline_release' | 'receive' | 'refuse_receipt',
-  ) => {
-    if (!order?.reference) return;
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
+  const handlePublishSurplus = async () => {
+    setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = { action, actorPhone: phone };
-      if (action === 'receive') payload.proofCode = proofCode;
-      if (action === 'refuse_receipt')
-        payload.reason = 'Refused by receiving facility';
-      const result = await supplaiApi.actOnOrder(order.reference, payload);
-      if (result.accepted) {
-        setSuccess(result.message);
-        await fetchOrder(order.reference);
-      } else {
-        setError(result.message);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Action failed');
+      await supplaiApi.actOnOrder('REQ-0001', {
+        action: 'release_surplus',
+        actorPhone: '+2348010000002',
+      });
+      await scheduleCriticalAlert({
+        title: 'Listed for nearby clinics',
+        body: `${relQty} ${d.unit} of ${d.name} made available.`,
+      });
+    } catch {
+      // Proceed in demo mode
     } finally {
-      setLoading(false);
+      setSubmitting(false);
+      setReleaseDone(true);
     }
   };
 
-  if (!reference) {
+  const triggerConfirmedTransition = useCallback(
+    async (enteredPin: string) => {
+      if (haptics) Vibration.vibrate([0, 20, 40, 30]);
+      setPinState('ok');
+
+      // Staggered Acid Lime slot wave
+      [0, 1, 2, 3].forEach((idx) => {
+        setTimeout(() => {
+          setOkSlots((prev) => {
+            const next = [...prev];
+            next[idx] = true;
+            return next;
+          });
+          Animated.sequence([
+            Animated.spring(slotScales[idx], {
+              toValue: 1.1,
+              useNativeDriver: true,
+              speed: 50,
+              bounciness: 10,
+            }),
+            Animated.spring(slotScales[idx], {
+              toValue: 1,
+              useNativeDriver: true,
+              speed: 40,
+              bounciness: 6,
+            }),
+          ]).start();
+        }, idx * 65);
+      });
+
+      const ref = activeOrder?.reference ?? 'REQ-0001';
+      try {
+        await supplaiApi.actOnOrder(ref, {
+          action: 'confirm_delivery',
+          handoverCode: enteredPin,
+          actorPhone: '+2348010000001',
+        });
+      } catch {
+        // Offline / demo fallback
+      }
+      await scheduleCriticalAlert({
+        title: 'Custody transferred',
+        body: `20 ORS sachets added to ${activeFacility}.`,
+        data: { reference: ref },
+      });
+
+      // Converge slots & morph into Custody Transferred screen
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(rowConvergeScale, {
+            toValue: 0.86,
+            duration: 180,
+            useNativeDriver: true,
+          }),
+          Animated.timing(rowConvergeOpacity, {
+            toValue: 0,
+            duration: 180,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          Keyboard.dismiss();
+          setHandoverConfirmed(true);
+        });
+      }, 420);
+    },
+    [
+      activeFacility,
+      activeOrder?.reference,
+      confirmedCardOpacity,
+      confirmedCardScale,
+      haptics,
+      rowConvergeOpacity,
+      rowConvergeScale,
+      slotScales,
+    ],
+  );
+
+  const triggerErrorShake = useCallback(() => {
+    if (haptics) Vibration.vibrate([0, 35, 50, 35]);
+    setPinState('error');
+    Animated.sequence([
+      Animated.timing(rowShake, {
+        toValue: -10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowShake, {
+        toValue: 10,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowShake, {
+        toValue: -8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowShake, {
+        toValue: 8,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rowShake, {
+        toValue: 0,
+        duration: 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      setPin('');
+      setRevealedIndex(null);
+      setPinState('idle');
+    }, 520);
+  }, [haptics, rowShake]);
+
+  const handlePinChange = (raw: string) => {
+    if (pinState === 'ok') return;
+    const cleaned = raw.replace(/\D/g, '').slice(0, 4);
+    const prevLen = pin.length;
+    setPin(cleaned);
+
+    if (cleaned.length > prevLen) {
+      const idx = cleaned.length - 1;
+      if (haptics) Vibration.vibrate(12);
+      setRevealedIndex(idx);
+      if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      revealTimerRef.current = setTimeout(() => {
+        setRevealedIndex(null);
+      }, 260);
+
+      Animated.sequence([
+        Animated.spring(slotScales[idx], {
+          toValue: 1.12,
+          useNativeDriver: true,
+          speed: 60,
+          bounciness: 10,
+        }),
+        Animated.spring(slotScales[idx], {
+          toValue: 1,
+          useNativeDriver: true,
+          speed: 45,
+          bounciness: 6,
+        }),
+      ]).start();
+    } else {
+      setRevealedIndex(null);
+      setPinState('idle');
+    }
+
+    if (cleaned.length === 4) {
+      if (cleaned === '5082') {
+        void triggerConfirmedTransition(cleaned);
+      } else {
+        triggerErrorShake();
+      }
+    }
+  };
+
+  const runDemoAutoType = () => {
+    if (pinState === 'ok') return;
+    setPin('');
+    setPinState('idle');
+    setOkSlots([false, false, false, false]);
+    const code = '5082';
+    [0, 1, 2, 3].forEach((i) => {
+      setTimeout(() => {
+        handlePinChange(code.slice(0, i + 1));
+      }, i * 110);
+    });
+  };
+
+  // 1. REQUEST SENT CONFIRMATION SCREEN
+  if (mode === 'request' && requestSent) {
     return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Facility</Text>
-          <Text style={styles.headerSub}>
-            {facilityId} · {phone}
-          </Text>
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'cyclist',
+              top: 24,
+              right: -12,
+              size: 132,
+              rotate: -6,
+              withHighlight: true,
+            },
+            {
+              art: 'clinic',
+              bottom: 105,
+              left: -18,
+              size: 118,
+              rotate: 6,
+            },
+            {
+              art: 'sachet',
+              bottom: 120,
+              right: -18,
+              size: 104,
+              rotate: 16,
+              withHighlight: true,
+            },
+          ]}
+        />
+        <View style={styles.topBar}>
+          <Press
+            onPress={() => setRequestSent(false)}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
         </View>
-        <ScrollView
-          style={styles.content}
-          contentContainerStyle={{ paddingBottom: 80 }}
-        >
-          <NotificationBanner role="facility" facilityId={facilityId} />
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Raise a stock request</Text>
-            <Text style={styles.label}>Commodity (ambient only)</Text>
-            <TouchableOpacity
-              style={[
-                styles.input,
-                {
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                },
-              ]}
-              onPress={() => setCommodity(commodity === 'ors' ? 'zinc' : 'ors')}
+        <View style={styles.confirmBody}>
+          <View style={styles.confirmCenter}>
+            <View
+              style={[styles.checkCircle, { backgroundColor: colors.lime }]}
             >
-              <Text>
-                {commodity === 'ors' ? 'ORS sachets' : 'Zinc 20 mg tablets'}
-              </Text>
-              <Text style={{ fontSize: 12, color: '#6b7280' }}>
-                tap to switch
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.label}>Quantity</Text>
-            <TextInput
-              style={styles.input}
-              value={quantity}
-              onChangeText={setQuantity}
-              keyboardType="numeric"
-            />
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleRequest}
-              disabled={loading}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Submitting...' : 'Request stock'}
-              </Text>
-            </TouchableOpacity>
+              <CheckIcon size={28} color={colors.limeInk} />
+            </View>
+            <Text style={[styles.h1, { color: colors.ink }]}>
+              Request sent{'\u00A0'}
+            </Text>
+            <Text style={[styles.subText, { color: colors.mute }]}>
+              Ade Okafor is heading to Demo PHC B to pick up {reqQty} {d.unit}{' '}
+              of {d.name}.
+            </Text>
+
+            <View style={[styles.timelineBox, { borderTopColor: colors.line }]}>
+              {[
+                [true, 'Demo PHC B accepted', 'Just now'],
+                [
+                  true,
+                  'Courier assigned, Ade Okafor',
+                  '1 min away from pickup',
+                ],
+                [false, `Arrives at ${activeFacility}`, 'About 7 min'],
+              ].map(([done, title, sub], i) => (
+                <View key={String(title)} style={styles.tlRow}>
+                  <View style={styles.tlCol}>
+                    <View
+                      style={[
+                        styles.tlDot,
+                        done
+                          ? { backgroundColor: colors.lime }
+                          : {
+                              backgroundColor: 'transparent',
+                              borderWidth: 2,
+                              borderColor: colors.mute,
+                            },
+                      ]}
+                    >
+                      {done ? (
+                        <CheckIcon size={11} color={colors.limeInk} />
+                      ) : null}
+                    </View>
+                    {i < 2 && (
+                      <View
+                        style={[
+                          styles.tlLine,
+                          {
+                            backgroundColor: done ? colors.lime : colors.line,
+                          },
+                        ]}
+                      />
+                    )}
+                  </View>
+                  <View style={styles.tlContent}>
+                    <Text style={[styles.tlTitle, { color: colors.ink }]}>
+                      {String(title)}
+                    </Text>
+                    <Text style={[styles.tlSub, { color: colors.mute }]}>
+                      {String(sub)}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
-          {error && <Text style={styles.error}>{error}</Text>}
-          {success && <Text style={styles.success}>{success}</Text>}
-        </ScrollView>
+
+          <Button onPress={onOpenRider}>Watch on map</Button>
+        </View>
       </View>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Order {order?.reference}</Text>
-        <Text style={styles.headerSub}>
-          {statusLabel(order?.status ?? '---')} ·{' '}
-          {order?.commodity.toUpperCase()}
-        </Text>
-      </View>
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={{ paddingBottom: 120 }}
-      >
-        <NotificationBanner role="facility" facilityId={facilityId} />
-        {order && (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order summary</Text>
-              <View style={styles.row}>
-                <TouchableOpacity style={styles.button} disabled>
-                  <Text style={styles.buttonText}>Source</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonOutline]}
-                  disabled
-                >
-                  <Text style={styles.buttonOutlineText}>
-                    {order.sourceFacility}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.label}>Quantity requested</Text>
-              <Text style={{ fontSize: 15, color: '#111827' }}>
-                {order.quantity}
-              </Text>
-              <View style={[styles.row, { marginTop: 6 }]}>
-                <TouchableOpacity style={styles.button} disabled>
-                  <Text style={styles.buttonText}>Batch</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonOutline]}
-                  disabled
-                >
-                  <Text style={styles.buttonOutlineText}>
-                    {order.evidence.batchNumber}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.label}>Ambient only</Text>
-              <Text style={{ fontSize: 13, color: '#374151' }}>
-                {order.evidence.ambientOnly ? 'Yes' : 'No'}
-              </Text>
-              <Text style={styles.owner}>
-                Next accountable: {order.nextAccountableOwner}
-              </Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Timeline</Text>
-              <View style={styles.timeline}>
-                {order.timeline.map((entry) => (
-                  <View
-                    key={entry.sequence}
-                    style={[
-                      styles.eventRow,
-                      entry.sequence === order.timeline.length &&
-                        styles.eventRowActive,
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.eventDot,
-                        entry.sequence === order.timeline.length &&
-                          styles.eventDotActive,
-                      ]}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.eventText}>{entry.label}</Text>
-                      <Text style={styles.eventMeta}>
-                        {entry.actorRole} ·{' '}
-                        {new Date(entry.occurredAt).toLocaleString()}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Actions</Text>
-              {order.allowedActions.includes('confirm_release') && (
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonSuccess]}
-                  onPress={() => handleAction('confirm_release')}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonText}>Confirm release</Text>
-                </TouchableOpacity>
-              )}
-              {order.allowedActions.includes('decline_release') && (
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonDanger]}
-                  onPress={() => handleAction('decline_release')}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonText}>Decline release</Text>
-                </TouchableOpacity>
-              )}
-              {order.allowedActions.includes('receive') && (
-                <View style={{ marginTop: 8 }}>
-                  <Text style={styles.label}>
-                    Delivery proof code (4 digits)
-                  </Text>
-                  <TextInput
-                    style={styles.input}
-                    value={proofCode}
-                    onChangeText={setProofCode}
-                    keyboardType="numeric"
-                    maxLength={4}
-                  />
-                  <TouchableOpacity
-                    style={[
-                      styles.button,
-                      styles.buttonSuccess,
-                      { marginTop: 6 },
-                    ]}
-                    onPress={() => handleAction('receive')}
-                    disabled={loading}
-                  >
-                    <Text style={styles.buttonText}>Accept handover</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-              {order.allowedActions.includes('refuse_receipt') && (
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonDanger]}
-                  onPress={() => handleAction('refuse_receipt')}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonText}>Refuse receipt</Text>
-                </TouchableOpacity>
-              )}
-              {order.allowedActions.length === 0 && (
-                <Text style={{ color: '#6b7280', fontSize: 13 }}>
-                  No actions available for this order.
-                </Text>
-              )}
-            </View>
-          </>
-        )}
-        <NotificationInbox
-          role="facility"
-          facilityId={facilityId}
-          onSelectOrder={(ref) => setReference(ref)}
+  // 2. RELEASE CONFIRMED SCREEN
+  if (mode === 'release' && releaseDone) {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'crate',
+              top: 28,
+              right: -14,
+              size: 128,
+              rotate: 10,
+              withHighlight: true,
+            },
+            {
+              art: 'route',
+              bottom: 110,
+              left: -16,
+              size: 118,
+              rotate: -8,
+            },
+            {
+              art: 'pills',
+              bottom: 125,
+              right: -14,
+              size: 104,
+              rotate: 14,
+            },
+          ]}
         />
+        <View style={styles.topBar}>
+          <Press
+            onPress={() => setReleaseDone(false)}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
+        </View>
+        <View style={styles.confirmBody}>
+          <View style={styles.confirmCenter}>
+            <View
+              style={[styles.checkCircle, { backgroundColor: colors.lime }]}
+            >
+              <CheckIcon size={28} color={colors.limeInk} />
+            </View>
+            <Text style={[styles.h1, { color: colors.ink }]}>
+              Listed for nearby clinics{'\u00A0'}
+            </Text>
+            <Text style={[styles.subText, { color: colors.mute }]}>
+              {relQty} {d.unit} of {d.name} can now be requested. A courier will
+              collect with seal 7842 when matched.
+            </Text>
+            <View style={{ marginTop: 28, width: '100%' }}>
+              <KV
+                rows={[
+                  ['Item', `${relQty} ${d.unit}`],
+                  ['Batch', 'B209, Exp 10/2027'],
+                  ['Tamper seal', '7842'],
+                  ['Visible to', '4 clinics within 5 km'],
+                ]}
+              />
+            </View>
+          </View>
+          <Button variant="secondary" onPress={onSwitchRole}>
+            Back to home
+          </Button>
+        </View>
+      </View>
+    );
+  }
+
+  // 3. HANDOVER CONFIRMED SCREEN
+  if (mode === 'handover' && handoverConfirmed) {
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'handover',
+              top: 24,
+              right: -12,
+              size: 128,
+              rotate: -6,
+              withHighlight: true,
+            },
+            {
+              art: 'clinic',
+              bottom: 110,
+              left: -18,
+              size: 118,
+              rotate: 8,
+            },
+            {
+              art: 'sachet',
+              bottom: 120,
+              right: -16,
+              size: 102,
+              rotate: 14,
+            },
+          ]}
+        />
+        <View style={styles.topBar}>
+          <Press
+            onPress={onSwitchRole}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
+        </View>
+        <Animated.View
+          style={[
+            styles.confirmBody,
+            {
+              opacity: confirmedCardOpacity,
+              transform: [{ scale: confirmedCardScale }],
+            },
+          ]}
+        >
+          <View style={styles.confirmCenter}>
+            <View
+              style={[styles.checkCircle, { backgroundColor: colors.lime }]}
+            >
+              <CheckIcon size={28} color={colors.limeInk} />
+            </View>
+            <Text style={[styles.h1, { color: colors.ink }]}>
+              Custody transferred{'\u00A0'}
+            </Text>
+            <Text style={[styles.subText, { color: colors.mute }]}>
+              20 ORS sachets added to {activeFacility}.
+            </Text>
+            <View style={{ marginTop: 28, width: '100%' }}>
+              <KV
+                rows={[
+                  ['Reference', activeOrder?.reference ?? 'REQ-0001'],
+                  ['Seal', '7842, intact'],
+                  ['Signed by', 'Demo PHC A'],
+                  ['Time', '09:41'],
+                ]}
+              />
+            </View>
+          </View>
+          <Button variant="secondary" onPress={onSwitchRole}>
+            Done
+          </Button>
+        </Animated.View>
+      </View>
+    );
+  }
+
+  // 4. HANDOVER PIN ENTRY SCREEN (NATIVE KEYBOARD + MICRO-INTERACTIONS)
+  if (mode === 'handover') {
+    const progressPct = (pin.length / 4) * 100;
+    const statusText =
+      pinState === 'ok'
+        ? 'Code verified — transferring custody...'
+        : pinState === 'error'
+          ? "Wrong code — check courier's screen (5082)"
+          : pin.length === 0
+            ? 'Tap slots to open your phone keyboard'
+            : `${4 - pin.length} more digit${4 - pin.length === 1 ? '' : 's'}...`;
+
+    const statusColor =
+      pinState === 'ok'
+        ? isDark
+          ? colors.lime
+          : colors.cobalt
+        : pinState === 'error'
+          ? colors.red
+          : colors.mute;
+
+    return (
+      <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+        <ScreenBackdrop
+          spots={[
+            {
+              art: 'handover',
+              top: 12,
+              right: -14,
+              size: 118,
+              rotate: -6,
+              withHighlight: true,
+            },
+            {
+              art: 'crate',
+              top: 230,
+              left: -26,
+              size: 102,
+              rotate: 12,
+            },
+          ]}
+        />
+        <View style={styles.topBar}>
+          <Press
+            onPress={onOpenRider ?? onSwitchRole}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
+        </View>
+        <View style={styles.handoverBody}>
+          <Text style={[styles.h1, { color: colors.ink }]}>
+            Confirm handover{'\u00A0'}
+          </Text>
+          <Text
+            style={[styles.subText, { color: colors.mute, marginBottom: 16 }]}
+          >
+            Ask Ade Okafor for the 4-digit code on his phone. Check seal{' '}
+            <Text style={{ color: colors.ink, fontFamily: ui.font.bold }}>
+              7842
+            </Text>{' '}
+            before accepting.
+          </Text>
+
+          {/* Summary Card */}
+          <View style={[styles.handoverCard, { backgroundColor: colors.tile }]}>
+            <View style={styles.handoverCardTop}>
+              <Text style={[styles.handoverItem, { color: colors.ink }]}>
+                20 ORS sachets
+              </Text>
+              <View style={[styles.sealPill, { backgroundColor: colors.lime }]}>
+                <Text style={[styles.sealPillText, { color: colors.limeInk }]}>
+                  SEAL 7842
+                </Text>
+              </View>
+            </View>
+            <Text style={[styles.handoverFrom, { color: colors.mute }]}>
+              From Demo PHC B, courier Ade Okafor
+            </Text>
+          </View>
+
+          {/* 4 PIN Slots with overlaid native TextInput */}
+          <Press
+            onPress={() => {
+              pinInputRef.current?.focus();
+            }}
+            scaleTo={1}
+            style={styles.pinAreaWrap}
+          >
+            <Animated.View
+              style={[
+                styles.pinRow,
+                {
+                  opacity: rowConvergeOpacity,
+                  transform: [
+                    { translateX: rowShake },
+                    { scale: rowConvergeScale },
+                  ],
+                },
+              ]}
+            >
+              {[0, 1, 2, 3].map((i) => {
+                const ch = pin[i];
+                const isActive = i === pin.length && pinState === 'idle';
+                const isFilled = Boolean(ch);
+                const isOk = okSlots[i];
+                const isErr = pinState === 'error';
+
+                const borderColor = isOk
+                  ? colors.lime
+                  : isErr
+                    ? colors.red
+                    : isActive
+                      ? colors.cobalt
+                      : isFilled
+                        ? colors.ink
+                        : colors.line;
+
+                const slotBg = isOk
+                  ? colors.lime
+                  : isActive
+                    ? colors.surface
+                    : colors.tile;
+
+                return (
+                  <Animated.View
+                    key={i}
+                    style={[
+                      styles.pinSlot,
+                      {
+                        backgroundColor: slotBg,
+                        borderColor,
+                        transform: [{ scale: slotScales[i] }],
+                      },
+                    ]}
+                  >
+                    {isOk ? (
+                      <CheckIcon size={22} color={colors.limeInk} />
+                    ) : isFilled ? (
+                      revealedIndex === i ? (
+                        <Text style={[styles.pinDigit, { color: colors.ink }]}>
+                          {ch}
+                        </Text>
+                      ) : (
+                        <View
+                          style={[
+                            styles.pinDot,
+                            {
+                              backgroundColor: isErr ? colors.red : colors.ink,
+                            },
+                          ]}
+                        />
+                      )
+                    ) : null}
+                  </Animated.View>
+                );
+              })}
+            </Animated.View>
+
+            <TextInput
+              ref={(el) => {
+                pinInputRef.current = el;
+              }}
+              value={pin}
+              onChangeText={handlePinChange}
+              keyboardType="number-pad"
+              maxLength={4}
+              autoFocus
+              caretHidden
+              contextMenuHidden
+              style={styles.hiddenPinInput}
+            />
+          </Press>
+
+          {/* Progress Bar under slots */}
+          <View style={[styles.pinProgBar, { backgroundColor: colors.line }]}>
+            <View
+              style={[
+                styles.pinProgFill,
+                {
+                  width: `${progressPct}%`,
+                  backgroundColor:
+                    pin.length === 4 ? colors.lime : colors.cobalt,
+                },
+              ]}
+            />
+          </View>
+
+          <Text style={[styles.pinStatus, { color: statusColor }]}>
+            {statusText}
+          </Text>
+
+          <View style={styles.demoHelperWrap}>
+            <Press
+              onPress={runDemoAutoType}
+              style={[styles.demoChip, { backgroundColor: colors.tile }]}
+            >
+              <Text style={[styles.demoChipText, { color: colors.ink }]}>
+                Demo code:{' '}
+                <Text style={{ fontFamily: ui.font.bold }}>5082</Text> (tap to
+                enter)
+              </Text>
+            </Press>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // 5. REQUEST STOCK & RELEASE SURPLUS SCREENS
+  const isRequest = mode === 'request';
+  const qty = isRequest ? reqQty : relQty;
+  const setQty = isRequest ? setReqQty : setRelQty;
+  const maxStock = d.stock;
+  const pct = Math.min(100, Math.round((qty / maxStock) * 100));
+
+  return (
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      <ScreenBackdrop
+        spots={
+          isRequest
+            ? [
+                {
+                  art: 'sachet',
+                  top: 8,
+                  right: -20,
+                  size: 112,
+                  rotate: 14,
+                  withHighlight: true,
+                },
+                {
+                  art: 'pills',
+                  top: 230,
+                  left: -26,
+                  size: 98,
+                  rotate: -18,
+                },
+                {
+                  art: 'route',
+                  bottom: 88,
+                  right: -20,
+                  size: 116,
+                  rotate: -8,
+                  withHighlight: true,
+                },
+                {
+                  art: 'cyclist',
+                  bottom: 92,
+                  left: -22,
+                  size: 102,
+                  rotate: 6,
+                },
+              ]
+            : [
+                {
+                  art: 'crate',
+                  top: 8,
+                  right: -18,
+                  size: 114,
+                  rotate: -10,
+                  withHighlight: true,
+                },
+                {
+                  art: 'blister',
+                  top: 235,
+                  left: -24,
+                  size: 98,
+                  rotate: 14,
+                },
+                {
+                  art: 'cyclist',
+                  bottom: 88,
+                  right: -16,
+                  size: 112,
+                  rotate: -6,
+                  withHighlight: true,
+                },
+                {
+                  art: 'clinic',
+                  bottom: 92,
+                  left: -22,
+                  size: 98,
+                  rotate: 8,
+                },
+              ]
+        }
+      />
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.scrollBody}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.topRow}>
+          <Press
+            onPress={onSwitchRole}
+            style={[styles.backBtn, { backgroundColor: colors.tile }]}
+          >
+            <ChevronLeftIcon />
+          </Press>
+        </View>
+
+        <Text style={[styles.h1, { color: colors.ink }]}>
+          {isRequest ? 'Request stock\u00A0' : 'Release surplus\u00A0'}
+        </Text>
+
+        {/* Segmented Control */}
+        <View
+          style={[
+            styles.seg,
+            { backgroundColor: colors.tile, marginTop: isRequest ? 8 : 6 },
+          ]}
+        >
+          {(['ors', 'zinc'] as const).map((k) => {
+            const active = drug === k;
+            return (
+              <Press
+                key={k}
+                onPress={() => setDrug(k)}
+                style={[
+                  styles.segBtn,
+                  active && [
+                    styles.segBtnActive,
+                    { backgroundColor: colors.surface },
+                  ],
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.segText,
+                    { color: active ? colors.ink : colors.mute },
+                  ]}
+                >
+                  {DRUGS[k].short}
+                </Text>
+              </Press>
+            );
+          })}
+        </View>
+
+        {/* Interactive 3D Stage */}
+        <Stage3D
+          kind={isRequest ? 'drug' : 'crate'}
+          drug={drug}
+          height={isRequest ? 190 : 185}
+          style={{ marginTop: 4 }}
+        />
+        <Text style={[styles.stageHint, { color: colors.mute }]}>
+          {isRequest
+            ? 'Drag to inspect package'
+            : 'Sealed crate with tamper tag 7842'}
+        </Text>
+
+        {/* Quantity & Details Card */}
+        <View style={[styles.qtyCard, { backgroundColor: colors.tile }]}>
+          <View style={styles.qtyRow}>
+            <View style={styles.qtyLeft}>
+              <Text style={[styles.qtyNum, { color: colors.ink }]}>
+                {qty}
+                {'\u00A0'}
+              </Text>
+              <Text style={[styles.qtyUnit, { color: colors.mute }]}>
+                {d.unit}
+              </Text>
+            </View>
+            <View style={styles.stepGroup}>
+              <Press
+                onPress={() => setQty(Math.max(d.step, qty - d.step))}
+                style={[styles.stepBtn, { backgroundColor: colors.surface }]}
+              >
+                <Text style={[styles.stepBtnText, { color: colors.ink }]}>
+                  −
+                </Text>
+              </Press>
+              <Press
+                onPress={() => setQty(Math.min(maxStock, qty + d.step))}
+                style={[styles.stepBtn, { backgroundColor: colors.cobalt }]}
+              >
+                <Text style={[styles.stepBtnText, { color: '#ffffff' }]}>
+                  +
+                </Text>
+              </Press>
+            </View>
+          </View>
+
+          {isRequest ? (
+            <>
+              <View style={styles.stockWrap}>
+                <View
+                  style={[styles.stockBar, { backgroundColor: colors.line }]}
+                >
+                  <View
+                    style={[
+                      styles.stockFill,
+                      {
+                        width: `${pct}%`,
+                        backgroundColor: colors.lime,
+                      },
+                    ]}
+                  />
+                </View>
+                <View style={styles.stockMeta}>
+                  <Text style={[styles.stockMetaText, { color: colors.mute }]}>
+                    Demo PHC B has{' '}
+                    <Text style={[styles.stockMetaBold, { color: colors.ink }]}>
+                      {maxStock}
+                    </Text>
+                  </Text>
+                  <Text style={[styles.stockMetaText, { color: colors.mute }]}>
+                    <Text style={[styles.stockMetaBold, { color: colors.ink }]}>
+                      {maxStock - qty}
+                    </Text>{' '}
+                    left after
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.facRow, { borderTopColor: colors.line }]}>
+                <View
+                  style={[styles.facIcon, { backgroundColor: colors.lime }]}
+                >
+                  <PinIcon color={colors.limeInk} size={18} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.facTitle, { color: colors.ink }]}>
+                    Demo PHC B
+                  </Text>
+                  <Text style={[styles.facSub, { color: colors.mute }]}>
+                    1.8 km away, about 7 min by rider
+                  </Text>
+                </View>
+                <View
+                  style={[styles.etaBadge, { backgroundColor: colors.lime }]}
+                >
+                  <Text
+                    style={[styles.etaBadgeText, { color: colors.limeInk }]}
+                  >
+                    7 MIN
+                  </Text>
+                </View>
+              </View>
+            </>
+          ) : (
+            <View style={{ marginTop: 14 }}>
+              <KV
+                rows={[
+                  ['Batch', 'B209, Exp 10/2027'],
+                  ['Storage', 'Ambient, dry'],
+                  ['Pickup from', activeFacility],
+                ]}
+              />
+            </View>
+          )}
+        </View>
+
+        <View style={{ flex: 1, minHeight: 14 }} />
+
+        <Button
+          onPress={() => {
+            void (isRequest ? handleCreateRequest() : handlePublishSurplus());
+          }}
+          disabled={submitting}
+        >
+          {isRequest ? 'Request from Demo PHC B' : 'Make available'}
+        </Button>
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    position: 'relative',
+  },
+  topBar: {
+    height: 48,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  topRow: {
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollBody: {
+    flexGrow: 1,
+    paddingHorizontal: 22,
+    paddingBottom: 24,
+  },
+  h1: {
+    fontFamily: ui.font.bold,
+    fontSize: 28,
+    letterSpacing: -0.8,
+    lineHeight: 33,
+    paddingRight: 4,
+  },
+  subText: {
+    fontFamily: ui.font.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
+  },
+  seg: {
+    flexDirection: 'row',
+    borderRadius: 14,
+    padding: 4,
+  },
+  segBtn: {
+    flex: 1,
+    height: 38,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segBtnActive: {
+    shadowColor: '#030407',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  segText: {
+    fontFamily: ui.font.semi,
+    fontSize: 13.5,
+    paddingRight: 2,
+  },
+  stageHint: {
+    textAlign: 'center',
+    fontFamily: ui.font.regular,
+    fontSize: 12,
+    marginTop: -4,
+    marginBottom: 8,
+  },
+  qtyCard: {
+    borderRadius: 22,
+    padding: 16,
+  },
+  qtyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  qtyLeft: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  qtyNum: {
+    fontFamily: ui.font.bold,
+    fontSize: 44,
+    letterSpacing: -1.8,
+    lineHeight: 50,
+    paddingRight: 4,
+  },
+  qtyUnit: {
+    fontFamily: ui.font.medium,
+    fontSize: 15,
+    marginLeft: 4,
+  },
+  stepGroup: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  stepBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepBtnText: {
+    fontFamily: ui.font.medium,
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  stockWrap: {
+    marginTop: 12,
+  },
+  stockBar: {
+    height: 7,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  stockFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  stockMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  stockMetaText: {
+    fontFamily: ui.font.regular,
+    fontSize: 13,
+  },
+  stockMetaBold: {
+    fontFamily: ui.font.bold,
+  },
+  facRow: {
+    marginTop: 14,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  facIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  facTitle: {
+    fontFamily: ui.font.semi,
+    fontSize: 15,
+    paddingRight: 2,
+  },
+  facSub: {
+    fontFamily: ui.font.regular,
+    fontSize: 12.5,
+    marginTop: 2,
+  },
+  etaBadge: {
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    borderRadius: 999,
+  },
+  etaBadgeText: {
+    fontFamily: ui.font.bold,
+    fontSize: 11,
+    letterSpacing: 0.3,
+    paddingRight: 1,
+  },
+  confirmBody: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+    justifyContent: 'space-between',
+  },
+  confirmCenter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  checkCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  timelineBox: {
+    marginTop: 26,
+    width: '100%',
+    borderTopWidth: 1,
+    paddingTop: 18,
+  },
+  tlRow: {
+    flexDirection: 'row',
+    gap: 14,
+  },
+  tlCol: {
+    alignItems: 'center',
+    width: 18,
+  },
+  tlDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    marginTop: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tlLine: {
+    width: 2,
+    height: 30,
+    marginVertical: 4,
+  },
+  tlContent: {
+    paddingBottom: 14,
+    flex: 1,
+  },
+  tlTitle: {
+    fontFamily: ui.font.semi,
+    fontSize: 15,
+  },
+  tlSub: {
+    fontFamily: ui.font.regular,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  handoverBody: {
+    flex: 1,
+    paddingHorizontal: 22,
+    paddingBottom: 20,
+  },
+  handoverCard: {
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+  },
+  handoverCardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  handoverItem: {
+    fontFamily: ui.font.bold,
+    fontSize: 15.5,
+    paddingRight: 2,
+  },
+  sealPill: {
+    paddingVertical: 4,
+    paddingHorizontal: 9,
+    borderRadius: 999,
+  },
+  sealPillText: {
+    fontFamily: ui.font.bold,
+    fontSize: 11,
+    letterSpacing: 0.3,
+    paddingRight: 1,
+  },
+  handoverFrom: {
+    fontFamily: ui.font.regular,
+    fontSize: 13,
+    marginTop: 4,
+  },
+  pinAreaWrap: {
+    position: 'relative',
+    width: '100%',
+  },
+  pinRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  pinSlot: {
+    flex: 1,
+    height: 68,
+    borderRadius: 18,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pinDigit: {
+    fontFamily: ui.font.bold,
+    fontSize: 28,
+    letterSpacing: -0.8,
+  },
+  pinDot: {
+    width: 13,
+    height: 13,
+    borderRadius: 6.5,
+  },
+  hiddenPinInput: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.01,
+    fontSize: 1,
+  },
+  pinProgBar: {
+    height: 4,
+    borderRadius: 2,
+    marginTop: 14,
+    overflow: 'hidden',
+  },
+  pinProgFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  pinStatus: {
+    textAlign: 'center',
+    fontFamily: ui.font.semi,
+    fontSize: 13,
+    marginTop: 12,
+    minHeight: 20,
+  },
+  demoHelperWrap: {
+    marginTop: 18,
+    alignItems: 'center',
+  },
+  demoChip: {
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    borderRadius: 999,
+  },
+  demoChipText: {
+    fontFamily: ui.font.medium,
+    fontSize: 13,
+  },
+});

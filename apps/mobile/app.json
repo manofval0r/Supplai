@@ -21,7 +21,7 @@
       },
       "predictiveBackGestureEnabled": false
     },
-    "plugins": ["expo-notifications"],
+    "plugins": ["expo-notifications", "expo-font", "expo-asset"],
     "web": {
       "favicon": "./assets/favicon.png"
     }

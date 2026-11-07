@@ -1,47 +1,126 @@
-import { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useCallback } from 'react';
+import {
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+} from 'react-native';
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 
-import { RolePicker, type Role } from './components/RolePicker';
+import { RolePicker, type AppMode } from './components/RolePicker';
+import { type DockTab } from './components/FloatingDock';
 import { FacilityScreen } from './screens/FacilityScreen';
 import { RiderScreen } from './screens/RiderScreen';
+import { ActivityScreen } from './screens/ActivityScreen';
+import { AccountScreen } from './screens/AccountScreen';
+import { AppConfigProvider, useAppConfig } from './lib/theme';
 
-export default function App() {
-  const [role, setRole] = useState<Role | null>(null);
-  const [facilityId, setFacilityId] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [riderName, setRiderName] = useState<string>('');
+function MainNavigator() {
+  const { colors, isDark } = useAppConfig();
+  const [mode, setMode] = useState<AppMode>('home');
 
-  useEffect(() => {
-    StatusBar.setStyle('dark');
+  const handleSelectTab = useCallback((tab: DockTab) => {
+    setMode(tab);
   }, []);
 
-  if (!role) {
-    return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <RolePicker
-          onRoleSelected={(selectedRole, identity) => {
-            setRole(selectedRole);
-            setFacilityId(identity.facilityId ?? '');
-            setPhone(identity.phone ?? '');
-            setRiderName(identity.riderName ?? '');
-          }}
-        />
-      </SafeAreaView>
-    );
-  }
+  return (
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        { backgroundColor: mode === 'rider' ? '#e8ecf2' : colors.bg },
+      ]}
+    >
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
-  if (role === 'facility') {
+      <View style={styles.mainContent}>
+        {mode === 'home' && (
+          <RolePicker onSelectMode={setMode} onSelectTab={handleSelectTab} />
+        )}
+
+        {mode === 'activity' && (
+          <ActivityScreen
+            onOpenLiveDelivery={() => setMode('rider')}
+            onSelectTab={handleSelectTab}
+          />
+        )}
+
+        {mode === 'account' && (
+          <AccountScreen initialSubView="hub" onSelectTab={handleSelectTab} />
+        )}
+
+        {mode === 'saved-places' && (
+          <AccountScreen
+            initialSubView="saved-places"
+            onSelectTab={handleSelectTab}
+            onBackFromSavedPlacesToHome={() => setMode('home')}
+          />
+        )}
+
+        {(mode === 'request' || mode === 'release' || mode === 'handover') && (
+          <FacilityScreen
+            facilityName="Aiyetoro Central"
+            mode={mode}
+            onSwitchRole={() => setMode('home')}
+            onOpenRider={() => setMode('rider')}
+          />
+        )}
+
+        {mode === 'rider' && (
+          <RiderScreen
+            riderName="Ade Okafor"
+            onSwitchRole={() => setMode('home')}
+            onOpenHandover={() => setMode('handover')}
+          />
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+export default function App() {
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
+
+  if (!fontsLoaded) {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <FacilityScreen facilityId={facilityId} phone={phone} />
-      </SafeAreaView>
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size="large" color="#1558C9" />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <RiderScreen riderName={riderName} />
-    </SafeAreaView>
+    <AppConfigProvider>
+      <MainNavigator />
+    </AppConfigProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight ?? 28) : 0,
+    paddingBottom: Platform.OS === 'android' ? 10 : 0,
+  },
+  loadingScreen: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mainContent: {
+    flex: 1,
+  },
+});

@@ -1,321 +1,390 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 import { supplaiApi, type OrderDetail } from '../lib/api';
-import {
-  NotificationInbox,
-  NotificationBanner,
-} from '../components/NotificationInbox';
 import {
   registerForRemoteNotificationsAsync,
   scheduleCriticalAlert,
 } from '../lib/notifications';
+import { ui, useAppConfig } from '../lib/theme';
+import { OsmMap } from '../components/OsmMap';
+import { Press, ChevronLeftIcon, PhoneIcon, ChatIcon } from '../components/ui';
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f3f4f6' },
-  header: {
-    backgroundColor: '#ffffff',
-    padding: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#111827' },
-  headerSub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  content: { padding: 12 },
-  section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  label: { fontSize: 12, color: '#6b7280', marginBottom: 4 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-    color: '#111827',
-    marginBottom: 10,
-    backgroundColor: '#ffffff',
-  },
-  row: { flexDirection: 'row', gap: 8, marginBottom: 10 },
-  button: {
-    backgroundColor: '#2563eb',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    flex: 1,
-  },
-  buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
-  buttonOutline: {
-    borderWidth: 1,
-    borderColor: '#2563eb',
-    borderRadius: 10,
-    padding: 12,
-    alignItems: 'center',
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  buttonOutlineText: { color: '#2563eb', fontWeight: '700', fontSize: 14 },
-  buttonSuccess: { backgroundColor: '#16a34a' },
-  timeline: { marginTop: 8 },
-  eventRow: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#e5e7eb',
-    paddingLeft: 10,
-  },
-  eventRowActive: { borderLeftColor: '#2563eb' },
-  eventDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#9ca3af',
-    marginTop: 2,
-    marginRight: 8,
-  },
-  eventDotActive: { backgroundColor: '#2563eb' },
-  eventText: { fontSize: 13, color: '#374151', flex: 1 },
-  eventMeta: { fontSize: 11, color: '#6b7280' },
-  owner: { fontSize: 12, color: '#6b7280', fontStyle: 'italic', marginTop: 4 },
-  error: {
-    color: '#dc2626',
-    fontSize: 13,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  success: {
-    color: '#16a34a',
-    fontSize: 13,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  empty: { paddingVertical: 40, alignItems: 'center' },
-  emptyText: { color: '#6b7280', fontSize: 15 },
-});
-
-export function RiderScreen({ riderName }: { riderName: string }) {
-  const [reference, setReference] = useState<string | null>(null);
+export function RiderScreen({
+  riderName = 'Ade Okafor',
+  onSwitchRole,
+  onOpenHandover,
+}: {
+  riderName?: string;
+  onSwitchRole?: () => void;
+  onOpenHandover?: () => void;
+}) {
+  const { colors, isDark, savedPlace } = useAppConfig();
   const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    void registerForRemoteNotificationsAsync();
-  }, []);
+  const [progress, setProgress] = useState<number>(0.45);
 
   const fetchOrder = useCallback(async (ref: string) => {
-    setLoading(true);
     try {
       const data = await supplaiApi.getOrder(ref);
       setOrder(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load order');
-    } finally {
-      setLoading(false);
+    } catch {
+      // Fallback to demo values if offline
     }
   }, []);
 
-  const handleAction = async (action: 'mark_picked_up' | 'mark_in_transit') => {
-    if (!order?.reference) return;
-    setLoading(true);
-    try {
-      const payload: Record<string, unknown> = {
-        action,
-        actorPhone: '+2348010000003',
-      };
-      if (action === 'mark_picked_up') payload.riderName = riderName;
-      const result = await supplaiApi.actOnOrder(order.reference, payload);
-      if (result.accepted) {
-        await fetchOrder(order.reference);
-        if (action === 'mark_picked_up') {
-          await scheduleCriticalAlert({
-            title: 'Pickup recorded',
-            body: `Picked up by ${riderName}.`,
-            data: { reference: order.reference },
-          });
-        } else {
-          await scheduleCriticalAlert({
-            title: 'Transfer in transit',
-            body: 'Rider is on the way to the receiving facility.',
-            data: { reference: order.reference },
-          });
+  useEffect(() => {
+    void registerForRemoteNotificationsAsync();
+    void fetchOrder('REQ-0001');
+  }, [fetchOrder]);
+
+  const advanceCourierState = async () => {
+    if (order?.reference) {
+      try {
+        const nextAction = order.allowedActions.includes('mark_picked_up')
+          ? 'mark_picked_up'
+          : order.allowedActions.includes('mark_in_transit')
+            ? 'mark_in_transit'
+            : null;
+        if (nextAction) {
+          const payload: Record<string, unknown> = {
+            action: nextAction,
+            actorPhone: '+2348010000003',
+          };
+          if (nextAction === 'mark_picked_up') payload.riderName = riderName;
+          const res = await supplaiApi.actOnOrder(order.reference, payload);
+          if (res.accepted) {
+            await fetchOrder(order.reference);
+            await scheduleCriticalAlert({
+              title:
+                nextAction === 'mark_picked_up'
+                  ? 'Pickup recorded'
+                  : 'Transfer in transit',
+              body: `Courier ${riderName} updated order ${order.reference}.`,
+              data: { reference: order.reference },
+            });
+            return;
+          }
         }
-      } else {
-        setError(result.message);
+      } catch {
+        // Proceed to handover screen
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Action failed');
-    } finally {
-      setLoading(false);
     }
+    onOpenHandover?.();
   };
 
+  const originName = order?.sourceFacility ?? 'Demo PHC B';
+  const destName =
+    savedPlace || order?.requestingFacility || 'Aiyetoro Central';
+  const cargoLabel = order
+    ? `Delivering ${order.quantity} ${
+        order.commodity === 'ors' ? 'ORS sachets' : 'zinc blisters'
+      }`
+    : 'Delivering 20 ORS sachets';
+
+  const distKm = ((1 - progress) * 2.8).toFixed(2);
+  const etaMin = Math.max(1, Math.ceil((1 - progress) * 7));
+  const pct = Math.max(8, Math.min(100, Math.round(progress * 100)));
+  const initials = riderName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Rider</Text>
-        <Text style={styles.headerSub}>{riderName}</Text>
-      </View>
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={{ paddingBottom: 120 }}
+    <View
+      style={[
+        styles.screen,
+        { backgroundColor: isDark ? '#0b0e15' : '#e8ecf2' },
+      ]}
+    >
+      {/* Full-Screen OpenStreetMap with Live Interpolated Courier */}
+      <OsmMap
+        origin={originName}
+        dest={destName}
+        moving
+        topPad={150}
+        bottomPad={290}
+        onProgress={(u) => {
+          if (Number.isFinite(u)) setProgress(u);
+        }}
+      />
+
+      {/* Top Translucent Glass Navigation Capsule */}
+      <View
+        style={[
+          styles.hud,
+          {
+            backgroundColor: isDark
+              ? 'rgba(13, 16, 24, 0.92)'
+              : 'rgba(255, 255, 255, 0.92)',
+          },
+        ]}
       >
-        <NotificationBanner role="rider" riderName={riderName} />
-        {reference && order && (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order summary</Text>
-              <Text style={styles.label}>Reference</Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  color: '#111827',
-                  fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-                }}
-              >
-                {order.reference}
-              </Text>
-              <Text style={styles.label}>Commodity · quantity</Text>
-              <Text style={{ fontSize: 15, color: '#111827' }}>
-                {order.commodity.toUpperCase()} · {order.quantity}
-              </Text>
-              <View style={styles.row}>
-                <TouchableOpacity style={styles.button} disabled>
-                  <Text style={styles.buttonText}>From</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonOutline]}
-                  disabled
-                >
-                  <Text style={styles.buttonOutlineText}>
-                    {order.sourceFacility}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} disabled>
-                  <Text style={styles.buttonText}>To</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonOutline]}
-                  disabled
-                >
-                  <Text style={styles.buttonOutlineText}>
-                    {order.requestingFacility}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <Text style={styles.owner}>
-                Next accountable: {order.nextAccountableOwner}
-              </Text>
-            </View>
+        <Press
+          onPress={onSwitchRole}
+          style={[
+            styles.backBtn,
+            { backgroundColor: isDark ? colors.tile : '#ffffff' },
+          ]}
+        >
+          <ChevronLeftIcon />
+        </Press>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.hudTitle, { color: colors.ink }]}>
+            To {destName}
+          </Text>
+          <Text style={[styles.hudSub, { color: colors.mute }]}>
+            {cargoLabel}
+          </Text>
+        </View>
+      </View>
 
-            {order.transferReference &&
-              order.status !== 'received' &&
-              order.status !== 'escalated' && (
-                <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Handover code</Text>
-                  <Text style={styles.label}>
-                    The LGA dispatch desk issues a 4-digit code to the receiving
-                    facility. Ask the receiver to confirm it when you arrive.
-                  </Text>
-                </View>
-              )}
+      {/* Bottom Floating Sheet */}
+      <View style={[styles.sheet, { backgroundColor: colors.surface }]}>
+        <View style={[styles.grab, { backgroundColor: colors.line }]} />
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Actions</Text>
-              {order.allowedActions.includes('mark_picked_up') && (
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonSuccess]}
-                  onPress={() => handleAction('mark_picked_up')}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonText}>Mark picked up</Text>
-                </TouchableOpacity>
-              )}
-              {order.allowedActions.includes('mark_in_transit') && (
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonSuccess]}
-                  onPress={() => handleAction('mark_in_transit')}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonText}>Mark in transit</Text>
-                </TouchableOpacity>
-              )}
-              {order.allowedActions.length === 0 &&
-                order.status !== 'received' &&
-                order.status !== 'escalated' && (
-                  <Text style={{ color: '#6b7280', fontSize: 13 }}>
-                    Waiting for dispatch. The LGA assigns a rider via
-                    /demo/dispatch.
-                  </Text>
-                )}
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Timeline</Text>
-              <View style={styles.timeline}>
-                {order.timeline.map((entry) => (
-                  <View
-                    key={entry.sequence}
-                    style={[
-                      styles.eventRow,
-                      entry.sequence === order.timeline.length &&
-                        styles.eventRowActive,
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.eventDot,
-                        entry.sequence === order.timeline.length &&
-                          styles.eventDotActive,
-                      ]}
-                    />
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.eventText}>{entry.label}</Text>
-                      <Text style={styles.eventMeta}>
-                        {entry.actorRole} ·{' '}
-                        {new Date(entry.occurredAt).toLocaleString()}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </>
-        )}
-        {!reference && (
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>No order loaded yet.</Text>
-            <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 6 }}>
-              <Text style={{ color: '#2563eb', fontWeight: '600' }}>&gt;</Text>{' '}
-              Ask the requesting facility to raise a request, then the LGA
-              dispatches via /demo/dispatch.
+        <View style={styles.etaRow}>
+          <View style={styles.etaLeft}>
+            <Text style={[styles.etaBig, { color: colors.ink }]}>{etaMin}</Text>
+            <Text style={[styles.etaUnit, { color: colors.ink }]}>min</Text>
+          </View>
+          <View style={styles.etaRight}>
+            <Text style={[styles.distBold, { color: colors.ink }]}>
+              {distKm} km
+            </Text>
+            <Text style={[styles.speedSub, { color: colors.mute }]}>
+              34 km/h
             </Text>
           </View>
-        )}
-        <NotificationInbox
-          role="rider"
-          riderName={riderName}
-          onSelectOrder={(ref) => setReference(ref)}
-        />
-      </ScrollView>
+        </View>
+
+        <View style={[styles.barTrack, { backgroundColor: colors.line }]}>
+          <View
+            style={[
+              styles.barFill,
+              {
+                width: `${pct}%`,
+                backgroundColor: isDark ? colors.lime : colors.cobalt,
+              },
+            ]}
+          />
+        </View>
+
+        <View style={styles.metaRow}>
+          <Text style={[styles.metaText, { color: colors.mute }]}>
+            Picked up{' '}
+            <Text style={[styles.metaBold, { color: colors.ink }]}>09:34</Text>
+          </Text>
+          <Text style={[styles.metaText, { color: colors.mute }]}>
+            Arrives{' '}
+            <Text style={[styles.metaBold, { color: colors.ink }]}>09:41</Text>
+          </Text>
+        </View>
+
+        <Press
+          onPress={() => {
+            void advanceCourierState();
+          }}
+          style={[styles.courRow, { borderTopColor: colors.line }]}
+        >
+          <View style={[styles.avatar, { backgroundColor: colors.cobalt }]}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.courName, { color: colors.ink }]}>
+              {riderName}
+            </Text>
+            <Text style={[styles.courSub, { color: colors.mute }]}>
+              Courier, Honda CG 125
+            </Text>
+          </View>
+          <View style={styles.actGroup}>
+            <Press
+              onPress={onOpenHandover}
+              style={[styles.actCircle, { backgroundColor: colors.tile }]}
+            >
+              <PhoneIcon />
+            </Press>
+            <Press
+              onPress={onOpenHandover}
+              style={[styles.actCircle, { backgroundColor: colors.tile }]}
+            >
+              <ChatIcon />
+            </Press>
+          </View>
+        </Press>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  hud: {
+    position: 'absolute',
+    top: 14,
+    left: 16,
+    right: 16,
+    height: 56,
+    borderRadius: 28,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingLeft: 8,
+    paddingRight: 20,
+    shadowColor: '#030407',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#030407',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  hudTitle: {
+    fontFamily: ui.font.semi,
+    fontSize: 15,
+    letterSpacing: -0.2,
+    paddingRight: 2,
+  },
+  hudSub: {
+    fontFamily: ui.font.regular,
+    fontSize: 12.5,
+    marginTop: 1,
+  },
+  sheet: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopLeftRadius: 34,
+    borderTopRightRadius: 34,
+    paddingTop: 12,
+    paddingHorizontal: 24,
+    paddingBottom: 28,
+    shadowColor: '#030407',
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 30,
+    elevation: 12,
+  },
+  grab: {
+    width: 38,
+    height: 5,
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  etaRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  etaLeft: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  etaBig: {
+    fontFamily: ui.font.bold,
+    fontSize: 44,
+    letterSpacing: -1.6,
+    lineHeight: 48,
+    paddingRight: 4,
+  },
+  etaUnit: {
+    fontFamily: ui.font.semi,
+    fontSize: 20,
+    letterSpacing: -0.3,
+    marginLeft: 4,
+    paddingRight: 2,
+  },
+  etaRight: {
+    alignItems: 'flex-end',
+  },
+  distBold: {
+    fontFamily: ui.font.semi,
+    fontSize: 15,
+    paddingRight: 2,
+  },
+  speedSub: {
+    fontFamily: ui.font.regular,
+    fontSize: 13.5,
+    marginTop: 2,
+  },
+  barTrack: {
+    height: 6,
+    borderRadius: 3,
+    marginTop: 18,
+    overflow: 'hidden',
+  },
+  barFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  metaText: {
+    fontFamily: ui.font.regular,
+    fontSize: 13.5,
+  },
+  metaBold: {
+    fontFamily: ui.font.semi,
+  },
+  courRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    marginTop: 20,
+    paddingTop: 18,
+    borderTopWidth: 1,
+  },
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontFamily: ui.font.semi,
+    fontSize: 16,
+    color: '#ffffff',
+  },
+  courName: {
+    fontFamily: ui.font.semi,
+    fontSize: 16,
+    letterSpacing: -0.2,
+    paddingRight: 2,
+  },
+  courSub: {
+    fontFamily: ui.font.regular,
+    fontSize: 13.5,
+    marginTop: 2,
+  },
+  actGroup: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  actCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

@@ -4,11 +4,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
   ActivityIndicator,
 } from 'react-native';
 
 import { API_BASE, type NotificationEvent } from '../lib/api';
+import { theme } from '../lib/theme';
 
 export interface NotificationInboxProps {
   role: 'facility' | 'rider' | 'lga';
@@ -17,69 +17,6 @@ export interface NotificationInboxProps {
   onSelectOrder?: (reference: string) => void;
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  title: { fontSize: 18, fontWeight: '700', color: '#111827' },
-  subtitle: { fontSize: 13, color: '#6b7280', marginBottom: 10 },
-  badge: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: '#dc2626',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeText: { fontSize: 10, fontWeight: '800', color: '#ffffff' },
-  empty: { paddingVertical: 40, alignItems: 'center' },
-  emptyText: { color: '#6b7280', fontSize: 15 },
-  card: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-  },
-  cardUnread: { borderColor: '#2563eb', backgroundColor: '#eff6ff' },
-  cardRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: '#111827' },
-  cardBody: { fontSize: 13, color: '#374151', marginTop: 4 },
-  cardMeta: { fontSize: 11, color: '#6b7280', marginTop: 6 },
-  severityDot: { width: 8, height: 8, borderRadius: 4, marginRight: 6 },
-  severityCritical: { backgroundColor: '#dc2626' },
-  severityAction: { backgroundColor: '#2563eb' },
-  severityInfo: { backgroundColor: '#6b7280' },
-});
-
-const severityColor = (severity: NotificationEvent['severity']) => {
-  switch (severity) {
-    case 'critical':
-      return '#dc2626';
-    case 'action':
-      return '#2563eb';
-    default:
-      return '#6b7280';
-  }
-};
-
 export function NotificationInbox({
   role,
   facilityId,
@@ -87,19 +24,25 @@ export function NotificationInbox({
   onSelectOrder,
 }: NotificationInboxProps) {
   const [events, setEvents] = useState<NotificationEvent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [read, setRead] = useState<Set<string>>(new Set());
 
   const fetchNotifications = useCallback(async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams({ role });
-      if (facilityId) params.set('facilityId', facilityId);
-      if (riderName) params.set('riderName', riderName);
-      const response = await fetch(`${API_BASE}/api/notifications?${params}`);
-      const feed = (await response.json()) as { events: NotificationEvent[] };
-      setEvents(feed.events ?? []);
+      if (role === 'facility' && facilityId)
+        params.append('facilityId', facilityId);
+      if (role === 'rider' && riderName) params.append('riderName', riderName);
+      const res = await fetch(
+        `${API_BASE}/api/notifications?${params.toString()}`,
+      );
+      if (res.ok) {
+        const data = (await res.json()) as { events: NotificationEvent[] };
+        setEvents(data.events);
+      }
     } catch {
-      setEvents([]);
+      // Ignore network errors in polling
     } finally {
       setLoading(false);
     }
@@ -107,6 +50,10 @@ export function NotificationInbox({
 
   useEffect(() => {
     void fetchNotifications();
+    const timer = setInterval(() => {
+      void fetchNotifications();
+    }, 4000);
+    return () => clearInterval(timer);
   }, [fetchNotifications]);
 
   const unreadCount = events.filter((e) => !read.has(e.id)).length;
@@ -122,25 +69,10 @@ export function NotificationInbox({
     }
   };
 
-  if (loading) {
+  if (loading && events.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#2563eb" />
-      </View>
-    );
-  }
-
-  if (events.length === 0) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          padding: 16,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Text style={styles.emptyText}>No notifications yet</Text>
+      <View style={{ padding: 16, alignItems: 'center' }}>
+        <ActivityIndicator size="small" color={theme.colors.primary} />
       </View>
     );
   }
@@ -148,49 +80,50 @@ export function NotificationInbox({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.title}>LIVE NOTIFICATION STREAM</Text>
         {unreadCount > 0 && (
-          <View
-            style={[
-              styles.badge,
-              { backgroundColor: severityColor(events[0].severity) },
-            ]}
-          >
-            <Text style={styles.badgeText}>{unreadCount}</Text>
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{unreadCount} NEW</Text>
           </View>
         )}
       </View>
       <Text style={styles.subtitle}>
-        {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+        {unreadCount > 0
+          ? `${unreadCount} unread alert(s)`
+          : 'Network event stream synchronized'}
       </Text>
-      <FlatList
-        data={events}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+
+      {events.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>No notifications recorded yet</Text>
+        </View>
+      ) : (
+        events.map((item) => (
           <TouchableOpacity
+            key={item.id}
             style={[styles.card, !read.has(item.id) && styles.cardUnread]}
             onPress={() => pressEvent(item)}
-            activeOpacity={0.9}
+            activeOpacity={0.8}
           >
             <View style={styles.cardRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View
-                  style={[
-                    styles.severityDot,
-                    { backgroundColor: severityColor(item.severity) },
-                  ]}
-                />
-                <Text style={styles.cardTitle}>{item.title}</Text>
+              <View style={[styles.severityPill, severityStyle(item.severity)]}>
+                <Text style={styles.severityPillText}>
+                  {item.severity.toUpperCase()}
+                </Text>
               </View>
+              <Text style={styles.cardTime}>
+                {new Date(item.occurredAt).toLocaleTimeString()}
+              </Text>
             </View>
+            <Text style={styles.cardTitle}>{item.title}</Text>
             <Text style={styles.cardBody}>{item.body}</Text>
             <Text style={styles.cardMeta}>
-              {new Date(item.occurredAt).toLocaleString()} · {item.kind}
-              {item.orderReference ? ` · ${item.orderReference}` : ''}
+              Kind: {item.kind}{' '}
+              {item.orderReference ? `· Ref: ${item.orderReference}` : ''}
             </Text>
           </TouchableOpacity>
-        )}
-      />
+        ))
+      )}
     </View>
   );
 }
@@ -208,46 +141,181 @@ export function NotificationBanner({
 
   useEffect(() => {
     const params = new URLSearchParams({ role });
-    if (facilityId) params.set('facilityId', facilityId);
-    if (riderName) params.set('riderName', riderName);
-    fetch(`${API_BASE}/api/notifications?${params}`)
-      .then((response) => response.json())
-      .then((feed: { events: NotificationEvent[] }) => {
-        setUnread(feed.events?.length ?? 0);
-      })
-      .catch(() => setUnread(0));
+    if (role === 'facility' && facilityId)
+      params.append('facilityId', facilityId);
+    if (role === 'rider' && riderName) params.append('riderName', riderName);
+    const check = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/notifications?${params.toString()}`,
+        );
+        if (res.ok) {
+          const data = (await res.json()) as { events: NotificationEvent[] };
+          setUnread(data.events.length);
+        }
+      } catch {
+        // Ignore
+      }
+    };
+    void check();
+    const timer = setInterval(() => {
+      void check();
+    }, 4000);
+    return () => clearInterval(timer);
   }, [role, facilityId, riderName]);
 
   if (unread === 0) return null;
 
   return (
-    <View
-      style={{
-        backgroundColor: '#fef3c7',
-        borderRadius: 10,
-        padding: 10,
-        marginHorizontal: 16,
-        marginBottom: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#f59e0b',
-      }}
-    >
-      <View
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: 4,
-          backgroundColor: '#d97706',
-          marginRight: 8,
-        }}
-      />
-      <Text
-        style={{ fontSize: 13, fontWeight: '600', color: '#92400e', flex: 1 }}
-      >
-        {unread} new alert{unread === 1 ? '' : 's'} — tap to open inbox
-      </Text>
+    <View style={styles.banner}>
+      <Text style={styles.bannerText}>● Live Network Activity Feed</Text>
+      <View style={styles.bannerCount}>
+        <Text style={styles.bannerCountText}>{unread} events</Text>
+      </View>
     </View>
   );
 }
+
+const severityStyle = (severity: NotificationEvent['severity']) => {
+  switch (severity) {
+    case 'critical':
+      return {
+        backgroundColor: theme.colors.redSoft,
+        borderColor: theme.borders.color,
+      };
+    case 'action':
+      return {
+        backgroundColor: theme.colors.amberSoft,
+        borderColor: theme.borders.color,
+      };
+    case 'info':
+    default:
+      return {
+        backgroundColor: theme.colors.primarySoft,
+        borderColor: theme.borders.color,
+      };
+  }
+};
+
+const styles = StyleSheet.create({
+  container: { marginTop: 12 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: theme.colors.muted,
+    letterSpacing: 1.1,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: theme.colors.muted,
+    marginBottom: 10,
+  },
+  badge: {
+    backgroundColor: theme.colors.primary,
+    borderWidth: 1.5,
+    borderColor: theme.borders.color,
+    borderRadius: theme.radii.full,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    ...theme.shadows.xs,
+  },
+  badgeText: { fontSize: 9, fontWeight: '800', color: '#ffffff' },
+  empty: {
+    paddingVertical: 18,
+    alignItems: 'center',
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.md,
+    borderWidth: theme.borders.normal,
+    borderColor: theme.borders.color,
+    marginBottom: 10,
+  },
+  emptyText: { color: theme.colors.muted, fontSize: 13, fontStyle: 'italic' },
+  card: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.md,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: theme.borders.normal,
+    borderColor: theme.borders.color,
+    ...theme.shadows.xs,
+  },
+  cardUnread: {
+    backgroundColor: theme.colors.primarySoft,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  severityPill: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+  },
+  severityPillText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: theme.colors.ink,
+  },
+  cardTime: {
+    fontSize: 10,
+    color: theme.colors.muted,
+    fontWeight: '600',
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: theme.colors.ink,
+    marginBottom: 4,
+  },
+  cardBody: {
+    fontSize: 12,
+    color: theme.colors.ink,
+    lineHeight: 16,
+    marginBottom: 6,
+  },
+  cardMeta: {
+    fontSize: 10,
+    color: theme.colors.muted,
+    fontWeight: '600',
+  },
+  banner: {
+    backgroundColor: theme.colors.primarySoft,
+    borderWidth: 1.5,
+    borderColor: theme.borders.color,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: theme.radii.sm,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    ...theme.shadows.xs,
+  },
+  bannerText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: theme.colors.ink,
+  },
+  bannerCount: {
+    backgroundColor: theme.colors.primary,
+    borderWidth: 1,
+    borderColor: theme.borders.color,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  bannerCountText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#ffffff',
+  },
+});

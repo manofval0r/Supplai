@@ -1,6 +1,10 @@
+import { Platform } from 'react-native';
+
 export const API_BASE =
   (process.env.EXPO_PUBLIC_API_URL as string | undefined) ??
-  'http://127.0.0.1:3000';
+  (Platform.OS === 'android'
+    ? 'http://10.0.2.2:3000'
+    : 'http://127.0.0.1:3000');
 
 export type Commodity = 'ors' | 'zinc';
 
@@ -109,15 +113,22 @@ class SupplaiApiError extends Error {
 }
 
 async function requestJson(path: string, init?: RequestInit): Promise<unknown> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
-    ...init,
-  });
-  const body = (await response.json()) as ApiErrorBody;
-  if (!response.ok) {
-    throw new SupplaiApiError(response.status, body);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1500);
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+      signal: controller.signal,
+      ...init,
+    });
+    const body = (await response.json()) as ApiErrorBody;
+    if (!response.ok) {
+      throw new SupplaiApiError(response.status, body);
+    }
+    return body;
+  } finally {
+    clearTimeout(timeout);
   }
-  return body;
 }
 
 export const supplaiApi = {

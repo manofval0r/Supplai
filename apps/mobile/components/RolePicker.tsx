@@ -1,194 +1,320 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { ui, useAppConfig } from '../lib/theme';
+import { Stage3D } from './Stage3D';
+import { Art, HomeCorridorScene } from './LineArt';
+import { Press, ScreenBackdrop, PinIcon, ChevronRightIcon } from './ui';
+import { FloatingDock, type DockTab } from './FloatingDock';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#ffffff',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: '#6b7280',
-    textAlign: 'center',
-    marginBottom: 28,
-  },
-  card: {
-    backgroundColor: '#f9fafb',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#111827',
-    marginBottom: 14,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-    backgroundColor: '#ffffff',
-  },
-  optionSelected: { borderColor: '#2563eb', backgroundColor: '#eff6ff' },
-  optionLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginLeft: 10,
-    flex: 1,
-  },
-  hint: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-    color: '#111827',
-    marginBottom: 12,
-    backgroundColor: '#ffffff',
-  },
-  button: {
-    backgroundColor: '#2563eb',
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 6,
-  },
-  buttonText: { color: '#ffffff', fontWeight: '700', fontSize: 15 },
-  buttonOutline: {
-    borderWidth: 1,
-    borderColor: '#2563eb',
-    borderRadius: 12,
-    padding: 14,
-    alignItems: 'center',
-    marginTop: 8,
-    backgroundColor: '#ffffff',
-  },
-  buttonOutlineText: { color: '#2563eb', fontWeight: '700', fontSize: 15 },
-});
+export type AppMode =
+  | 'home'
+  | 'request'
+  | 'release'
+  | 'rider'
+  | 'handover'
+  | 'activity'
+  | 'account'
+  | 'saved-places';
 
-export type Role = 'facility' | 'rider';
-
-export interface RolePickerProps {
-  onRoleSelected: (
-    role: Role,
-    identity: { facilityId?: string; phone?: string; riderName?: string },
-  ) => void;
-}
-
-export function RolePicker({ onRoleSelected }: RolePickerProps) {
-  const [role, setRole] = useState<Role | null>(null);
-  const [facilityId, setFacilityId] = useState('PHC-A');
-  const [phone, setPhone] = useState('+2348010000001');
-  const [riderName, setRiderName] = useState('Demo Rider');
-
-  const isFacility = role === 'facility';
+export function RolePicker({
+  onSelectMode,
+  onSelectTab,
+}: {
+  onSelectMode: (mode: AppMode) => void;
+  onSelectTab: (tab: DockTab) => void;
+}) {
+  const { colors, activeDelivery, savedPlace } = useAppConfig();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Supplai</Text>
-      <Text style={styles.subtitle}>
-        Emergency medicine redistribution &middot; role shell
-      </Text>
+    <View style={[styles.screen, { backgroundColor: colors.bg }]}>
+      <ScreenBackdrop
+        spots={[
+          {
+            art: 'sachet',
+            top: 8,
+            right: -18,
+            size: 112,
+            rotate: 12,
+            withHighlight: true,
+          },
+          { art: 'pills', top: 310, left: -24, size: 100, rotate: -14 },
+          {
+            art: 'route',
+            bottom: 130,
+            right: -18,
+            size: 108,
+            rotate: -6,
+            withHighlight: true,
+          },
+        ]}
+      />
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Select role</Text>
-        <TouchableOpacity
-          style={[styles.option, isFacility && styles.optionSelected]}
-          onPress={() => setRole('facility')}
+      <View style={styles.body}>
+        <Text
+          style={[styles.heroHeadline, { color: colors.ink }]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
         >
-          <Text
-            style={[
-              styles.optionLabel,
-              { color: isFacility ? '#2563eb' : '#374151' },
-            ]}
+          Medicine, moved in minutes.{'\u00A0'}
+        </Text>
+
+        {savedPlace ? (
+          <Press
+            onPress={() => onSelectMode('saved-places')}
+            scaleTo={0.98}
+            style={[styles.placeChip, { backgroundColor: colors.tile }]}
           >
-            Facility (requester / source)
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.option, !isFacility && styles.optionSelected]}
-          onPress={() => setRole('rider')}
-        >
-          <Text
-            style={[
-              styles.optionLabel,
-              { color: !isFacility ? '#2563eb' : '#374151' },
-            ]}
-          >
-            Rider (pickup / handover)
-          </Text>
-        </TouchableOpacity>
+            <View style={[styles.placePin, { backgroundColor: colors.lime }]}>
+              <PinIcon color={colors.limeInk} size={14} />
+            </View>
+            <Text
+              style={[styles.placeText, { color: colors.mute }]}
+              numberOfLines={1}
+            >
+              Delivering to{' '}
+              <Text style={[styles.placeBold, { color: colors.ink }]}>
+                {savedPlace}
+              </Text>
+            </Text>
+            <ChevronRightIcon color={colors.mute} />
+          </Press>
+        ) : null}
+
+        {/* Bento Grid */}
+        <View style={styles.bento}>
+          <View style={styles.bentoRow}>
+            {/* Tile 1: Request stock */}
+            <Press
+              onPress={() => onSelectMode('request')}
+              style={[styles.tileLg, { backgroundColor: colors.tile }]}
+            >
+              <View>
+                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                  Request stock{'\u00A0'}
+                </Text>
+                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                  Nearest clinic is 7 min away
+                </Text>
+              </View>
+              <View style={styles.miniCanvasLg} pointerEvents="none">
+                <Stage3D
+                  kind="mini-req"
+                  width={106}
+                  height={98}
+                  interactive={false}
+                />
+              </View>
+            </Press>
+
+            {/* Tile 2: Release surplus */}
+            <Press
+              onPress={() => onSelectMode('release')}
+              style={[styles.tileLg, { backgroundColor: colors.tile }]}
+            >
+              <View>
+                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                  Release surplus{'\u00A0'}
+                </Text>
+                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                  Send what you can spare
+                </Text>
+              </View>
+              <View style={styles.miniCanvasLg} pointerEvents="none">
+                <Stage3D
+                  kind="mini-rel"
+                  width={106}
+                  height={98}
+                  interactive={false}
+                />
+              </View>
+            </Press>
+          </View>
+
+          {/* Tile 3: Conditional Track Delivery / Idle Tile */}
+          {activeDelivery ? (
+            <Press
+              onPress={() => onSelectMode('rider')}
+              style={[styles.tileWide, { backgroundColor: colors.heroTileBg }]}
+            >
+              <View style={styles.tileWideCopy}>
+                <Text style={[styles.tileTitle, { color: '#ffffff' }]}>
+                  Track delivery{'\u00A0'}
+                </Text>
+                <Text
+                  style={[
+                    styles.tileSub,
+                    { color: colors.heroSubColor, maxWidth: '100%' },
+                  ]}
+                  numberOfLines={1}
+                >
+                  Zinc 20 mg,{' '}
+                  <Text
+                    style={{
+                      color: colors.lime,
+                      fontFamily: ui.font.bold,
+                    }}
+                  >
+                    4 min away{'\u00A0'}
+                  </Text>
+                </Text>
+              </View>
+              <View style={styles.miniCanvasWide} pointerEvents="none">
+                <Stage3D
+                  kind="mini-trk"
+                  width={96}
+                  height={88}
+                  interactive={false}
+                />
+              </View>
+            </Press>
+          ) : (
+            <View
+              style={[
+                styles.tileIdle,
+                {
+                  borderColor: colors.line,
+                },
+              ]}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.tileTitle, { color: colors.ink }]}>
+                  No delivery on the way{'\u00A0'}
+                </Text>
+                <Text style={[styles.tileSub, { color: colors.mute }]}>
+                  Orders you place show up here
+                </Text>
+              </View>
+              <View style={{ opacity: 0.45 }}>
+                <Art name="cyclist" size={44} />
+              </View>
+            </View>
+          )}
+        </View>
+
+        <View style={{ flex: 1 }} />
+
+        <HomeCorridorScene />
       </View>
 
-      {isFacility && (
-        <>
-          <TextInput
-            style={styles.input}
-            placeholder="Facility id (e.g. PHC-A)"
-            value={facilityId}
-            onChangeText={setFacilityId}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Phone (e.g. +2348010000001)"
-            value={phone}
-            onChangeText={setPhone}
-          />
-          <Text style={styles.hint}>
-            PHC-A = requester, PHC-B = source custodian
-          </Text>
-        </>
-      )}
-      {!isFacility && (
-        <TextInput
-          style={styles.input}
-          placeholder="Rider name (e.g. Demo Rider)"
-          value={riderName}
-          onChangeText={setRiderName}
-        />
-      )}
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          if (!role) return Alert.alert('Pick a role first');
-          if (isFacility && (!facilityId.trim() || !phone.trim())) {
-            return Alert.alert('Enter facility id and phone');
-          }
-          onRoleSelected(role, {
-            ...(isFacility
-              ? { facilityId: facilityId.trim(), phone: phone.trim() }
-              : { riderName: riderName.trim() }),
-          });
-        }}
-      >
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
+      <FloatingDock activeTab="home" onSelectTab={onSelectTab} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    position: 'relative',
+  },
+  body: {
+    flex: 1,
+    paddingTop: 14,
+    paddingHorizontal: 22,
+    paddingBottom: 2,
+  },
+  heroHeadline: {
+    fontFamily: ui.font.bold,
+    fontSize: 22.5,
+    letterSpacing: -0.7,
+    lineHeight: 28,
+    marginBottom: 14,
+    paddingRight: 4,
+  },
+  placeChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+    paddingLeft: 10,
+    paddingRight: 14,
+    borderRadius: 999,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+    maxWidth: '100%',
+  },
+  placePin: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeText: {
+    fontFamily: ui.font.medium,
+    fontSize: 13,
+    letterSpacing: -0.1,
+    flexShrink: 1,
+  },
+  placeBold: {
+    fontFamily: ui.font.bold,
+  },
+  bento: {
+    gap: 12,
+  },
+  bentoRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  tileLg: {
+    flex: 1,
+    height: 176,
+    borderRadius: 24,
+    padding: 16,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  tileTitle: {
+    fontFamily: ui.font.bold,
+    fontSize: 17,
+    letterSpacing: -0.35,
+    lineHeight: 20,
+    paddingRight: 2,
+  },
+  tileSub: {
+    fontFamily: ui.font.medium,
+    fontSize: 12.5,
+    lineHeight: 16,
+    marginTop: 4,
+    maxWidth: 132,
+  },
+  miniCanvasLg: {
+    position: 'absolute',
+    right: -4,
+    bottom: -6,
+    width: 106,
+    height: 98,
+  },
+  tileWide: {
+    width: '100%',
+    height: 104,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  tileWideCopy: {
+    flex: 1,
+    paddingRight: 96,
+  },
+  miniCanvasWide: {
+    position: 'absolute',
+    right: 6,
+    bottom: 6,
+    width: 96,
+    height: 88,
+  },
+  tileIdle: {
+    width: '100%',
+    height: 84,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+  },
+});
