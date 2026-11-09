@@ -73,7 +73,8 @@ export function MapLibreMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [provider, setProvider] = useState<MapProvider>('openfreemap');
   const [mapError, setMapError] = useState<string | null>(null);
-  const [selectedFacility, setSelectedFacility] = useState<FacilityLocation | null>(null);
+  const [selectedFacility, setSelectedFacility] =
+    useState<FacilityLocation | null>(null);
   const [progress, setProgress] = useState(0.42); // Rider position along route (0 to 1)
 
   // Interpolate rider coordinates based on progress
@@ -84,8 +85,7 @@ export function MapLibreMap() {
     );
     const p1 = ROUTE_COORDINATES[idx] ?? ROUTE_COORDINATES[0]!;
     const p2 = ROUTE_COORDINATES[idx + 1] ?? ROUTE_COORDINATES[1]!;
-    const segmentFraction =
-      progress * (ROUTE_COORDINATES.length - 1) - idx;
+    const segmentFraction = progress * (ROUTE_COORDINATES.length - 1) - idx;
     return [
       p1[0] + (p2[0] - p1[0]) * segmentFraction,
       p1[1] + (p2[1] - p1[1]) * segmentFraction,
@@ -121,9 +121,7 @@ export function MapLibreMap() {
                 sources: {
                   'osm-raster': {
                     type: 'raster' as const,
-                    tiles: [
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    ],
+                    tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
                     tileSize: 256,
                     attribution: '© OpenStreetMap contributors',
                   },
@@ -157,12 +155,17 @@ export function MapLibreMap() {
           'bottom-right',
         );
 
-        map.addControl(new maplibre.NavigationControl({ showCompass: false }), 'top-right');
+        map.addControl(
+          new maplibre.NavigationControl({ showCompass: false }),
+          'top-right',
+        );
 
         map.on('error', (err) => {
           // If vector tile server is unreachable or CORS blocked, gracefully degrade
           console.warn('MapLibre error encountered:', err);
-          setMapError('Live tiles unavailable. Showing high-fidelity corridor schematic.');
+          setMapError(
+            'Live tiles unavailable. Showing high-fidelity corridor schematic.',
+          );
           setProvider('fallback');
         });
 
@@ -189,7 +192,7 @@ export function MapLibreMap() {
             source: 'route-corridor',
             layout: { 'line-join': 'round', 'line-cap': 'round' },
             paint: {
-              'line-color': '#0e7169',
+              'line-color': '#005b3d',
               'line-width': 8,
               'line-opacity': 0.7,
             },
@@ -202,7 +205,7 @@ export function MapLibreMap() {
             source: 'route-corridor',
             layout: { 'line-join': 'round', 'line-cap': 'round' },
             paint: {
-              'line-color': '#64c99b',
+              'line-color': '#008751',
               'line-width': 4,
               'line-dasharray': [2, 2],
             },
@@ -314,13 +317,22 @@ export function MapLibreMap() {
           <div ref={containerRef} className="web-maplibre-canvas" />
         ) : (
           /* Schematic SVG Fallback with interactive facilities */
-          <div className="schematic-corridor-view" aria-label="Schematic Route Corridor">
+          <div
+            className="schematic-corridor-view"
+            aria-label="Schematic Route Corridor"
+          >
             <svg viewBox="0 0 800 360" className="schematic-svg">
               <defs>
-                <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient
+                  id="routeGrad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
                   <stop offset="0%" stopColor="#c75959" />
-                  <stop offset="45%" stopColor="#64c99b" />
-                  <stop offset="100%" stopColor="#0e7169" />
+                  <stop offset="45%" stopColor="#f4c542" />
+                  <stop offset="100%" stopColor="#008751" />
                 </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="4" result="coloredBlur" />
@@ -332,8 +344,18 @@ export function MapLibreMap() {
               </defs>
 
               {/* Grid backdrop */}
-              <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(219, 232, 230, 0.4)" strokeWidth="1" />
+              <pattern
+                id="gridPattern"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 40 0 L 0 0 0 40"
+                  fill="none"
+                  stroke="rgba(219, 232, 230, 0.4)"
+                  strokeWidth="1"
+                />
               </pattern>
               <rect width="100%" height="100%" fill="url(#gridPattern)" />
 
@@ -364,10 +386,20 @@ export function MapLibreMap() {
                 <circle r="22" fill="#c75959" opacity="0.18" />
                 <circle r="12" fill="#c75959" filter="url(#glow)" />
                 <circle r="6" fill="#fff" />
-                <text x="0" y="34" textAnchor="middle" className="node-text-title">
+                <text
+                  x="0"
+                  y="34"
+                  textAnchor="middle"
+                  className="node-text-title"
+                >
                   Aiyetoro Central PHC
                 </text>
-                <text x="0" y="50" textAnchor="middle" className="node-text-sub">
+                <text
+                  x="0"
+                  y="50"
+                  textAnchor="middle"
+                  className="node-text-sub"
+                >
                   Requester (0 ORS stockout)
                 </text>
               </g>
@@ -379,16 +411,40 @@ export function MapLibreMap() {
                   180 + Math.sin(progress * Math.PI * 2) * 45
                 })`}
               >
-                <circle r="20" fill="rgba(14, 113, 105, 0.25)">
-                  <animate attributeName="r" values="16;26;16" dur="2s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2s" repeatCount="indefinite" />
+                <circle r="20" fill="rgba(0, 135, 81, 0.25)">
+                  <animate
+                    attributeName="r"
+                    values="16;26;16"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    values="0.6;0.1;0.6"
+                    dur="2s"
+                    repeatCount="indefinite"
+                  />
                 </circle>
-                <circle r="12" fill="#0e7169" />
+                <circle r="12" fill="#008751" />
                 <text x="0" y="4" textAnchor="middle" fontSize="12" fill="#fff">
                   🏍️
                 </text>
-                <rect x="-45" y="-34" width="90" height="22" rx="11" fill="#0b4e4a" />
-                <text x="0" y="-19" textAnchor="middle" fill="#d5f0e2" fontSize="10" fontWeight="bold">
+                <rect
+                  x="-45"
+                  y="-34"
+                  width="90"
+                  height="22"
+                  rx="11"
+                  fill="#0b4e4a"
+                />
+                <text
+                  x="0"
+                  y="-19"
+                  textAnchor="middle"
+                  fill="#d5f0e2"
+                  fontSize="10"
+                  fontWeight="bold"
+                >
                   TRF-0042 • 4m
                 </text>
               </g>
@@ -400,13 +456,23 @@ export function MapLibreMap() {
                 onClick={() => setSelectedFacility(FACILITIES[1] ?? null)}
                 style={{ cursor: 'pointer' }}
               >
-                <circle r="22" fill="#0e7169" opacity="0.18" />
-                <circle r="12" fill="#0e7169" filter="url(#glow)" />
+                <circle r="22" fill="rgba(0, 135, 81, 0.18)" />
+                <circle r="12" fill="#008751" filter="url(#glow)" />
                 <circle r="6" fill="#fff" />
-                <text x="0" y="34" textAnchor="middle" className="node-text-title">
+                <text
+                  x="0"
+                  y="34"
+                  textAnchor="middle"
+                  className="node-text-title"
+                >
                   Idera PHC (Donor)
                 </text>
-                <text x="0" y="50" textAnchor="middle" className="node-text-sub">
+                <text
+                  x="0"
+                  y="50"
+                  textAnchor="middle"
+                  className="node-text-sub"
+                >
                   60 surplus transferable
                 </text>
               </g>
@@ -420,7 +486,12 @@ export function MapLibreMap() {
               >
                 <circle r="10" fill="#477db5" />
                 <circle r="4" fill="#fff" />
-                <text x="0" y="24" textAnchor="middle" className="node-text-small">
+                <text
+                  x="0"
+                  y="24"
+                  textAnchor="middle"
+                  className="node-text-small"
+                >
                   Ajegunle PHC
                 </text>
               </g>
@@ -432,14 +503,22 @@ export function MapLibreMap() {
               >
                 <circle r="10" fill="#477db5" />
                 <circle r="4" fill="#fff" />
-                <text x="0" y="24" textAnchor="middle" className="node-text-small">
+                <text
+                  x="0"
+                  y="24"
+                  textAnchor="middle"
+                  className="node-text-small"
+                >
                   Oke-Odo PHC
                 </text>
               </g>
             </svg>
 
             <div className="schematic-attribution">
-              <span>Attribution: © OpenStreetMap contributors, OpenFreeMap • Offline-Safe Fallback Active</span>
+              <span>
+                Attribution: © OpenStreetMap contributors, OpenFreeMap •
+                Offline-Safe Fallback Active
+              </span>
             </div>
           </div>
         )}

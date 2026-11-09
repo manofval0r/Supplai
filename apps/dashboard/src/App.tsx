@@ -22,6 +22,8 @@ import {
   faUser,
   faBell,
   faComments,
+  faPrescriptionBottleMedical,
+  faTablets,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -49,6 +51,18 @@ import {
   type TransferDetailData,
 } from './components/TransferDetailModal';
 import { ScenarioLabControls } from './components/ScenarioLabControls';
+import { RequestStockModal } from './components/RequestStockModal';
+import {
+  StatTile,
+  Badge,
+  Button,
+  SearchField,
+  BottomNav,
+  MedicineCard,
+  OrderTimeline,
+  EmptyState,
+  IconChip,
+} from './components/ui';
 
 type Theme = 'light' | 'dark';
 
@@ -65,10 +79,6 @@ function formatMetric(value: number, metric: 'number' | 'percent') {
   return metric === 'percent'
     ? `${Math.round(value * 100)}%`
     : value.toString();
-}
-
-function StatusPill({ status }: { status: string }) {
-  return <span className={`status status-${status}`}>{status}</span>;
 }
 
 function StockBar({
@@ -281,6 +291,8 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<TransferDetailData | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [requestMedicineId, setRequestMedicineId] = useState<string | null>(null);
 
   const transitionTo = (callback: () => void) => {
     setIsPageTransitioning(true);
@@ -337,6 +349,33 @@ export default function App() {
   const stockouts = useMemo(
     () => fixtureStock.filter((item) => item.onHand < item.minimum).slice(0, 4),
     [],
+  );
+
+  const query = searchQuery.trim().toLowerCase();
+  const matches = (...fields: (string | undefined)[]) =>
+    !query || fields.some((field) => field?.toLowerCase().includes(query));
+  const facilityName = (id: string) =>
+    fixtureFacilities.find((entry) => entry.id === id)?.name;
+  const medicineName = (id: string) =>
+    fixtureMedicines.find((entry) => entry.id === id)?.name;
+
+  const visibleTransfers = overview.transfers.filter((transfer) =>
+    matches(
+      transfer.reference,
+      transfer.fromFacility,
+      transfer.toFacility,
+      transfer.drug,
+      transfer.status,
+    ),
+  );
+  const visibleStockouts = stockouts.filter((item) =>
+    matches(facilityName(item.facilityId), medicineName(item.medicineId)),
+  );
+  const visibleFacilities = fixtureFacilities.filter((facility) =>
+    matches(facility.name, facility.ward),
+  );
+  const visibleFailures = failures.filter((failure) =>
+    matches(failure.reference, failure.detail, failure.category),
   );
 
   if (showLanding) {
@@ -451,39 +490,46 @@ export default function App() {
         </aside>
         <main id="main-content">
           <header className="topbar">
-            <div>
+            <div className="topbar-title">
               <p className="eyebrow">LGA COMMAND CENTER</p>
               <h1>{activeNav}</h1>
             </div>
+            <SearchField
+              value={searchQuery}
+              onChange={setSearchQuery}
+              className="topbar-search"
+            />
             <div className="topbar-actions">
               {activeNav !== 'Overview' && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={faArrowLeft}
                   className="back-dashboard-button"
                   onClick={() => setActiveNav('Overview')}
                 >
-                  <FontAwesomeIcon icon={faArrowLeft} />
-                  Back to dashboard
-                </button>
+                  Back
+                </Button>
               )}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                icon={faBell}
                 className={`topbar-btn ${notificationsOpen ? 'is-active' : ''}`}
                 onClick={() => setNotificationsOpen(true)}
                 aria-label="Alerts"
               >
-                <FontAwesomeIcon icon={faBell} />
-                <span>Alerts</span>
+                <span className="topbar-btn__label">Alerts</span>
                 <span className="badge-count">3</span>
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="ghost"
+                icon={faComments}
                 className={`topbar-btn ${chatOpen ? 'is-active' : ''}`}
                 onClick={() => setChatOpen(true)}
                 aria-label="LGA Assistant"
               >
-                <FontAwesomeIcon icon={faComments} />
-                <span>Assistant</span>
-              </button>
+                <span className="topbar-btn__label">Assistant</span>
+              </Button>
             </div>
           </header>
           <div
@@ -491,67 +537,41 @@ export default function App() {
           >
             <ScenarioLabControls />
             <section className="metric-grid" aria-label="LGA summary metrics">
-              {[
-                [
-                  'Open stockouts',
-                  overview.metrics.openStockouts,
-                  'Facilities below minimum',
-                  'number',
-                  'alert',
-                ],
-                [
-                  'Transfers in flight',
-                  overview.metrics.transfersInFlight,
-                  'Moving between facilities',
-                  'number',
-                  'route',
-                ],
-                [
-                  'Completed transfers',
-                  overview.metrics.completedTransfers,
-                  'This month',
-                  'number',
-                  'done',
-                ],
-                [
-                  'Unmet requests',
-                  overview.metrics.unmetRequests,
-                  'Need operator attention',
-                  'number',
-                  'warning',
-                ],
-                [
-                  'Response rate',
-                  overview.metrics.responseRate,
-                  'Offers answered by facilities',
-                  'percent',
-                  'rate',
-                ],
-              ].map(([label, value, caption, format, tone]) => (
-                <article className={`metric-card tone-${tone}`} key={label}>
-                  <div className="metric-icon">
-                    {tone === 'done' ? (
-                      <FontAwesomeIcon icon={faCircleCheck} />
-                    ) : tone === 'alert' ? (
-                      <FontAwesomeIcon icon={faCircleExclamation} />
-                    ) : tone === 'route' ? (
-                      <FontAwesomeIcon icon={faTruckFast} />
-                    ) : tone === 'warning' ? (
-                      <FontAwesomeIcon icon={faCircleExclamation} />
-                    ) : (
-                      <FontAwesomeIcon icon={faSackDollar} />
-                    )}
-                  </div>
-                  <p>{label}</p>
-                  <strong aria-live="polite">
-                    {formatMetric(
-                      value as number,
-                      format as 'number' | 'percent',
-                    )}
-                  </strong>
-                  <small>{caption}</small>
-                </article>
-              ))}
+              <StatTile
+                label="Open stockouts"
+                value={formatMetric(overview.metrics.openStockouts, 'number')}
+                caption="Facilities below minimum"
+                icon={faCircleExclamation}
+                tone="alert"
+              />
+              <StatTile
+                label="Transfers in flight"
+                value={formatMetric(overview.metrics.transfersInFlight, 'number')}
+                caption="Moving between facilities"
+                icon={faTruckFast}
+                tone="route"
+              />
+              <StatTile
+                label="Completed transfers"
+                value={formatMetric(overview.metrics.completedTransfers, 'number')}
+                caption="This month"
+                icon={faCircleCheck}
+                tone="done"
+              />
+              <StatTile
+                label="Unmet requests"
+                value={formatMetric(overview.metrics.unmetRequests, 'number')}
+                caption="Need operator attention"
+                icon={faCircleExclamation}
+                tone="warning"
+              />
+              <StatTile
+                label="Response rate"
+                value={formatMetric(overview.metrics.responseRate, 'percent')}
+                caption="Offers answered by facilities"
+                icon={faSackDollar}
+                tone="rate"
+              />
             </section>
             <div className="dashboard-grid">
               <section className="panel attention-panel">
@@ -560,39 +580,57 @@ export default function App() {
                     <p className="eyebrow">NEEDS ATTENTION</p>
                     <h3>Stockouts to resolve</h3>
                   </div>
-                  <button className="text-button">View all</button>
+                  <button
+                    className="text-button"
+                    onClick={() => setActiveNav('Stock')}
+                  >
+                    View all
+                  </button>
                 </div>
-                {stockouts.map((item) => {
-                  const facility = fixtureFacilities.find(
-                    (entry) => entry.id === item.facilityId,
-                  );
-                  const medicine = fixtureMedicines.find(
-                    (entry) => entry.id === item.medicineId,
-                  );
-                  return (
-                    <div
-                      className="attention-row"
-                      key={`${item.facilityId}-${item.medicineId}`}
-                    >
-                      <span className="warning-icon">
-                        <FontAwesomeIcon icon={faTriangleExclamation} />
-                      </span>
-                      <div>
-                        <strong>{facility?.name}</strong>
-                        <small>{medicine?.name}</small>
-                      </div>
-                      <b>
-                        {item.onHand} / {item.minimum}
-                      </b>
-                      <button
-                        className="row-action"
-                        aria-label={`Review ${facility?.name}`}
+                {visibleStockouts.length === 0 ? (
+                  <EmptyState
+                    icon={faCircleCheck}
+                    title="No stockouts match"
+                    text="Every clinic is above its safety floor for this search."
+                  />
+                ) : (
+                  visibleStockouts.map((item) => {
+                    const facility = fixtureFacilities.find(
+                      (entry) => entry.id === item.facilityId,
+                    );
+                    const medicine = fixtureMedicines.find(
+                      (entry) => entry.id === item.medicineId,
+                    );
+                    return (
+                      <div
+                        className="attention-row"
+                        key={`${item.facilityId}-${item.medicineId}`}
                       >
-                        Review
-                      </button>
-                    </div>
-                  );
-                })}
+                        <IconChip
+                          icon={faTriangleExclamation}
+                          tone="warning"
+                          size="sm"
+                        />
+                        <div>
+                          <strong>{facility?.name}</strong>
+                          <small>{medicine?.name}</small>
+                        </div>
+                        <b>
+                          {item.onHand} / {item.minimum}
+                        </b>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="row-action"
+                          aria-label={`Review ${facility?.name}`}
+                          onClick={() => setRequestMedicineId(item.medicineId)}
+                        >
+                          Review
+                        </Button>
+                      </div>
+                    );
+                  })
+                )}
               </section>
               <section className="panel map-panel">
                 <div className="panel-heading">
@@ -619,7 +657,7 @@ export default function App() {
                     All transfers
                   </button>
                 </div>
-                {overview.transfers
+                {visibleTransfers
                   .filter((transfer) => transfer.status !== 'delivered')
                   .map((transfer) => (
                     <div
@@ -644,7 +682,12 @@ export default function App() {
                           etaMinutes: 4,
                         })
                       }
-                      style={{ cursor: 'pointer' }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          event.currentTarget.click();
+                        }
+                      }}
                       role="button"
                       tabIndex={0}
                     >
@@ -652,21 +695,25 @@ export default function App() {
                         <span className="transfer-ref">
                           {transfer.reference}
                         </span>
-                        <StatusPill
-                          status={transferStatusLabel(transfer.status)}
-                        />
+                        <Badge status={transfer.status}>
+                          {transferStatusLabel(transfer.status)}
+                        </Badge>
                       </div>
                       <div className="transfer-route">
                         <strong>{transfer.fromFacility}</strong>
                         <span className="transfer-connector">to</span>
                         <strong>{transfer.toFacility}</strong>
                       </div>
-                      <div className="stepper">
-                        <span className="done">Reserved</span>
-                        <span className="done">Dispatched</span>
-                        <span className="current">In transit</span>
-                        <span>Delivered</span>
-                      </div>
+                      <OrderTimeline
+                        orientation="horizontal"
+                        currentIndex={2}
+                        steps={[
+                          { title: 'Reserved' },
+                          { title: 'Dispatched' },
+                          { title: 'In transit' },
+                          { title: 'Delivered' },
+                        ]}
+                      />
                       <small>
                         {transfer.quantity}{' '}
                         {transfer.drug === 'Oral Rehydration Salts'
@@ -676,6 +723,14 @@ export default function App() {
                       </small>
                     </div>
                   ))}
+                {visibleTransfers.filter((t) => t.status !== 'delivered')
+                  .length === 0 && (
+                  <EmptyState
+                    icon={faTruckFast}
+                    title="No active transfers match"
+                    text="Adjust your search or start a new stock request."
+                  />
+                )}
               </section>
               <section className="panel feed-panel">
                 <div className="panel-heading">
@@ -752,7 +807,7 @@ export default function App() {
                   </span>
                 </div>
                 {activeNav === 'Transfers' &&
-                  overview.transfers.map((transfer) => (
+                  visibleTransfers.map((transfer) => (
                     <div
                       className="table-row"
                       key={transfer.id}
@@ -772,7 +827,12 @@ export default function App() {
                           etaMinutes: 4,
                         })
                       }
-                      style={{ cursor: 'pointer' }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          event.currentTarget.click();
+                        }
+                      }}
                       role="button"
                       tabIndex={0}
                     >
@@ -783,59 +843,107 @@ export default function App() {
                       <span>
                         {transfer.quantity} · {transfer.drug}
                       </span>
-                      <StatusPill status={transfer.status} />
+                      <Badge status={transfer.status} />
                     </div>
                   ))}
+                {activeNav === 'Transfers' && visibleTransfers.length === 0 && (
+                  <EmptyState
+                    icon={faRoute}
+                    title="No transfers match"
+                    text="Try a different reference, facility or medicine."
+                  />
+                )}
                 {activeNav === 'Operations' &&
-                  failures.map((failure) => (
+                  visibleFailures.map((failure) => (
                     <div className="table-row" key={failure.id}>
                       <strong>{failure.reference}</strong>
                       <span>{failure.detail}</span>
-                      <StatusPill status={failure.category} />
+                      <Badge status={failure.category} />
                     </div>
                   ))}
+                {activeNav === 'Operations' && visibleFailures.length === 0 && (
+                  <EmptyState
+                    icon={faCircleCheck}
+                    title="No failures match"
+                    text="Operational exceptions will appear here."
+                  />
+                )}
+                {activeNav === 'Stock' && (
+                  <div className="medicine-grid">
+                    {fixtureMedicines
+                      .filter((medicine) => matches(medicine.name, medicine.unit))
+                      .map((medicine) => {
+                        const position = getStockPosition('PHC-B', medicine.id);
+                        const onHand = position?.onHand ?? 0;
+                        const minimum = position?.minimum ?? 0;
+                        const transferable = Math.max(0, onHand - minimum);
+                        const availability =
+                          onHand <= 0
+                            ? { tone: 'danger' as const, label: 'Stockout' }
+                            : onHand < minimum
+                              ? { tone: 'warning' as const, label: 'Low stock' }
+                              : { tone: 'success' as const, label: 'In stock' };
+                        return (
+                          <MedicineCard
+                            key={medicine.id}
+                            name={medicine.name}
+                            strength={
+                              medicine.id === 'MED-ORS'
+                                ? '20.5 g · oral rehydration salts'
+                                : '20 mg · dispersible tablet'
+                            }
+                            icon={
+                              medicine.id === 'MED-ORS'
+                                ? faPrescriptionBottleMedical
+                                : faTablets
+                            }
+                            onHand={onHand}
+                            unit={medicine.unit}
+                            availability={availability}
+                            transferable={transferable}
+                            etaLabel="7 MIN"
+                            onRequest={() => setRequestMedicineId(medicine.id)}
+                          />
+                        );
+                      })}
+                  </div>
+                )}
                 {activeNav === 'Stock' &&
-                  stockouts.map((item) => (
+                  visibleStockouts.map((item) => (
                     <div
                       className="table-row"
                       key={`${item.facilityId}-${item.medicineId}`}
                     >
-                      <strong>
-                        {
-                          fixtureFacilities.find(
-                            (facility) => facility.id === item.facilityId,
-                          )?.name
-                        }
-                      </strong>
-                      <span>
-                        {
-                          fixtureMedicines.find(
-                            (medicine) => medicine.id === item.medicineId,
-                          )?.name
-                        }
-                      </span>
+                      <strong>{facilityName(item.facilityId)}</strong>
+                      <span>{medicineName(item.medicineId)}</span>
                       <span>
                         {item.onHand} / {item.minimum}
                       </span>
-                      <StatusPill status="stockout" />
+                      <Badge status="stockout" />
                     </div>
                   ))}
                 {activeNav === 'Requests' && (
-                  <div className="empty-state">
-                    <span>◌</span>
-                    <strong>No request detail route is available yet.</strong>
-                    <p>
-                      The API contract currently exposes aggregate unmet-request
-                      metrics only.
-                    </p>
-                  </div>
+                  <EmptyState
+                    icon={faClipboardList}
+                    title="No request detail route is available yet."
+                    text="The API contract currently exposes aggregate unmet-request metrics only."
+                    action={
+                      <Button
+                        variant="primary"
+                        icon={faPrescriptionBottleMedical}
+                        onClick={() => setRequestMedicineId('MED-ORS')}
+                      >
+                        Request stock
+                      </Button>
+                    }
+                  />
                 )}
                 {activeNav === 'Facilities' && (
                   <>
                     <NigeriaMap />
                     <WardMap />
                     <div className="facility-grid">
-                      {fixtureFacilities.map((facility) => (
+                      {visibleFacilities.map((facility) => (
                         <div className="facility-card" key={facility.id}>
                           <strong>{facility.name}</strong>
                           <small>{facility.ward} ward · Public ledger</small>
@@ -846,6 +954,13 @@ export default function App() {
                         </div>
                       ))}
                     </div>
+                    {visibleFacilities.length === 0 && (
+                      <EmptyState
+                        icon={faBuilding}
+                        title="No facilities match"
+                        text="Try a different facility name or ward."
+                      />
+                    )}
                   </>
                 )}
               </section>
@@ -857,7 +972,12 @@ export default function App() {
                     <p className="eyebrow">STOCK POSITION</p>
                     <h3>Transferable surplus</h3>
                   </div>
-                  <button className="text-button">Stock view</button>
+                  <button
+                    className="text-button"
+                    onClick={() => setActiveNav('Stock')}
+                  >
+                    Stock view
+                  </button>
                 </div>
                 <div className="stock-grid">
                   <div>
@@ -875,6 +995,15 @@ export default function App() {
             )}
           </div>
         </main>
+        <BottomNav
+          items={navItems.map(([label, icon]) => ({
+            label,
+            icon,
+            badge: label === 'Operations' ? failures.length : undefined,
+          }))}
+          active={activeNav}
+          onSelect={(label) => transitionTo(() => setActiveNav(label))}
+        />
         <button
           className="help-button"
           aria-label="Open Supplai Assistant"
@@ -920,6 +1049,16 @@ export default function App() {
         <TransferDetailModal
           transfer={selectedTransfer}
           onClose={() => setSelectedTransfer(null)}
+        />
+
+        <RequestStockModal
+          medicineId={requestMedicineId}
+          onClose={() => setRequestMedicineId(null)}
+          onConfirm={(facName, drug, qty) => {
+            alert(
+              `Initiating transfer request: ${qty} units of ${drug} from ${facName}. Dispatching to local queue.`,
+            );
+          }}
         />
       </div>
     </>

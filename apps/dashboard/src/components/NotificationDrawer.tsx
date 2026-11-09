@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBell,
   faTriangleExclamation,
   faTruckFast,
   faShieldHalved,
-  faXmark,
   faCheckDouble,
 } from '@fortawesome/free-solid-svg-icons';
+import { Drawer, Button, SegmentedControl, EmptyState } from './ui';
 
 export interface WebNotification {
   id: string;
@@ -113,46 +113,40 @@ export function NotificationDrawer({
 
   if (!isOpen) return null;
 
+  const filterOptions = (['all', 'critical', 'transfers', 'safety'] as const).map(
+    (tab) => ({
+      value: tab,
+      label: `${tab.charAt(0).toUpperCase() + tab.slice(1)} (${
+        tab === 'all'
+          ? notifications.length
+          : notifications.filter((n) => n.category === tab).length
+      })`,
+    }),
+  );
+
   return (
-    <div className="drawer-overlay" onClick={onClose}>
-      <aside
-        className="drawer-panel notification-drawer"
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Notification Center"
-      >
-        <div className="drawer-header">
-          <div className="drawer-title-group">
-            <span className="drawer-icon">
-              <FontAwesomeIcon icon={faBell} />
-            </span>
-            <div>
-              <h3>LGA Alert Center</h3>
-              <p className="drawer-subtitle">
-                {unreadCount > 0 ? `${unreadCount} unread alerts` : 'All alerts caught up'}
-              </p>
-            </div>
-          </div>
-          <div className="drawer-header-actions">
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                className="drawer-action-btn"
-                onClick={markAllAsRead}
-                title="Mark all as read"
-              >
-                <FontAwesomeIcon icon={faCheckDouble} /> Read all
-              </button>
-            )}
-            <button
-              type="button"
-              className="drawer-close-btn"
-              onClick={onClose}
-              aria-label="Close notifications"
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </button>
-          </div>
-        </div>
+    <Drawer
+      onClose={onClose}
+      ariaLabel="Notification Center"
+      title="LGA Alert Center"
+      subtitle={
+        unreadCount > 0 ? `${unreadCount} unread alerts` : 'All alerts caught up'
+      }
+      icon={faBell}
+      className="notification-drawer"
+      headerActions={
+        unreadCount > 0 ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={faCheckDouble}
+            onClick={markAllAsRead}
+          >
+            Read all
+          </Button>
+        ) : undefined
+      }
+    >
 
         {/* Browser Push Permission Banner */}
         {pushStatus === 'default' && (
@@ -164,46 +158,36 @@ export function NotificationDrawer({
                 transfer requires supervisor attention.
               </p>
             </div>
-            <button
-              type="button"
-              className="push-enable-btn"
-              onClick={() => {
-                void handleRequestPush();
-              }}
-            >
-              Enable
-            </button>
-          </div>
-        )}
-
-        {/* Filter tabs */}
-        <div className="drawer-tabs">
-          {(['all', 'critical', 'transfers', 'safety'] as const).map((tab) => {
-            const count =
-              tab === 'all'
-                ? notifications.length
-                : notifications.filter((n) => n.category === tab).length;
-            return (
-              <button
-                key={tab}
-                type="button"
-                className={`drawer-tab-btn ${activeFilter === tab ? 'is-active' : ''}`}
-                onClick={() => setActiveFilter(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} ({count})
-              </button>
-            );
-          })}
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              void handleRequestPush();
+            }}
+          >
+            Enable
+          </Button>
         </div>
+      )}
+
+      <SegmentedControl
+        options={filterOptions}
+        value={activeFilter}
+        onChange={(value) =>
+          setActiveFilter(value as 'all' | 'critical' | 'transfers' | 'safety')
+        }
+        ariaLabel="Filter notifications"
+        className="drawer-tabs"
+      />
 
         {/* Notification list */}
         <div className="notification-list">
           {filtered.length === 0 ? (
-            <div className="drawer-empty-state">
-              <span>✓</span>
-              <strong>No notifications in this category</strong>
-              <p>Everything is operating normally.</p>
-            </div>
+          <EmptyState
+            icon={faCheckDouble}
+            title="No notifications in this category"
+            text="Everything is operating normally."
+          />
           ) : (
             filtered.map((item) => (
               <article
@@ -243,7 +227,6 @@ export function NotificationDrawer({
             ))
           )}
         </div>
-      </aside>
-    </div>
+    </Drawer>
   );
 }

@@ -13,6 +13,7 @@ import {
   faBullseye,
 } from '@fortawesome/free-solid-svg-icons';
 import type { ScenarioId } from '@supplai/contracts';
+import { Badge } from './ui';
 
 export interface ScenarioStep {
   tick: number;
@@ -384,16 +385,6 @@ export function ScenarioLabControls({
             className="lab-scenario-select"
             value={selectedScenarioId}
             onChange={(e) => handleScenarioChange(e.target.value as ScenarioId)}
-            style={{
-              background: 'var(--canvas)',
-              color: 'var(--ink)',
-              border: '1px solid var(--line)',
-              borderRadius: '8px',
-              padding: '6px 10px',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
           >
             {Object.values(SCENARIO_LIBRARY).map((s) => (
               <option key={s.id} value={s.id}>
@@ -454,22 +445,11 @@ export function ScenarioLabControls({
                 <FontAwesomeIcon icon={faBullseye} /> Learning Goal:
               </span>
               <p className="lab-meta-value">{scenario.learningGoal}</p>
-              <div style={{ marginTop: '8px' }}>
+              <div className="lab-meta-gap">
                 <span className="lab-meta-label">Auditable Outcome:</span>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    marginLeft: '6px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    background: '#1558C9',
-                    color: '#fff',
-                  }}
-                >
+                <Badge tone="info" className="lab-outcome-badge">
                   {scenario.expectedOutcome}
-                </span>
+                </Badge>
               </div>
             </div>
             <div className="lab-detail-col">
@@ -477,7 +457,7 @@ export function ScenarioLabControls({
               <strong className="lab-meta-value highlight-owner">
                 <FontAwesomeIcon icon={faUserGear} /> {step.owner}
               </strong>
-              <div style={{ marginTop: '8px' }}>
+              <div className="lab-meta-gap">
                 <span className="lab-meta-label">Event Detail:</span>
                 <p className="lab-meta-value">{step.detail}</p>
               </div>

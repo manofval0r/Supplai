@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTruckFast,
-  faXmark,
   faShieldHalved,
   faCircleCheck,
   faPhone,
@@ -14,6 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { transferStatusLabel } from '../lib/statusLabels';
 import type { TransferSummary } from '@supplai/contracts';
+import { Modal, OrderTimeline, Button, Badge } from './ui';
 
 export interface TransferDetailData {
   id: string;
@@ -49,39 +49,19 @@ export function TransferDetailModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        className="modal-container transfer-modal"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-labelledby="transfer-modal-title"
-      >
-        <div className="modal-header">
-          <div className="modal-title-group">
-            <span className="modal-icon">
-              <FontAwesomeIcon icon={faTruckFast} />
-            </span>
-            <div>
-              <h3 id="transfer-modal-title">Transfer Detail: {transfer.reference}</h3>
-              <p className="modal-subtitle">
-                {transfer.fromFacility} → {transfer.toFacility}
-              </p>
-            </div>
-          </div>
-          <div className="modal-header-actions">
-            <span className={`status status-${transfer.status}`}>
-              {transferStatusLabel(transfer.status)}
-            </span>
-            <button
-              type="button"
-              className="modal-close-btn"
-              onClick={onClose}
-              aria-label="Close transfer modal"
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </button>
-          </div>
-        </div>
+    <Modal
+      onClose={onClose}
+      labelledBy="transfer-modal-title"
+      title={`Transfer Detail: ${transfer.reference}`}
+      subtitle={`${transfer.fromFacility} → ${transfer.toFacility}`}
+      icon={faTruckFast}
+      className="transfer-modal"
+      headerActions={
+        <Badge status={transfer.status}>
+          {transferStatusLabel(transfer.status)}
+        </Badge>
+      }
+    >
 
         {feedback && (
           <div className="modal-feedback-banner">
@@ -122,101 +102,78 @@ export function TransferDetailModal({
           {/* Stepper Timeline */}
           <div className="transfer-timeline-card">
             <h4>Transfer Lifecycle & Evidence</h4>
-            <div className="timeline-steps">
-              <div className="timeline-step is-complete">
-                <div className="step-circle">
-                  <FontAwesomeIcon icon={faCircleCheck} />
-                </div>
-                <div className="step-content">
-                  <strong>07:45 · Request Created</strong>
-                  <p>{transfer.toFacility} reported stockout</p>
-                </div>
-              </div>
-
-              <div className="timeline-step is-complete">
-                <div className="step-circle">
-                  <FontAwesomeIcon icon={faCircleCheck} />
-                </div>
-                <div className="step-content">
-                  <strong>07:51 · Source Custodian Confirmed</strong>
-                  <p>{transfer.fromFacility} reserved stock (safety floor untouched)</p>
-                </div>
-              </div>
-
-              <div className="timeline-step is-complete">
-                <div className="step-circle">
-                  <FontAwesomeIcon icon={faShieldHalved} />
-                </div>
-                <div className="step-content">
-                  <strong>07:58 · Tamper Seal #{transfer.sealNumber ?? '7842'} Verified & Dispatched</strong>
-                  <p>Released to courier {transfer.courierName ?? 'Ade Okafor'}</p>
-                </div>
-              </div>
-
-              <div className="timeline-step is-current">
-                <div className="step-circle">
-                  <FontAwesomeIcon icon={faTruckFast} />
-                </div>
-                <div className="step-content">
-                  <strong>08:02 · In Transit</strong>
-                  <p>ETA {transfer.etaMinutes ?? 4} min to {transfer.toFacility}</p>
-                </div>
-              </div>
-
-              <div className="timeline-step is-future">
-                <div className="step-circle">
-                  <FontAwesomeIcon icon={faKey} />
-                </div>
-                <div className="step-content">
-                  <strong>Pending · Custody Verification PIN</strong>
-                  <p>Receiver must verify 4-digit code (e.g. 5082) on delivery</p>
-                </div>
-              </div>
-            </div>
+            <OrderTimeline
+              currentIndex={3}
+              etaLabel={`ETA ${transfer.etaMinutes ?? 4} min to ${transfer.toFacility}`}
+              steps={[
+                {
+                  title: '07:45 · Request Created',
+                  detail: `${transfer.toFacility} reported stockout`,
+                },
+                {
+                  title: '07:51 · Source Custodian Confirmed',
+                  detail: `${transfer.fromFacility} reserved stock (safety floor untouched)`,
+                },
+                {
+                  title: `07:58 · Tamper Seal #${transfer.sealNumber ?? '7842'} Verified & Dispatched`,
+                  detail: `Released to courier ${transfer.courierName ?? 'Ade Okafor'}`,
+                  icon: faShieldHalved,
+                },
+                {
+                  title: '08:02 · In Transit',
+                  detail: `ETA ${transfer.etaMinutes ?? 4} min to ${transfer.toFacility}`,
+                  icon: faTruckFast,
+                },
+                {
+                  title: 'Pending · Custody Verification PIN',
+                  detail: 'Receiver must verify 4-digit code (e.g. 5082) on delivery',
+                  icon: faKey,
+                },
+              ]}
+            />
           </div>
 
           {/* Exception Workbench Actions */}
           <div className="modal-actions-section">
             <h4>LGA Operator Exception Controls</h4>
             <div className="action-buttons-row">
-              <button
-                type="button"
-                className="action-pill-btn"
+              <Button
+                variant="secondary"
+                icon={faPhone}
                 onClick={() => handleAction('Calling Ade Okafor (+234 801 000 0010)...')}
               >
-                <FontAwesomeIcon icon={faPhone} /> Call Courier
-              </button>
-              <button
-                type="button"
-                className="action-pill-btn"
+                Call Courier
+              </Button>
+              <Button
+                variant="secondary"
+                icon={faKey}
                 onClick={() =>
                   handleAction('Handover reset issued: Authorized single-use PIN sent to receiver.')
                 }
               >
-                <FontAwesomeIcon icon={faKey} /> Reset PIN (5082)
-              </button>
-              <button
-                type="button"
-                className="action-pill-btn"
+                Reset PIN (5082)
+              </Button>
+              <Button
+                variant="secondary"
+                icon={faBoxesStacked}
                 onClick={() =>
                   handleAction('Emergency buffer dispatched from Ota Central Medical Store.')
                 }
               >
-                <FontAwesomeIcon icon={faBoxesStacked} /> Central Store Buffer
-              </button>
-              <button
-                type="button"
-                className="action-pill-btn is-danger"
+                Central Store Buffer
+              </Button>
+              <Button
+                variant="danger"
+                icon={faRotateRight}
                 onClick={() =>
                   handleAction('Transfer re-assigned to backup courier Babatunde Alabi.')
                 }
               >
-                <FontAwesomeIcon icon={faRotateRight} /> Reassign Courier
-              </button>
+                Reassign Courier
+              </Button>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

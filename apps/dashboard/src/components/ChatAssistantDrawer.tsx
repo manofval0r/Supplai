@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faComments,
   faPaperPlane,
-  faXmark,
   faFlask,
   faTruckFast,
   faShieldHalved,
@@ -19,6 +18,7 @@ import {
   defaultChatQuickPrompts,
 } from '@supplai/contracts';
 import { querySupplaiAssistant } from '../data/api';
+import { Drawer, Button, IconButton } from './ui';
 
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
@@ -103,43 +103,28 @@ export function ChatAssistantDrawer({
   if (!isOpen) return null;
 
   return (
-    <div className="drawer-overlay" onClick={onClose}>
-      <aside
-        className="drawer-panel chat-drawer"
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Supplai Assistant Chat"
-      >
-        <div className="drawer-header">
-          <div className="drawer-title-group">
-            <span className="drawer-icon">
-              <FontAwesomeIcon icon={faComments} />
-            </span>
-            <div>
-              <h3>Supplai LGA Assistant</h3>
-              <p className="drawer-subtitle">
-                <span className="live-dot" /> Online • Dispatch & Safety Copilot
-              </p>
-            </div>
-          </div>
-          <div className="drawer-header-actions">
-            <button
-              type="button"
-              className="drawer-action-btn"
-              onClick={handleReset}
-              title="Reset conversation"
-            >
-              <FontAwesomeIcon icon={faRotateRight} /> Reset
-            </button>
-            <button
-              type="button"
-              className="drawer-close-btn"
-              onClick={onClose}
-              aria-label="Close assistant"
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </button>
-          </div>
-        </div>
+    <Drawer
+      onClose={onClose}
+      ariaLabel="Supplai Assistant Chat"
+      title="Supplai LGA Assistant"
+      subtitle={
+        <>
+          <span className="live-dot" /> Online • Dispatch & Safety Copilot
+        </>
+      }
+      icon={faComments}
+      className="chat-drawer"
+      headerActions={
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={faRotateRight}
+          onClick={handleReset}
+        >
+          Reset
+        </Button>
+      }
+    >
 
         {/* Message Thread */}
         <div className="chat-messages-container" ref={scrollRef}>
@@ -231,17 +216,16 @@ export function ChatAssistantDrawer({
             placeholder="Ask about stock availability, transport rules, or PINs..."
             disabled={isTyping}
           />
-          <button
+          <IconButton
             type="submit"
+            icon={faPaperPlane}
+            label="Send query"
+            tone="cobalt"
             className="chat-send-btn"
             disabled={!inputText.trim() || isTyping}
-            aria-label="Send query"
-          >
-            <FontAwesomeIcon icon={faPaperPlane} />
-          </button>
+          />
         </form>
-      </aside>
-    </div>
+    </Drawer>
   );
 }
 
@@ -295,8 +279,10 @@ function ContextCardRenderer({
           </span>
         </div>
         {onRequestTransfer && card.canRequest && (
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="md"
+            block
             className="card-cta-btn"
             onClick={() =>
               onRequestTransfer(
@@ -307,7 +293,7 @@ function ContextCardRenderer({
             }
           >
             {card.requestActionText}
-          </button>
+          </Button>
         )}
       </div>
     );

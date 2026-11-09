@@ -314,7 +314,7 @@ export default function HeroIllustration() {
             x="265"
             y="340"
             textAnchor="middle"
-            fontFamily="'Atkinson Hyperlegible', sans-serif"
+            fontFamily="var(--font-sans)"
             fontWeight="700"
             fontSize="30"
             fill="var(--brand-blue-deep)"
