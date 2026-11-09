@@ -14,16 +14,26 @@
     "android": {
       "package": "com.supplai.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#1558C9",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
-    "plugins": ["expo-notifications", "expo-font", "expo-asset"],
+    "plugins": [
+      "expo-notifications",
+      "expo-font",
+      "expo-asset"
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "db127b8e-a89d-47b1-8d84-8986e5e19cd5"
+      }
+    },
+    "owner": "manofval0r"
   }
 }

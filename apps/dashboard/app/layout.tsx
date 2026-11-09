@@ -13,6 +13,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'Supplai | LGA Operations',
   description: 'Medicine movement, made visible.',
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export const viewport: Viewport = {
