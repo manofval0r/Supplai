@@ -69,7 +69,11 @@ const ROUTE_COORDINATES: [number, number][] = [
   [7.2305, 3.0535],
 ];
 
-export function MapLibreMap() {
+export function MapLibreMap({
+  onAction,
+}: {
+  onAction?: (message: string) => void;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [provider, setProvider] = useState<MapProvider>('openfreemap');
   const [mapError, setMapError] = useState<string | null>(null);
@@ -546,7 +550,9 @@ export function MapLibreMap() {
               type="button"
               className="popup-btn-primary"
               onClick={() => {
-                alert(`Querying peer surplus for ${selectedFacility.name}...`);
+                onAction?.(
+                  `Querying peer surplus for ${selectedFacility.name}...`,
+                );
               }}
             >
               Check Availability

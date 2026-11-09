@@ -4046,3 +4046,273 @@ body {
     margin-inline: var(--sp-4);
   }
 }
+
+/* Responsive safety net for every service page and shared surface. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-shell,
+.app-shell > main,
+.content,
+.dashboard-grid,
+.panel,
+.detail-panel,
+.map-panel,
+.transfer-panel,
+.feed-panel,
+.attention-panel {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.topbar-search {
+  min-width: 0;
+  max-width: min(420px, 42vw);
+}
+
+.ui-search {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ui-search__input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.web-map-container,
+.web-map-viewport,
+.nigeria-map,
+.ward-map-wrap {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.web-map-viewport {
+  overflow: hidden;
+}
+
+.web-maplibre-canvas,
+.schematic-svg,
+.nigeria-map__svg svg {
+  max-width: 100%;
+}
+
+.table-row,
+.attention-row,
+.transfer-card__top,
+.transfer-route,
+.panel-heading {
+  min-width: 0;
+}
+
+.table-row > *,
+.attention-row > *,
+.panel-heading > * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.table-row span,
+.attention-row small,
+.transfer-route span {
+  overflow-wrap: anywhere;
+}
+
+.alert-center-button {
+  display: flex;
+  min-height: var(--tap);
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  margin: var(--sp-5) 0;
+  padding: 0 var(--sp-3);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--cobalt-deep);
+  color: var(--hero-ink);
+  font: inherit;
+  font-weight: var(--fw-semi);
+  text-align: left;
+}
+
+.alert-center-button:hover {
+  background: var(--cobalt);
+}
+
+.alert-center-button b {
+  min-width: 22px;
+  margin-left: auto;
+  border-radius: var(--r-pill);
+  background: var(--danger);
+  color: var(--hero-ink);
+  font-size: var(--fs-caption);
+  line-height: 22px;
+  text-align: center;
+}
+
+.app-toast {
+  position: fixed;
+  right: var(--sp-5);
+  bottom: calc(var(--dock-h) + var(--sp-5));
+  z-index: var(--z-toast);
+  display: flex;
+  max-width: min(440px, calc(100vw - var(--sp-8)));
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--tint-strong);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+
+.app-toast svg {
+  flex: 0 0 auto;
+  color: var(--success);
+}
+
+@media (max-width: 1100px) {
+  .topbar-search {
+    max-width: 32vw;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .transfer-panel {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .topbar-title {
+    min-width: 0;
+  }
+
+  .topbar-title h1 {
+    overflow-wrap: anywhere;
+  }
+
+  .topbar-search {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+  }
+
+  .topbar-actions {
+    position: static;
+    min-width: 0;
+  }
+
+  .content {
+    width: 100%;
+    padding-inline: var(--sp-4);
+  }
+
+  .scenario-lab-bar,
+  .detail-panel,
+  .panel {
+    width: 100%;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .panel-heading > :last-child {
+    margin-left: auto;
+  }
+
+  .attention-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    flex-wrap: wrap;
+  }
+
+  .attention-row .row-action {
+    width: 100%;
+    margin-top: var(--sp-2);
+  }
+
+  .table-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-2);
+  }
+
+  .table-row span:nth-child(2) {
+    grid-column: auto;
+  }
+
+  .table-row .ui-badge {
+    justify-self: start;
+  }
+
+  .web-map-toolbar {
+    align-items: stretch;
+  }
+
+  .web-map-providers {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .map-provider-btn {
+    min-height: var(--tap);
+    justify-content: flex-start;
+  }
+
+  .web-map-status {
+    width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .web-map-viewport {
+    height: min(72vw, 380px);
+    min-height: 260px;
+  }
+
+  .ward-map {
+    height: min(68vw, 300px);
+  }
+
+  .facility-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .alert-center-button {
+    width: auto;
+    margin: var(--sp-3) 0 0;
+    padding-inline: var(--sp-4);
+  }
+
+  .app-shell .nav-rail nav {
+    max-width: 100%;
+  }
+
+  .app-shell .nav-rail .alert-center-button {
+    display: inline-flex;
+  }
+
+  .app-toast {
+    right: var(--sp-4);
+    bottom: calc(var(--dock-h) + var(--sp-4));
+    left: var(--sp-4);
+    max-width: none;
+  }
+}

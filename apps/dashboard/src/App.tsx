@@ -289,10 +289,20 @@ export default function App() {
   const [overview, setOverview] = useState(fixtureOverview);
   const [failures, setFailures] = useState(fixtureFailures);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [unreadAlertCount, setUnreadAlertCount] = useState(3);
   const [chatOpen, setChatOpen] = useState(false);
-  const [selectedTransfer, setSelectedTransfer] = useState<TransferDetailData | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const [selectedTransfer, setSelectedTransfer] =
+    useState<TransferDetailData | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [requestMedicineId, setRequestMedicineId] = useState<string | null>(null);
+  const [requestMedicineId, setRequestMedicineId] = useState<string | null>(
+    null,
+  );
+
+  const showActionFeedback = (message: string) => {
+    setActionFeedback(message);
+    window.setTimeout(() => setActionFeedback(null), 4200);
+  };
 
   const transitionTo = (callback: () => void) => {
     setIsPageTransitioning(true);
@@ -440,6 +450,16 @@ export default function App() {
               </button>
             ))}
           </nav>
+          <button
+            type="button"
+            className="alert-center-button"
+            onClick={() => setNotificationsOpen(true)}
+            aria-label={`Open alerts${unreadAlertCount ? `, ${unreadAlertCount} unread` : ''}`}
+          >
+            <FontAwesomeIcon icon={faBell} aria-hidden="true" />
+            <span className="nav-label">Alerts</span>
+            {unreadAlertCount > 0 && <b>{unreadAlertCount}</b>}
+          </button>
           <div className="sidebar-settings">
             <button
               className={settingsOpen ? 'nav-item is-active' : 'nav-item'}
@@ -519,7 +539,9 @@ export default function App() {
                 aria-label="Alerts"
               >
                 <span className="topbar-btn__label">Alerts</span>
-                <span className="badge-count">3</span>
+                {unreadAlertCount > 0 && (
+                  <span className="badge-count">{unreadAlertCount}</span>
+                )}
               </Button>
               <Button
                 variant="ghost"
@@ -546,14 +568,20 @@ export default function App() {
               />
               <StatTile
                 label="Transfers in flight"
-                value={formatMetric(overview.metrics.transfersInFlight, 'number')}
+                value={formatMetric(
+                  overview.metrics.transfersInFlight,
+                  'number',
+                )}
                 caption="Moving between facilities"
                 icon={faTruckFast}
                 tone="route"
               />
               <StatTile
                 label="Completed transfers"
-                value={formatMetric(overview.metrics.completedTransfers, 'number')}
+                value={formatMetric(
+                  overview.metrics.completedTransfers,
+                  'number',
+                )}
                 caption="This month"
                 icon={faCircleCheck}
                 tone="done"
@@ -642,7 +670,7 @@ export default function App() {
                     {fixtureFacilities.length} facilities
                   </span>
                 </div>
-                <MapLibreMap />
+                <MapLibreMap onAction={showActionFeedback} />
               </section>
               <section className="panel transfer-panel">
                 <div className="panel-heading">
@@ -871,7 +899,9 @@ export default function App() {
                 {activeNav === 'Stock' && (
                   <div className="medicine-grid">
                     {fixtureMedicines
-                      .filter((medicine) => matches(medicine.name, medicine.unit))
+                      .filter((medicine) =>
+                        matches(medicine.name, medicine.unit),
+                      )
                       .map((medicine) => {
                         const position = getStockPosition('PHC-B', medicine.id);
                         const onHand = position?.onHand ?? 0;
@@ -1011,10 +1041,17 @@ export default function App() {
         >
           <FontAwesomeIcon icon={faComments} />
         </button>
+        {actionFeedback && (
+          <div className="app-toast" role="status">
+            <FontAwesomeIcon icon={faCircleCheck} />
+            <span>{actionFeedback}</span>
+          </div>
+        )}
 
         <NotificationDrawer
           isOpen={notificationsOpen}
           onClose={() => setNotificationsOpen(false)}
+          onUnreadCountChange={setUnreadAlertCount}
           onSelectOrder={(ref) => {
             const found = overview.transfers.find((t) => t.reference === ref);
             if (found) {
@@ -1040,7 +1077,7 @@ export default function App() {
           isOpen={chatOpen}
           onClose={() => setChatOpen(false)}
           onRequestTransfer={(facName, drug, qty) => {
-            alert(
+            showActionFeedback(
               `Initiating transfer request: ${qty} units of ${drug} from ${facName}. Dispatching to local queue.`,
             );
           }}
@@ -1055,7 +1092,7 @@ export default function App() {
           medicineId={requestMedicineId}
           onClose={() => setRequestMedicineId(null)}
           onConfirm={(facName, drug, qty) => {
-            alert(
+            showActionFeedback(
               `Initiating transfer request: ${qty} units of ${drug} from ${facName}. Dispatching to local queue.`,
             );
           }}
