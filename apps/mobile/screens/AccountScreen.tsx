@@ -1742,7 +1742,11 @@ export function AccountScreen({
 
         {/* Sign Out */}
         <Press
-          onPress={() => onSelectTab('home')}
+          onPress={() => {
+            onSelectTab('home');
+            resetDemoState();
+            triggerSplash();
+          }}
           scaleTo={0.99}
           style={[styles.signOutBtn, { backgroundColor: colors.tile }]}
         >

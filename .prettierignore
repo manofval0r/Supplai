@@ -19,7 +19,4 @@ tools/presentation/
 tools/legacy-artifact-generation/
 
 # Generated data, Next.js artefacts, and exported map snapshots
-apps/dashboard/data/
-apps/dashboard/next-env.d.ts
-apps/dashboard/AGENTS.md
-apps/dashboard/Nigeria_Map_*.html
+apps/web/next-env.d.ts

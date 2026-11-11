@@ -1,0 +1,481 @@
+* {
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: Inter_400Regular;
+  src: url('/fonts/Inter_400Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inter_500Medium;
+  src: url('/fonts/Inter_500Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inter_600SemiBold;
+  src: url('/fonts/Inter_600SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Inter_700Bold;
+  src: url('/fonts/Inter_700Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  font-family:
+    Inter,
+    'Inter_400Regular',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  overscroll-behavior-y: none;
+  background: #f1f3f7;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+#supplai-root {
+  min-height: 100vh;
+  isolation: isolate;
+  overflow-x: clip;
+  background: #fff;
+}
+
+.app-loading {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at center, rgb(21 88 201 / 10%), transparent 32%),
+    #fff;
+}
+
+@media (min-width: 700px) {
+  #supplai-root {
+    width: calc(100% - 48px);
+    max-width: 1480px;
+    min-height: 100vh;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 1px solid #e6e9ef;
+    border-top: 0;
+    border-bottom: 0;
+    box-shadow: 0 12px 64px rgb(3 4 7 / 8%);
+  }
+
+  #web-app-shell {
+    min-height: 100vh;
+  }
+
+  #web-role-body,
+  #web-activity-content {
+    width: min(100%, 1220px);
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  #web-role-body {
+    padding: 44px 48px 12px !important;
+  }
+
+  #web-role-headline {
+    margin-bottom: 22px !important;
+    font-size: clamp(32px, 3.2vw, 46px) !important;
+    line-height: 1.12 !important;
+  }
+
+  #web-role-bento {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px !important;
+  }
+
+  #web-role-row {
+    display: contents !important;
+  }
+
+  #web-role-request,
+  #web-role-release,
+  #web-role-track,
+  #web-role-idle {
+    width: 100% !important;
+    height: 236px !important;
+    min-height: 236px !important;
+    border-radius: 28px !important;
+  }
+
+  #web-role-track,
+  #web-role-idle {
+    grid-column: 1 / -1;
+    height: 190px !important;
+    min-height: 190px !important;
+  }
+
+  #web-role-idle {
+    height: 150px !important;
+    min-height: 150px !important;
+  }
+
+  #web-role-request,
+  #web-role-release {
+    padding: 26px !important;
+  }
+
+  #web-role-request > div,
+  #web-role-release > div {
+    height: 100% !important;
+  }
+
+  #web-role-request > div > div:last-child,
+  #web-role-release > div > div:last-child {
+    width: 170px !important;
+    height: 160px !important;
+    right: 12px;
+    bottom: 6px;
+  }
+
+  #web-role-request > div > div:first-child > div:first-child,
+  #web-role-release > div > div:first-child > div:first-child {
+    font-size: 22px !important;
+    line-height: 28px !important;
+  }
+
+  #web-role-request > div > div:first-child > div:last-child,
+  #web-role-release > div > div:first-child > div:last-child {
+    font-size: 15px !important;
+    line-height: 20px !important;
+  }
+
+  #web-role-request > div > div:last-child > div,
+  #web-role-release > div > div:last-child > div {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  #web-role-track > div > div:last-child {
+    width: 190px !important;
+    height: 170px !important;
+    right: 16px;
+    bottom: 8px;
+  }
+
+  #web-role-track > div > div:last-child > div {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  #web-role-track > div > div:first-child {
+    max-width: 68%;
+  }
+
+  #web-role-track > div > div:first-child > div:first-child > div:first-child {
+    font-size: 21px !important;
+    line-height: 26px !important;
+  }
+
+  #web-role-track > div > div:first-child > div:nth-child(2) {
+    font-size: 15px !important;
+  }
+
+  #web-dock-wrap {
+    padding: 8px 24px 24px !important;
+  }
+
+  #web-dock {
+    width: min(100%, 880px);
+    margin: 0 auto;
+  }
+
+  #web-activity-content {
+    padding: 32px 48px 28px !important;
+  }
+
+  #web-activity-content > :not(:first-child) {
+    max-width: 100%;
+  }
+
+  #web-activity-content > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 22px;
+    align-content: start;
+  }
+
+  #web-activity-title,
+  #web-activity-stats,
+  #web-activity-filters {
+    grid-column: 1 / -1;
+  }
+
+  #web-activity-title {
+    font-size: 34px !important;
+    line-height: 40px !important;
+  }
+
+  #web-activity-live,
+  #web-activity-earlier {
+    min-width: 0;
+  }
+
+  #web-activity-content
+    > div:not(:has(#web-activity-earlier))
+    #web-activity-live {
+    grid-column: 1 / -1;
+  }
+
+  #web-activity-content
+    > div:not(:has(#web-activity-live))
+    #web-activity-earlier {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 900px) {
+  #supplai-root {
+    width: calc(100% - 24px);
+  }
+
+  #web-role-body {
+    padding: 36px 30px 12px !important;
+  }
+
+  #web-role-request,
+  #web-role-release,
+  #web-role-track,
+  #web-role-idle {
+    height: 210px !important;
+    min-height: 210px !important;
+  }
+}
+
+@media (max-width: 699px) {
+  body {
+    background: #fff;
+  }
+}
+
+:root {
+  --color-forest: #0b5240;
+  --color-orange: #ff8a4c;
+  --color-yellow: #ffc700;
+  --color-cream: #fff4d6;
+  --color-ink: #111410;
+  --color-body: #3e4d44;
+  --color-muted: #4b5a51;
+  --color-line: #d8cbb1;
+  --color-pink: #f6b7c7;
+  --color-sky: #a8ddf0;
+  --color-lavender: #d4c5f1;
+  --color-mint: #bfe5d0;
+  --font-display: Inter, 'Inter_700Bold', sans-serif;
+  --font-body: Inter, 'Inter_400Regular', sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --border-card: 2px solid var(--color-ink);
+  --shadow-card: 4px 4px 0 var(--color-ink);
+  --motion-fast: 150ms;
+  --motion-base: 250ms;
+}
+
+html,
+body {
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+body {
+  background: var(--color-cream);
+}
+
+#supplai-root {
+  background: var(--color-cream);
+}
+
+#web-app-shell {
+  background: var(--color-cream);
+}
+
+.app-loading {
+  background:
+    radial-gradient(circle at center, rgb(11 82 64 / 12%), transparent 34%),
+    var(--color-cream);
+}
+
+#web-role-body,
+#web-activity-content,
+#web-account-screen,
+#web-facility-screen {
+  width: min(100%, 1100px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+#web-account-screen,
+#web-facility-screen {
+  background: var(--color-cream);
+}
+
+#web-rider-hud {
+  border: var(--border-card);
+  box-shadow: var(--shadow-card);
+}
+
+#web-rider-sheet {
+  border: var(--border-card);
+  border-bottom-width: 0;
+  border-radius: 30px 30px 0 0;
+  box-shadow: 0 -4px 0 var(--color-ink);
+}
+
+#web-role-body {
+  padding-top: 40px !important;
+}
+
+#web-role-headline {
+  max-width: 860px;
+  margin-bottom: 24px !important;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 58px) !important;
+  letter-spacing: -0.055em !important;
+  line-height: 1.04 !important;
+}
+
+#web-role-request > div,
+#web-role-release > div,
+#web-role-track > div {
+  border: var(--border-card);
+  border-radius: var(--radius-card) !important;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+#web-role-request > div {
+  background: var(--color-orange) !important;
+}
+
+#web-role-release > div {
+  background: var(--color-yellow) !important;
+}
+
+#web-role-track > div {
+  background: var(--color-forest) !important;
+}
+
+#web-role-idle {
+  border: var(--border-card) !important;
+  border-radius: var(--radius-card) !important;
+  background: #fff !important;
+  box-shadow: var(--shadow-card);
+}
+
+#web-dock-wrap {
+  background: transparent !important;
+}
+
+#web-dock {
+  border: var(--border-card) !important;
+  box-shadow: var(--shadow-card);
+}
+
+#web-activity-content {
+  padding-top: 40px !important;
+}
+
+#web-activity-stats > div {
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+#web-activity-earlier > div {
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  background: #fff;
+}
+
+#web-activity-live > div > div {
+  border: var(--border-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[role='button']:focus-visible {
+  outline: 3px solid var(--color-forest);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #web-role-request:hover > div,
+  #web-role-release:hover > div,
+  #web-role-track:hover > div {
+    transform: translateY(-3px);
+    box-shadow: 6px 7px 0 var(--color-ink);
+  }
+}
+
+@media (max-width: 699px) {
+  body {
+    background: var(--color-cream);
+  }
+
+  #supplai-root {
+    width: 100%;
+    border: 0;
+    box-shadow: none;
+  }
+
+  #web-role-body,
+  #web-activity-content {
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+  }
+
+  #web-role-headline {
+    white-space: normal !important;
+    font-size: clamp(30px, 9vw, 42px) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

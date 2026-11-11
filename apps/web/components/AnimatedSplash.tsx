@@ -1,0 +1,651 @@
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
+import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { Art, HomeCorridorScene } from './LineArt';
+
+export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
+  const { reduceMotion, isDark } = useAppConfig();
+
+  const masterOpacity = useRef(new Animated.Value(1)).current;
+  const skyTranslateY = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.88)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const hillsTranslateY = useRef(new Animated.Value(30)).current;
+  const corridorTranslateY = useRef(new Animated.Value(0)).current;
+  const corridorScale = useRef(new Animated.Value(1.06)).current;
+
+  const cloudDriftA = useRef(new Animated.Value(0)).current;
+  const cloudDriftB = useRef(new Animated.Value(0)).current;
+  const curbScroll = useRef(new Animated.Value(0)).current;
+  const exitingRef = useRef(false);
+  const canDismissRef = useRef(false);
+
+  const triggerExit = useCallback(() => {
+    if (exitingRef.current) return;
+    exitingRef.current = true;
+
+    if (reduceMotion) {
+      onFinish();
+      return;
+    }
+
+    Animated.parallel([
+      Animated.timing(skyTranslateY, {
+        useNativeDriver: false,
+        toValue: -46,
+        duration: 520,
+      }),
+      Animated.timing(logoScale, {
+        useNativeDriver: false,
+        toValue: 0.92,
+        duration: 480,
+      }),
+      Animated.timing(hillsTranslateY, {
+        useNativeDriver: false,
+        toValue: 90,
+        duration: 520,
+      }),
+      // Morph the splash bottom corridor directly into the Home screen's bottom corridor slot
+      Animated.spring(corridorTranslateY, {
+        useNativeDriver: false,
+        toValue: -18,
+        stiffness: 180,
+        damping: 22,
+        mass: 0.8,
+      }),
+      Animated.spring(corridorScale, {
+        useNativeDriver: false,
+        toValue: 1,
+        stiffness: 180,
+        damping: 22,
+        mass: 0.8,
+      }),
+      Animated.timing(masterOpacity, {
+        useNativeDriver: false,
+        toValue: 0,
+        duration: 540,
+        delay: 80,
+      }),
+    ]).start(() => {
+      onFinish();
+    });
+  }, [
+    reduceMotion,
+    onFinish,
+    skyTranslateY,
+    logoScale,
+    hillsTranslateY,
+    corridorTranslateY,
+    corridorScale,
+    masterOpacity,
+  ]);
+
+  useEffect(() => {
+    // Entrance spring for logo & bottom 2D landscape
+    Animated.parallel([
+      Animated.spring(logoScale, {
+        useNativeDriver: false,
+        toValue: 1,
+        stiffness: 210,
+        damping: 18,
+      }),
+      Animated.timing(logoOpacity, {
+        useNativeDriver: false,
+        toValue: 1,
+        duration: 380,
+      }),
+      Animated.spring(hillsTranslateY, {
+        useNativeDriver: false,
+        toValue: 0,
+        stiffness: 180,
+        damping: 20,
+      }),
+    ]).start();
+
+    // Ambient cloud & 2D art loops
+    const loopA = Animated.loop(
+      Animated.sequence([
+        Animated.timing(cloudDriftA, {
+          useNativeDriver: false,
+          toValue: 1,
+          duration: 3600,
+        }),
+        Animated.timing(cloudDriftA, {
+          useNativeDriver: false,
+          toValue: 0,
+          duration: 3600,
+        }),
+      ]),
+    );
+
+    const loopB = Animated.loop(
+      Animated.sequence([
+        Animated.timing(cloudDriftB, {
+          useNativeDriver: false,
+          toValue: 1,
+          duration: 4200,
+        }),
+        Animated.timing(cloudDriftB, {
+          useNativeDriver: false,
+          toValue: 0,
+          duration: 4200,
+        }),
+      ]),
+    );
+
+    const loopCurb = Animated.loop(
+      Animated.timing(curbScroll, {
+        useNativeDriver: false,
+        toValue: 1,
+        duration: 900,
+      }),
+    );
+
+    if (!reduceMotion) {
+      loopA.start();
+      loopB.start();
+      loopCurb.start();
+    }
+
+    const timer = setTimeout(() => {
+      triggerExit();
+    }, 2600);
+
+    const dismissTimer = setTimeout(() => {
+      canDismissRef.current = true;
+    }, 700);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(dismissTimer);
+      loopA.stop();
+      loopB.stop();
+      loopCurb.stop();
+    };
+  }, [
+    logoScale,
+    logoOpacity,
+    hillsTranslateY,
+    cloudDriftA,
+    cloudDriftB,
+    curbScroll,
+    reduceMotion,
+    triggerExit,
+  ]);
+
+  const driftX1 = cloudDriftA.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-14, 18],
+  });
+  const driftY1 = cloudDriftA.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-6, 6],
+  });
+  const driftX2 = cloudDriftB.interpolate({
+    inputRange: [0, 1],
+    outputRange: [16, -16],
+  });
+  const curbTranslateX = curbScroll.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -48],
+  });
+
+  // Generated fence ticks for the healthcare corridor horizon.
+  const leftTicks = Array.from({ length: 18 }, (_, i) => 28 + i * 5.5);
+  const rightTicks = Array.from({ length: 18 }, (_, i) => 232 + i * 5.5);
+
+  const splashBg = isDark ? '#081811' : designTokens.colors.cream;
+  const cloudFill = designTokens.colors.forest;
+  const cloudFillOpacity = isDark ? 0.28 : 0.08;
+  const cloudStroke = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const cloudStrokeOpacity = isDark ? 0.35 : 0.22;
+
+  const artColor = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const artFill = isDark ? '#16745A' : '#DDECE4';
+  const artHl = isDark ? 'rgba(255,199,0,0.45)' : 'rgba(255,199,0,0.6)';
+  const artOpacity = isDark ? 0.55 : 0.75;
+
+  const wordmarkColor = isDark ? '#F8F5EC' : designTokens.colors.ink;
+  const tagPillBg = isDark
+    ? 'rgba(22, 116, 90, 0.25)'
+    : 'rgba(11, 82, 64, 0.08)';
+  const tagPillBorder = isDark
+    ? 'rgba(255, 199, 0, 0.35)'
+    : 'rgba(11, 82, 64, 0.22)';
+  const tagTextColor = isDark ? '#FFD44D' : designTokens.colors.forest;
+
+  const fenceStroke = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const fenceOpacity = isDark ? 0.55 : 0.32;
+  const backHillFill = isDark ? '#0D2118' : '#E5F0E7';
+  const midHillFill = isDark ? '#193A2B' : '#D9E7D7';
+  const treeFill = designTokens.colors.forest;
+  const treeOpacity = isDark ? 0.55 : 0.28;
+  const stageFill = isDark ? '#081811' : '#FFF0CC';
+
+  const curbWrapBorder = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const curbSegmentDark = isDark ? '#081811' : designTokens.colors.forest;
+
+  return (
+    <Animated.View
+      style={[
+        styles.overlay,
+        { backgroundColor: splashBg, opacity: masterOpacity },
+      ]}
+    >
+      <Pressable
+        style={styles.pressFill}
+        onPress={() => {
+          if (canDismissRef.current) {
+            triggerExit();
+          }
+        }}
+      >
+        {/* Animated Upper Sky with 2D Clouds & Medical Line Art */}
+        <Animated.View
+          style={[
+            styles.skyContainer,
+            { transform: [{ translateY: skyTranslateY }] },
+          ]}
+        >
+          {/* Top-left large cloud */}
+          <Animated.View
+            style={[
+              styles.cloudTopLeft,
+              { transform: [{ translateX: driftX1 }] },
+            ]}
+          >
+            <Svg width={130} height={74} viewBox="0 0 130 74">
+              <Path
+                d="M18 58 H104 A16 16 0 0 0 104 28 A22 22 0 0 0 64 16 A26 26 0 0 0 16 32 A14 14 0 0 0 18 58 Z"
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity}
+                stroke={cloudStroke}
+                strokeOpacity={cloudStrokeOpacity}
+                strokeWidth={1.5}
+              />
+            </Svg>
+          </Animated.View>
+
+          {/* Upper-center silhouette cloud */}
+          <Animated.View
+            style={[
+              styles.cloudUpperCenter,
+              { transform: [{ translateX: driftX2 }] },
+            ]}
+          >
+            <Svg width={120} height={44} viewBox="0 0 120 44">
+              <Path
+                d="M12 36 H108 C108 24 96 18 86 20 C80 10 64 8 54 16 C44 12 30 16 26 24 C18 24 12 29 12 36 Z"
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity + 0.08}
+              />
+            </Svg>
+          </Animated.View>
+
+          {/* Right mid cloud */}
+          <Animated.View
+            style={[
+              styles.cloudMidRight,
+              { transform: [{ translateX: driftX1 }] },
+            ]}
+          >
+            <Svg width={90} height={36} viewBox="0 0 90 36">
+              <Path
+                d="M10 30 H80 C80 20 70 16 62 18 C56 10 42 10 36 17 C26 15 16 20 10 30 Z"
+                fill={cloudFill}
+                fillOpacity={cloudFillOpacity + 0.04}
+              />
+            </Svg>
+          </Animated.View>
+
+          {/* Floating 2D Line Art in the Sky */}
+          <Animated.View
+            style={[
+              styles.skyArtLeft,
+              {
+                transform: [
+                  { translateY: driftY1 },
+                  { translateX: driftX1 },
+                  { rotate: '-12deg' },
+                ],
+              },
+            ]}
+          >
+            <Art
+              name="sachet"
+              size={76}
+              color={artColor}
+              fill={artFill}
+              hlColor={artHl}
+              withHighlight
+              opacity={artOpacity}
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.skyArtRight,
+              {
+                transform: [
+                  { translateY: driftY1 },
+                  { translateX: driftX2 },
+                  { rotate: '14deg' },
+                ],
+              },
+            ]}
+          >
+            <Art
+              name="pills"
+              size={80}
+              color={artColor}
+              fill={artFill}
+              hlColor={artHl}
+              withHighlight
+              opacity={artOpacity}
+            />
+          </Animated.View>
+
+          <Animated.View
+            style={[
+              styles.skyArtRoute,
+              { transform: [{ translateY: driftY1 }] },
+            ]}
+          >
+            <Art
+              name="route"
+              size={72}
+              color={artColor}
+              fill={artFill}
+              opacity={artOpacity - 0.2}
+            />
+          </Animated.View>
+        </Animated.View>
+
+        {/* Centered Supplai brand mark. */}
+        <Animated.View
+          style={[
+            styles.centerBrand,
+            {
+              opacity: logoOpacity,
+              transform: [{ translateY: skyTranslateY }, { scale: logoScale }],
+            },
+          ]}
+        >
+          <View style={styles.brandRow}>
+            <View style={styles.brandBadge}>
+              <Svg width={36} height={36} viewBox="0 0 36 36">
+                <Circle
+                  cx="18"
+                  cy="18"
+                  r="16"
+                  fill={designTokens.colors.yellow}
+                />
+                <Path
+                  d="M4 30 L11 25 L8 21 Z"
+                  fill={designTokens.colors.yellow}
+                />
+                <Path
+                  d="M18 11 V25 M11 18 H25"
+                  stroke={designTokens.colors.ink}
+                  strokeWidth={3.6}
+                  strokeLinecap="round"
+                />
+              </Svg>
+            </View>
+            <Text style={[styles.brandWordmark, { color: wordmarkColor }]}>
+              Supplai
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.brandTagPill,
+              {
+                backgroundColor: tagPillBg,
+                borderColor: tagPillBorder,
+              },
+            ]}
+          >
+            <Text style={[styles.brandTagText, { color: tagTextColor }]}>
+              CLINIC-TO-CLINIC MEDICINE CORRIDOR
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* Bottom 2D Animated Horizon, Rolling Hills & Corridor Scene */}
+        <View style={styles.bottomStage}>
+          {/* Rolling Hills & Horizon Ridge (fades/glides on exit) */}
+          <Animated.View
+            style={[
+              styles.hillsWrap,
+              { transform: [{ translateY: hillsTranslateY }] },
+            ]}
+          >
+            <Svg width="100%" height={175} viewBox="0 0 360 175">
+              {/* Horizon vertical corridor picket ticks */}
+              <G
+                stroke={fenceStroke}
+                strokeOpacity={fenceOpacity}
+                strokeWidth={1.2}
+              >
+                {leftTicks.map((x, idx) => (
+                  <Path
+                    key={`lt-${idx}`}
+                    d={`M${x} ${64 - Math.sin(idx * 0.18) * 6} V${86}`}
+                  />
+                ))}
+                {rightTicks.map((x, idx) => (
+                  <Path
+                    key={`rt-${idx}`}
+                    d={`M${x} ${60 + Math.sin(idx * 0.18) * 6} V${86}`}
+                  />
+                ))}
+              </G>
+
+              {/* Back rolling hill */}
+              <Path
+                d="M-20 110 Q 180 42 380 110 L380 175 L-20 175 Z"
+                fill={backHillFill}
+              />
+              {/* Mid rolling hill */}
+              <Path
+                d="M-20 128 Q 110 78 250 118 T 380 120 L380 175 L-20 175 Z"
+                fill={midHillFill}
+              />
+              {/* stylized 2D trees / canopies along the corridor */}
+              <G fill={treeFill} fillOpacity={treeOpacity}>
+                <Circle cx="52" cy="116" r="22" />
+                <Circle cx="74" cy="122" r="16" />
+                <Circle cx="154" cy="118" r="20" />
+                <Circle cx="182" cy="115" r="23" />
+                <Circle cx="288" cy="118" r="24" />
+                <Circle cx="316" cy="122" r="18" />
+              </G>
+              {/* Foreground corridor stage */}
+              <Rect x="0" y="126" width="360" height="49" fill={stageFill} />
+            </Svg>
+          </Animated.View>
+
+          {/* The Live 2D Moving Corridor Scene — positioned so it aligns with Home's bottom corridor */}
+          <Animated.View
+            style={[
+              styles.corridorAnchor,
+              {
+                transform: [
+                  { translateY: corridorTranslateY },
+                  { scale: corridorScale },
+                ],
+              },
+            ]}
+          >
+            <HomeCorridorScene forceDark={isDark} height={68} />
+          </Animated.View>
+
+          {/* Animated scrolling curb bar at the very bottom (like Chowdeck's bottom track) */}
+          <Animated.View
+            style={[
+              styles.curbWrap,
+              {
+                borderTopColor: curbWrapBorder,
+                transform: [{ translateY: hillsTranslateY }],
+              },
+            ]}
+          >
+            <Animated.View
+              style={[
+                styles.curbStrip,
+                { transform: [{ translateX: curbTranslateX }] },
+              ]}
+            >
+              {Array.from({ length: 14 }).map((_, i) => (
+                <View key={i} style={styles.curbSegment}>
+                  <View style={styles.curbLight} />
+                  <View
+                    style={[
+                      styles.curbDark,
+                      { backgroundColor: curbSegmentDark },
+                    ]}
+                  />
+                </View>
+              ))}
+            </Animated.View>
+          </Animated.View>
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: -48,
+    left: 0,
+    right: 0,
+    bottom: -24,
+    zIndex: 999,
+    elevation: 999,
+  },
+  pressFill: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  skyContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  cloudTopLeft: {
+    position: 'absolute',
+    top: 18,
+    left: -18,
+  },
+  cloudUpperCenter: {
+    position: 'absolute',
+    top: 138,
+    alignSelf: 'center',
+  },
+  cloudMidRight: {
+    position: 'absolute',
+    top: 230,
+    right: -12,
+  },
+  skyArtLeft: {
+    position: 'absolute',
+    top: 96,
+    left: 26,
+  },
+  skyArtRight: {
+    position: 'absolute',
+    top: 88,
+    right: 24,
+  },
+  skyArtRoute: {
+    position: 'absolute',
+    top: 190,
+    left: 44,
+  },
+  centerBrand: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 50,
+  },
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  brandBadge: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandWordmark: {
+    fontFamily: ui.font.bold,
+    fontSize: 38,
+    letterSpacing: -1.1,
+    paddingRight: 4,
+  },
+  brandTagPill: {
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  brandTagText: {
+    fontFamily: ui.font.bold,
+    fontSize: 10,
+    letterSpacing: 1.1,
+  },
+  bottomStage: {
+    width: '100%',
+    height: 195,
+    justifyContent: 'flex-end',
+    position: 'relative',
+  },
+  hillsWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 18,
+  },
+  corridorAnchor: {
+    width: '100%',
+    paddingHorizontal: 18,
+    marginBottom: 74, // Matches the Home screen corridor position right above FloatingDock
+  },
+  curbWrap: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 18,
+    backgroundColor: designTokens.colors.forest,
+    overflow: 'hidden',
+    borderTopWidth: 1.5,
+  },
+  curbStrip: {
+    flexDirection: 'row',
+    width: 700,
+    height: '100%',
+  },
+  curbSegment: {
+    flexDirection: 'row',
+    width: 48,
+    height: '100%',
+  },
+  curbLight: {
+    width: 24,
+    height: '100%',
+    backgroundColor: designTokens.colors.yellow,
+  },
+  curbDark: {
+    width: 24,
+    height: '100%',
+  },
+});

@@ -5,8 +5,8 @@ Supplai is a TypeScript monorepo for the Social Logistics Challenge prototype: a
 ## Repository layout
 
 - `apps/api` — Fastify API, SMS workflow, matching, confirmation, delivery proof, and ledger.
-- `apps/dashboard` — React web operations console for LGA officers.
 - `apps/mobile` — Expo facility and rider app.
+- `apps/web` — independent Next.js web version of the mobile app, built with React Native Web.
 - `packages` — shared contracts and configuration.
 - `supabase` — database migrations and seed data.
 - `references` — source material brought in from outside the project.
@@ -23,7 +23,7 @@ Supplai is a TypeScript monorepo for the Social Logistics Challenge prototype: a
 ```bash
 npm install
 npm run dev:api                              # http://127.0.0.1:3000
-npm run dev -w @supplai/dashboard            # http://127.0.0.1:3001
+npm run dev -w @supplai/web                  # http://127.0.0.1:3002
 npm run start -w @supplai/mobile             # Expo dev server
 ```
 
