@@ -1075,8 +1075,7 @@
   }
 
   .heroScene {
-    width: 100%;
-    justify-self: center;
+    display: none;
   }
 
   .featureSection {
@@ -1331,10 +1330,6 @@
 
   .heroActions a {
     justify-content: space-between;
-  }
-
-  .heroScene {
-    border-radius: 31% 31% 17px 17px;
   }
 
   .sectionTitle {
