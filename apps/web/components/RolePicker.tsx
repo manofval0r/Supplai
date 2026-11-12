@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { designTokens, ui, useAppConfig } from '../lib/theme';
 import { Stage3D } from './Stage3D';
 import { Art } from './LineArt';
@@ -29,6 +29,7 @@ export function RolePicker({
     triggerSplash,
     s,
   } = useAppConfig();
+  const compactCards = useWindowDimensions().width < 1024;
 
   return (
     <View
@@ -99,7 +100,10 @@ export function RolePicker({
 
         {/* Bento Grid */}
         <View nativeID="web-role-bento" style={styles.bento}>
-          <View nativeID="web-role-row" style={styles.bentoRow}>
+          <View
+            nativeID="web-role-row"
+            style={[styles.bentoRow, compactCards && styles.bentoRowCompact]}
+          >
             {/* Tile 1: Request stock */}
             <Press
               className="web-role-request"
@@ -108,12 +112,15 @@ export function RolePicker({
                 styles.tileLg,
                 {
                   backgroundColor: colors.orange,
-                  height: s(176),
+                  width: compactCards ? '100%' : undefined,
+                  flex: compactCards ? 0 : 1,
+                  height: compactCards ? s(130) : s(176),
                   borderRadius: s(24),
+                  padding: compactCards ? 14 : 16,
                 },
               ]}
             >
-              <View>
+              <View style={compactCards ? styles.tileCopyCompact : undefined}>
                 <Text
                   style={[
                     styles.tileTitle,
@@ -139,11 +146,17 @@ export function RolePicker({
                   Nearest clinic is 7 min away
                 </Text>
               </View>
-              <View style={styles.miniCanvasLg} pointerEvents="none">
+              <View
+                style={[
+                  styles.miniCanvasLg,
+                  compactCards && styles.miniCanvasLgCompact,
+                ]}
+                pointerEvents="none"
+              >
                 <Stage3D
                   kind="mini-req"
-                  width={106}
-                  height={98}
+                  width={compactCards ? 88 : 106}
+                  height={compactCards ? 82 : 98}
                   interactive={false}
                 />
               </View>
@@ -157,12 +170,15 @@ export function RolePicker({
                 styles.tileLg,
                 {
                   backgroundColor: colors.yellow,
-                  height: s(176),
+                  width: compactCards ? '100%' : undefined,
+                  flex: compactCards ? 0 : 1,
+                  height: compactCards ? s(130) : s(176),
                   borderRadius: s(24),
+                  padding: compactCards ? 14 : 16,
                 },
               ]}
             >
-              <View>
+              <View style={compactCards ? styles.tileCopyCompact : undefined}>
                 <Text
                   style={[
                     styles.tileTitle,
@@ -188,11 +204,17 @@ export function RolePicker({
                   Send what you can spare
                 </Text>
               </View>
-              <View style={styles.miniCanvasLg} pointerEvents="none">
+              <View
+                style={[
+                  styles.miniCanvasLg,
+                  compactCards && styles.miniCanvasLgCompact,
+                ]}
+                pointerEvents="none"
+              >
                 <Stage3D
                   kind="mini-rel"
-                  width={106}
-                  height={98}
+                  width={compactCards ? 88 : 106}
+                  height={compactCards ? 82 : 98}
                   interactive={false}
                 />
               </View>
@@ -208,12 +230,19 @@ export function RolePicker({
                 styles.tileWide,
                 {
                   backgroundColor: colors.heroTileBg,
-                  minHeight: s(124),
+                  minHeight: compactCards ? s(136) : s(124),
                   borderRadius: s(24),
+                  paddingHorizontal: compactCards ? 14 : 18,
+                  paddingVertical: compactCards ? 12 : 16,
                 },
               ]}
             >
-              <View style={styles.tileWideCopy}>
+              <View
+                style={[
+                  styles.tileWideCopy,
+                  compactCards && styles.tileWideCopyCompact,
+                ]}
+              >
                 <View
                   style={{
                     flexDirection: 'row',
@@ -317,11 +346,17 @@ export function RolePicker({
                   </View>
                 </View>
               </View>
-              <View style={styles.miniCanvasWide} pointerEvents="none">
+              <View
+                style={[
+                  styles.miniCanvasWide,
+                  compactCards && styles.miniCanvasWideCompact,
+                ]}
+                pointerEvents="none"
+              >
                 <Stage3D
                   kind="mini-trk"
-                  width={106}
-                  height={96}
+                  width={compactCards ? 84 : 106}
+                  height={compactCards ? 76 : 96}
                   interactive={false}
                 />
               </View>
@@ -338,7 +373,9 @@ export function RolePicker({
                 },
               ]}
             >
-              <View style={{ flex: 1 }}>
+              <View
+                style={[{ flex: 1 }, compactCards && styles.tileCopyCompact]}
+              >
                 <Text
                   style={[
                     styles.tileTitle,
@@ -427,6 +464,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
+  bentoRowCompact: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  tileCopyCompact: {
+    maxWidth: '58%',
+    zIndex: 1,
+  },
   tileLg: {
     flex: 1,
     height: 176,
@@ -456,6 +501,12 @@ const styles = StyleSheet.create({
     width: 106,
     height: 98,
   },
+  miniCanvasLgCompact: {
+    right: 4,
+    bottom: 0,
+    width: 88,
+    height: 82,
+  },
   tileWide: {
     width: '100%',
     height: 104,
@@ -471,12 +522,21 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: 96,
   },
+  tileWideCopyCompact: {
+    paddingRight: 86,
+  },
   miniCanvasWide: {
     position: 'absolute',
     right: 4,
     bottom: 6,
     width: 106,
     height: 96,
+  },
+  miniCanvasWideCompact: {
+    right: 4,
+    bottom: 4,
+    width: 84,
+    height: 76,
   },
   tileIdle: {
     width: '100%',

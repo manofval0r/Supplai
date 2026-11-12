@@ -265,6 +265,53 @@ select {
   }
 }
 
+@media (min-width: 700px) and (max-width: 1023px) {
+  #web-role-bento {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  #web-role-row {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #web-role-request,
+  #web-role-release {
+    height: 160px !important;
+    min-height: 160px !important;
+    padding: 0 !important;
+  }
+
+  #web-role-request > div,
+  #web-role-release > div {
+    height: 160px !important;
+    min-height: 160px !important;
+  }
+
+  #web-role-request > div > div:last-child,
+  #web-role-release > div > div:last-child {
+    width: 128px !important;
+    height: 120px !important;
+    right: 12px;
+    bottom: 6px;
+  }
+
+  #web-role-track,
+  #web-role-track > div {
+    height: 160px !important;
+    min-height: 160px !important;
+  }
+
+  #web-role-track > div > div:last-child {
+    width: 140px !important;
+    height: 130px !important;
+    right: 12px;
+    bottom: 8px;
+  }
+}
+
 @media (max-width: 699px) {
   body {
     background: #fff;

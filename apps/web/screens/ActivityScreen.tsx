@@ -219,7 +219,7 @@ export function ActivityScreen({
                     />
                     <Art name={item.art} size={28} />
                   </View>
-                  <View style={{ flex: 1 }}>
+                  <View style={styles.rowCopy}>
                     <Text
                       style={[
                         styles.rowTitle,
@@ -393,6 +393,12 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingVertical: 14,
     paddingHorizontal: 16,
+  },
+  rowCopy: {
+    flex: 1,
+    margin: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
   },
   thumb: {
     width: 42,
