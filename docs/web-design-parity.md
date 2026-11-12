@@ -298,11 +298,11 @@ The landing page includes an interactive preview of the Expo app, not a static m
 
 - Component: `apps/web/components/AppPreview3D.tsx`.
 - Renders a Three.js phone with five screen textures: Home, Request, Release, Handover, Activity.
-- Textures live in `apps/web/public/preview/` and come from `140-facility-request-stage3d.png`, `92-v2-mobile-release-live.png`, `72-mobile-handover-pin-live.png`, `81-v2-mobile-activity-live.png`, and `128-light-default-live.png`.
+- Text-free screen artwork lives in `apps/web/public/preview/landing/`.
 - Drag rotates the phone. Tab buttons flip the screen texture. Pointer hover tilts it.
 - `prefers-reduced-motion` disables idle float and hover tilt but keeps drag.
 - WebGL failure falls back to a plain image of the active screen.
-- The download button reads `NEXT_PUBLIC_EXPO_PREVIEW_URL` and opens the latest build or Expo project page. No build URL is committed in source.
+- Landing CTAs use the existing `/login` route and section anchors; no external preview download CTA is rendered.
 - Tabs are real buttons with `role="tab"`, `aria-selected`, visible focus, and an `aria-live` caption.
 
 ### 10.3 Tests and environment
@@ -371,9 +371,8 @@ Then confirm all of the following.
 - [ ] Keyboard focus is visible on every interactive element.
 - [ ] No horizontal scroll at 320, 390, 768, 1024, 1440.
 - [ ] Fresh screenshots are saved for every route at 390 and 1440.
-- [ ] `Demo data` is visible on the dashboard, landing, login, Scenario Lab, and API fallback.
+- [ ] Demo data remains visible in the dashboard, login, Scenario Lab, and API fallback; the landing has no fictional facility or stock samples.
 - [ ] The app preview renders five screens, rotates on drag, and flips screens from the tabs.
-- [ ] The preview download link comes from `NEXT_PUBLIC_EXPO_PREVIEW_URL`.
 - [ ] `npm test -w @supplai/web` passes and `apps/web` has no server secret in any file.
 - [ ] `/lga` shows one decision from existing endpoints only and changes no contract.
 

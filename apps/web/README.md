@@ -24,10 +24,9 @@ It serves on http://localhost:3002. Start the API separately with
 Copy `.env.example` to `.env.local` and set only public values. This package
 must never hold server secrets.
 
-| Variable                       | Purpose                                           | Default                 |
-| ------------------------------ | ------------------------------------------------- | ----------------------- |
-| `NEXT_PUBLIC_API_URL`          | Base URL for the Supplai API                      | `http://localhost:3000` |
-| `NEXT_PUBLIC_EXPO_PREVIEW_URL` | Latest Android preview build or Expo project page | Expo project page       |
+| Variable              | Purpose                      | Default                 |
+| --------------------- | ---------------------------- | ----------------------- |
+| `NEXT_PUBLIC_API_URL` | Base URL for the Supplai API | `http://localhost:3000` |
 
 When the API is unreachable the screens continue in demo mode with fictional
 fixtures. Every fixture view is labelled as demo data in the UI.
@@ -45,7 +44,7 @@ that committed environment examples contain placeholders, not secrets.
 
 The native 3D product stage is rebuilt for the browser with Three.js on a
 WebGL canvas. The landing page also includes an interactive 3D phone preview
-loaded from `public/preview/home.png`.
+using text-free screen artwork from `public/preview/landing/`.
 
 ## Build
 

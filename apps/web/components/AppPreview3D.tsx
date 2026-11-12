@@ -3,42 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { contactShadow, makeEnvironment, roundedBox } from '../lib/three/kit';
+import { PREVIEW_SCREENS } from './landing/preview-screens';
 
-export const PREVIEW_SCREENS = [
-  {
-    id: 'home',
-    label: 'Home',
-    src: '/preview/home.png',
-    caption: 'Every active transfer, safety floor, and handover in one view.',
-  },
-  {
-    id: 'request',
-    label: 'Request',
-    src: '/preview/request.png',
-    caption:
-      'Facility teams request ORS or zinc against a confirmed stock view.',
-  },
-  {
-    id: 'release',
-    label: 'Release',
-    src: '/preview/release.png',
-    caption:
-      'The source custodian confirms stock, batch, and expiry before release.',
-  },
-  {
-    id: 'handover',
-    label: 'Handover',
-    src: '/preview/handover.png',
-    caption: 'Rider and facility both confirm the handover code and seal.',
-  },
-  {
-    id: 'activity',
-    label: 'Activity',
-    src: '/preview/activity.png',
-    caption:
-      'A readable ledger of requests, releases, and confirmed deliveries.',
-  },
-] as const;
+export { PREVIEW_SCREENS } from './landing/preview-screens';
 
 const PHONE = { w: 2.24, h: 4.72, d: 0.24, r: 0.3 };
 const SCREEN = { w: 1.95, h: 4.38 };

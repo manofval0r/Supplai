@@ -33,12 +33,7 @@ describe('web environment example', () => {
 
   it('documents the public browser variables', () => {
     const keys = entries.map((entry) => entry.key);
-    expect(keys).toEqual(
-      expect.arrayContaining([
-        'NEXT_PUBLIC_API_URL',
-        'NEXT_PUBLIC_EXPO_PREVIEW_URL',
-      ]),
-    );
+    expect(keys).toEqual(expect.arrayContaining(['NEXT_PUBLIC_API_URL']));
   });
 
   it('contains only NEXT_PUBLIC variables', () => {
