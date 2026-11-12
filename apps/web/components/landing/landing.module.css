@@ -553,7 +553,7 @@
   border-radius: 28px;
   background: var(--orange);
   box-shadow: var(--shadow);
-  scroll-margin-top: 100px;
+  scroll-margin-top: 104px;
 }
 
 .sectionTitle {
@@ -661,6 +661,7 @@
   border-block: var(--line);
   color: #fff;
   background: var(--forest);
+  scroll-margin-top: 104px;
 }
 
 .coveredNote {
@@ -832,6 +833,28 @@
   border: 2px solid var(--yellow);
   border-radius: 50%;
   content: '';
+}
+
+.phoneActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.downloadButton {
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 rgb(0 0 0 / 35%);
+  text-decoration: none;
+}
+
+.phoneNote {
+  margin: 14px 0 0;
+  color: rgb(255 255 255 / 62%);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .phoneSection :global(.app-preview) {

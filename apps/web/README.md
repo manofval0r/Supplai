@@ -24,9 +24,10 @@ It serves on http://localhost:3002. Start the API separately with
 Copy `.env.example` to `.env.local` and set only public values. This package
 must never hold server secrets.
 
-| Variable              | Purpose                      | Default                 |
-| --------------------- | ---------------------------- | ----------------------- |
-| `NEXT_PUBLIC_API_URL` | Base URL for the Supplai API | `http://localhost:3000` |
+| Variable                       | Purpose                                           | Default                 |
+| ------------------------------ | ------------------------------------------------- | ----------------------- |
+| `NEXT_PUBLIC_API_URL`          | Base URL for the Supplai API                      | `http://localhost:3000` |
+| `NEXT_PUBLIC_EXPO_PREVIEW_URL` | Latest Android preview build or Expo project page | Expo project page       |
 
 When the API is unreachable the screens continue in demo mode with fictional
 fixtures. Every fixture view is labelled as demo data in the UI.
