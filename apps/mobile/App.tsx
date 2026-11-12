@@ -55,16 +55,16 @@ function MainNavigator() {
         styles.safeArea,
         {
           backgroundColor: showSplash
-            ? (isDark ? '#030407' : colors.bg)
+            ? isDark
+              ? '#030407'
+              : colors.bg
             : mode === 'rider'
               ? '#e8ecf2'
               : colors.bg,
         },
       ]}
     >
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       <View style={styles.mainContent}>
         <View style={{ flex: 1 }}>

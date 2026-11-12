@@ -88,11 +88,7 @@ function makeCross(
 }
 
 export type Stage3DKind =
-  | 'drug'
-  | 'crate'
-  | 'mini-req'
-  | 'mini-rel'
-  | 'mini-trk';
+  'drug' | 'crate' | 'mini-req' | 'mini-rel' | 'mini-trk';
 
 export function Stage3D({
   kind,
@@ -196,7 +192,7 @@ export function Stage3D({
       g.WebGLRenderingContext = undefined;
       let renderer: THREE.WebGLRenderer;
       try {
-        renderer = new Renderer({ gl }) as unknown as THREE.WebGLRenderer;
+        renderer = new Renderer({ gl });
       } finally {
         if (savedWGL !== undefined) {
           g.WebGLRenderingContext = savedWGL;
@@ -566,7 +562,7 @@ export function Stage3D({
         for (let r = 0; r < 2; r++) {
           for (let col = 0; col < 5; col++) {
             const x = (col - 2) * 0.46;
-            const y = (r === 0 ? 0.42 : -0.42);
+            const y = r === 0 ? 0.42 : -0.42;
             const t = new THREE.Mesh(tabGeo, tabMat);
             t.position.set(x, y, 0.06);
             zincGrp.add(t);

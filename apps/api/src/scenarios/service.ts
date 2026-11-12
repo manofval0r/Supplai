@@ -45,7 +45,8 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'source_released',
         occurredAt: '2026-11-05T09:02:00.000Z',
         actorRole: 'source_custodian',
-        label: 'Batch ORS-DEMO-01 released above the safety floor with tamper seal 7842',
+        label:
+          'Batch ORS-DEMO-01 released above the safety floor with tamper seal 7842',
       },
       {
         sequence: 4,
@@ -87,21 +88,24 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'source_confirmation_requested',
         occurredAt: '2026-11-05T10:01:00.000Z',
         actorRole: 'system',
-        label: 'Safety floor algorithm evaluates Idera PHC on-hand stock (50 units)',
+        label:
+          'Safety floor algorithm evaluates Idera PHC on-hand stock (50 units)',
       },
       {
         sequence: 3,
         type: 'source_released',
         occurredAt: '2026-11-05T10:02:00.000Z',
         actorRole: 'source_custodian',
-        label: 'Source declines full 60 request; surplus capped to 20 to protect local safety floor (30)',
+        label:
+          'Source declines full 60 request; surplus capped to 20 to protect local safety floor (30)',
       },
       {
         sequence: 4,
         type: 'escalated',
         occurredAt: '2026-11-05T10:03:00.000Z',
         actorRole: 'system',
-        label: 'Remaining 40 units escalated to Ota Central Medical Store for routine replenishment',
+        label:
+          'Remaining 40 units escalated to Ota Central Medical Store for routine replenishment',
       },
     ],
   },
@@ -129,7 +133,8 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'source_confirmation_requested',
         occurredAt: '2026-11-05T11:01:00.000Z',
         actorRole: 'source_custodian',
-        label: 'Physical inspection detects Batch B201 on shelf while system allocated Batch B209',
+        label:
+          'Physical inspection detects Batch B201 on shelf while system allocated Batch B209',
       },
       {
         sequence: 3,
@@ -157,14 +162,16 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'request_created',
         occurredAt: '2026-11-05T12:00:00.000Z',
         actorRole: 'facility_requester',
-        label: 'Aiyetoro Central PHC requests 40 Zinc 20 mg dispersible tablets',
+        label:
+          'Aiyetoro Central PHC requests 40 Zinc 20 mg dispersible tablets',
       },
       {
         sequence: 2,
         type: 'source_confirmation_requested',
         occurredAt: '2026-11-05T12:01:00.000Z',
         actorRole: 'system',
-        label: 'Algorithm compares Batch B209 (Exp: 6 mo) vs Batch B214 (Exp: 24 mo)',
+        label:
+          'Algorithm compares Batch B209 (Exp: 6 mo) vs Batch B214 (Exp: 24 mo)',
       },
       {
         sequence: 3,
@@ -185,7 +192,8 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'received',
         occurredAt: '2026-11-05T12:14:00.000Z',
         actorRole: 'facility_requester',
-        label: 'Batch B209 accepted; ledger updated with near-expiry usage flag',
+        label:
+          'Batch B209 accepted; ledger updated with near-expiry usage flag',
       },
     ],
   },
@@ -227,14 +235,16 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'in_transit',
         occurredAt: '2026-11-05T13:10:00.000Z',
         actorRole: 'rider',
-        label: 'Heavy rain & road obstruction encountered; courier updates delay flag',
+        label:
+          'Heavy rain & road obstruction encountered; courier updates delay flag',
       },
       {
         sequence: 5,
         type: 'escalated',
         occurredAt: '2026-11-05T13:11:00.000Z',
         actorRole: 'system',
-        label: 'ETA dynamically adjusted to 28 min; automated SMS alert sent to receiver',
+        label:
+          'ETA dynamically adjusted to 28 min; automated SMS alert sent to receiver',
       },
     ],
   },
@@ -283,7 +293,8 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'escalated',
         occurredAt: '2026-11-05T14:16:00.000Z',
         actorRole: 'facility_requester',
-        label: 'Receipt refused; custody NOT transferred; incident logged for LGA Pharmacist investigation',
+        label:
+          'Receipt refused; custody NOT transferred; incident logged for LGA Pharmacist investigation',
       },
     ],
   },
@@ -304,35 +315,40 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
         type: 'request_created',
         occurredAt: '2026-11-05T15:00:00.000Z',
         actorRole: 'facility_requester',
-        label: 'Acute gastroenteritis surge triggers 3 simultaneous clinic requests in Ward 2',
+        label:
+          'Acute gastroenteritis surge triggers 3 simultaneous clinic requests in Ward 2',
       },
       {
         sequence: 2,
         type: 'source_confirmation_requested',
         occurredAt: '2026-11-05T15:02:00.000Z',
         actorRole: 'system',
-        label: 'Peer clinics insufficient to satisfy aggregate demand without breaching safety floors',
+        label:
+          'Peer clinics insufficient to satisfy aggregate demand without breaching safety floors',
       },
       {
         sequence: 3,
         type: 'escalated',
         occurredAt: '2026-11-05T15:03:00.000Z',
         actorRole: 'system',
-        label: 'Demand-shock algorithm escalates cluster to LGA Command Console',
+        label:
+          'Demand-shock algorithm escalates cluster to LGA Command Console',
       },
       {
         sequence: 4,
         type: 'source_released',
         occurredAt: '2026-11-05T15:05:00.000Z',
         actorRole: 'lga',
-        label: 'LGA Supervisor approves 200 sachet buffer release from Ota Central Medical Store',
+        label:
+          'LGA Supervisor approves 200 sachet buffer release from Ota Central Medical Store',
       },
       {
         sequence: 5,
         type: 'received',
         occurredAt: '2026-11-05T15:30:00.000Z',
         actorRole: 'facility_requester',
-        label: 'Central store buffer batch delivered to Ward 2 clinics; outbreak contained',
+        label:
+          'Central store buffer batch delivered to Ward 2 clinics; outbreak contained',
       },
     ],
   },
@@ -340,7 +356,10 @@ export const SCENARIO_CATALOG: Record<ScenarioId, ScenarioPack> = {
 
 export class ScenarioLabService {
   private activeScenarioId: ScenarioId = 'authorised-ambient-transfer';
-  private readonly runs = new Map<ScenarioId, { cursor: number; started: boolean }>();
+  private readonly runs = new Map<
+    ScenarioId,
+    { cursor: number; started: boolean }
+  >();
 
   private getRun(id: ScenarioId) {
     let run = this.runs.get(id);
@@ -374,7 +393,8 @@ export class ScenarioLabService {
     this.activeScenarioId = id;
     const run = this.getRun(id);
     if (!run.started) run.started = true;
-    const pack = SCENARIO_CATALOG[id] ?? SCENARIO_CATALOG['authorised-ambient-transfer'];
+    const pack =
+      SCENARIO_CATALOG[id] ?? SCENARIO_CATALOG['authorised-ambient-transfer'];
     run.cursor = Math.min(run.cursor + 1, pack.events.length);
     return this.read(id);
   }
@@ -404,7 +424,8 @@ export class ScenarioLabService {
 
   read(scenarioId?: ScenarioId): ScenarioRun {
     const id = scenarioId ?? this.activeScenarioId;
-    const pack = SCENARIO_CATALOG[id] ?? SCENARIO_CATALOG['authorised-ambient-transfer'];
+    const pack =
+      SCENARIO_CATALOG[id] ?? SCENARIO_CATALOG['authorised-ambient-transfer'];
     const run = this.getRun(id);
     const completed = run.cursor === pack.events.length;
     const outcome: ScenarioOutcome | null = completed

@@ -38,14 +38,16 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 1,
         title: 'Stockout Request Created',
-        detail: 'Aiyetoro Central PHC requests 20 ORS sachets due to zero on-hand stock.',
+        detail:
+          'Aiyetoro Central PHC requests 20 ORS sachets due to zero on-hand stock.',
         owner: 'Requester (Aiyetoro Central)',
         evidence: 'Inbound request event #EV-101 logged in ledger',
       },
       {
         tick: 2,
         title: 'Source Custodian Confirmed',
-        detail: 'Idera PHC confirms 20 sachets. Safety floor (20 sachets) protected.',
+        detail:
+          'Idera PHC confirms 20 sachets. Safety floor (20 sachets) protected.',
         owner: 'Source Custodian (Idera PHC)',
         evidence: 'Authorization #AUTH-402, Batch B209 verified',
       },
@@ -59,16 +61,19 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 4,
         title: 'In Transit on Corridor',
-        detail: 'Rider moving along Aiyetoro–Idera corridor. Real-time telemetry active.',
+        detail:
+          'Rider moving along Aiyetoro–Idera corridor. Real-time telemetry active.',
         owner: 'Courier (Ade Okafor)',
         evidence: 'OSM telemetry active, ETA 4 min',
       },
       {
         tick: 5,
         title: 'Receiver Custody Verified',
-        detail: 'Aiyetoro Central enters Handover PIN 5082. Paired stock movements written to ledger.',
+        detail:
+          'Aiyetoro Central enters Handover PIN 5082. Paired stock movements written to ledger.',
         owner: 'Receiver (Aiyetoro Central)',
-        evidence: 'Movement #MOV-901 (-20) & #MOV-902 (+20) committed transactionally',
+        evidence:
+          'Movement #MOV-901 (-20) & #MOV-902 (+20) committed transactionally',
       },
     ],
   },
@@ -83,28 +88,33 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 1,
         title: 'High Demand Request Created',
-        detail: 'Aiyetoro Central requests 60 ORS sachets during seasonal diarrheal surge.',
+        detail:
+          'Aiyetoro Central requests 60 ORS sachets during seasonal diarrheal surge.',
         owner: 'Requester (Aiyetoro Central)',
         evidence: 'Request #REQ-304 received via console',
       },
       {
         tick: 2,
         title: 'Safety Floor Boundary Evaluated',
-        detail: 'Algorithm evaluates Idera PHC stock (50 units). 30-unit safety floor allows max 20 surplus.',
+        detail:
+          'Algorithm evaluates Idera PHC stock (50 units). 30-unit safety floor allows max 20 surplus.',
         owner: 'System Allocation Engine',
         evidence: 'Evaluation: On-hand 50 - Floor 30 = Max 20 transferable',
       },
       {
         tick: 3,
         title: 'Allocation Capped to 20 Units',
-        detail: 'Source approves capped 20 units; 40 units blocked to protect local pediatric patients.',
+        detail:
+          'Source approves capped 20 units; 40 units blocked to protect local pediatric patients.',
         owner: 'Source Custodian (Idera PHC)',
-        evidence: 'Capped release #REL-209 for 20 units; safety floor preserved',
+        evidence:
+          'Capped release #REL-209 for 20 units; safety floor preserved',
       },
       {
         tick: 4,
         title: 'Deficit Escalated to Central Store',
-        detail: 'System escalates 40 units deficit to Ota Central Medical Store for routine buffer dispatch.',
+        detail:
+          'System escalates 40 units deficit to Ota Central Medical Store for routine buffer dispatch.',
         owner: 'LGA Operations Dispatcher',
         evidence: 'Escalation ticket #ESC-810 created for LGA Medical Store',
       },
@@ -128,14 +138,16 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 2,
         title: 'Physical Shelf Mismatch Flagged',
-        detail: 'Dispenser scans shelf box and discovers Batch B201 instead of allocated B209.',
+        detail:
+          'Dispenser scans shelf box and discovers Batch B201 instead of allocated B209.',
         owner: 'Source Custodian (Dispenser)',
         evidence: 'Barcode scan mismatch: physical B201 != allocated B209',
       },
       {
         tick: 3,
         title: 'Dispatch Halted & Lot Quarantined',
-        detail: 'Dispatch blocked; lot placed in physical quarantine for pharmacist audit.',
+        detail:
+          'Dispatch blocked; lot placed in physical quarantine for pharmacist audit.',
         owner: 'Facility In-Charge',
         evidence: 'Quarantine notice #Q-018 logged; transfer aborted safely',
       },
@@ -159,28 +171,34 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 2,
         title: 'FEFO Comparator Evaluates Batches',
-        detail: 'Algorithm compares Batch B209 (Exp: 6 mo) vs Batch B214 (Exp: 24 mo) across 3 clinics.',
+        detail:
+          'Algorithm compares Batch B209 (Exp: 6 mo) vs Batch B214 (Exp: 24 mo) across 3 clinics.',
         owner: 'FEFO Optimization Algorithm',
-        evidence: 'Shelf life delta: B209 (180 days) prioritized over B214 (720 days)',
+        evidence:
+          'Shelf life delta: B209 (180 days) prioritized over B214 (720 days)',
       },
       {
         tick: 3,
         title: 'Near-Expiry Batch B209 Allocated',
-        detail: 'Batch B209 selected to prevent medicine expiry wastage in lower-volume facility.',
+        detail:
+          'Batch B209 selected to prevent medicine expiry wastage in lower-volume facility.',
         owner: 'Source Custodian',
-        evidence: 'Transfer voucher #FEFO-88 specifies Batch B209 (Exp 10/2026)',
+        evidence:
+          'Transfer voucher #FEFO-88 specifies Batch B209 (Exp 10/2026)',
       },
       {
         tick: 4,
         title: 'Courier Dispatched with Priority Seal',
-        detail: 'Courier Babatunde Alabi dispatched with yellow FEFO-priority tamper seal.',
+        detail:
+          'Courier Babatunde Alabi dispatched with yellow FEFO-priority tamper seal.',
         owner: 'Courier (Babatunde Alabi)',
         evidence: 'Priority tamper seal #FEFO-770 active',
       },
       {
         tick: 5,
         title: 'Custody Transferred & Waste Prevented',
-        detail: 'Receiving clinic logs Batch B209 for fast-track dispensing to active pediatric patients.',
+        detail:
+          'Receiving clinic logs Batch B209 for fast-track dispensing to active pediatric patients.',
         owner: 'Receiver (Aiyetoro Central)',
         evidence: 'Dispense queue #DQ-44 committed; zero expired wastage',
       },
@@ -197,35 +215,41 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 1,
         title: 'Emergency Transfer Dispatched',
-        detail: 'Iyana-Ipaja PHC emergency ORS replenishment departs Idera PHC (initial ETA 6 min).',
+        detail:
+          'Iyana-Ipaja PHC emergency ORS replenishment departs Idera PHC (initial ETA 6 min).',
         owner: 'Courier (Ade Okafor)',
         evidence: 'Courier dispatch logged at 13:03',
       },
       {
         tick: 2,
         title: 'Heavy Rain & Road Obstruction',
-        detail: 'Rider encounters flooded culvert on corridor; speed drops below 5 km/h.',
+        detail:
+          'Rider encounters flooded culvert on corridor; speed drops below 5 km/h.',
         owner: 'Courier (Ade Okafor)',
         evidence: 'Telemetry anomaly flag: vehicle speed < 5 km/h for > 5 min',
       },
       {
         tick: 3,
         title: 'Dynamic ETA Recalibrated',
-        detail: 'System dynamically adjusts ETA from 6 min to 28 min based on GPS velocity vector.',
+        detail:
+          'System dynamically adjusts ETA from 6 min to 28 min based on GPS velocity vector.',
         owner: 'Telemetry Processing Worker',
         evidence: 'ETA updated from 13:09 to 13:31 in Redis state',
       },
       {
         tick: 4,
         title: 'Automated SMS Alert to Clinic',
-        detail: 'Automated SMS dispatched to receiving nurse explaining delay and updated ETA.',
+        detail:
+          'Automated SMS dispatched to receiving nurse explaining delay and updated ETA.',
         owner: 'SMS Notification Gateway',
-        evidence: 'SMS payload: "Courier delayed by weather; ETA adjusted to 28 min"',
+        evidence:
+          'SMS payload: "Courier delayed by weather; ETA adjusted to 28 min"',
       },
       {
         tick: 5,
         title: 'Safe Arrival & Escalation Closed',
-        detail: 'Courier arrives safely at receiving clinic without temperature excursion.',
+        detail:
+          'Courier arrives safely at receiving clinic without temperature excursion.',
         owner: 'Receiver & Courier',
         evidence: 'Inspection passed; delay anomaly resolved and closed',
       },
@@ -242,35 +266,40 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 1,
         title: 'Emergency Stock Dispatched & Sealed',
-        detail: 'Crate sealed with numbered plastic tamper seal #7842 at Idera PHC.',
+        detail:
+          'Crate sealed with numbered plastic tamper seal #7842 at Idera PHC.',
         owner: 'Source Custodian',
         evidence: 'Seal #7842 recorded on outbound manifest',
       },
       {
         tick: 2,
         title: 'Courier Transits Corridor',
-        detail: 'Rider carries insulated carrier box across the Ado-Odo corridor.',
+        detail:
+          'Rider carries insulated carrier box across the Ado-Odo corridor.',
         owner: 'Courier',
         evidence: 'Corridor waypoint scans recorded',
       },
       {
         tick: 3,
         title: 'Courier Arrives at Receiving Gate',
-        detail: 'Courier presents crate to receiving nurse at Aiyetoro Central.',
+        detail:
+          'Courier presents crate to receiving nurse at Aiyetoro Central.',
         owner: 'Courier & Receiver',
         evidence: 'Arrival geofence triggered at receiving clinic',
       },
       {
         tick: 4,
         title: 'Broken Seal Discovered on Inspection',
-        detail: 'Receiving nurse identifies broken tamper seal #7842 with severed plastic loop.',
+        detail:
+          'Receiving nurse identifies broken tamper seal #7842 with severed plastic loop.',
         owner: 'Receiver (Nurse Fatima)',
         evidence: 'Inspection photo uploaded showing severed seal #7842',
       },
       {
         tick: 5,
         title: 'Custody Refused & Incident Escalated',
-        detail: 'Receipt refused; custody NOT transferred; incident logged for LGA Pharmacist investigation.',
+        detail:
+          'Receipt refused; custody NOT transferred; incident logged for LGA Pharmacist investigation.',
         owner: 'Receiver & LGA Pharmacist',
         evidence: 'Incident report #INC-991 escalated; stock quarantined',
       },
@@ -287,35 +316,40 @@ const SCENARIOS: ScenarioMeta[] = [
       {
         tick: 1,
         title: 'Gastroenteritis Surge in Ward 2',
-        detail: 'Three clinics simultaneously request 40 ORS sachets each due to local water contamination surge.',
+        detail:
+          'Three clinics simultaneously request 40 ORS sachets each due to local water contamination surge.',
         owner: 'Clinics in Ward 2',
         evidence: '3 cluster requests received within 15 minutes',
       },
       {
         tick: 2,
         title: 'Peer Balancing Exhausted',
-        detail: 'Peer clinic transfer capacity insufficient to satisfy demand without breaching safety floors.',
+        detail:
+          'Peer clinic transfer capacity insufficient to satisfy demand without breaching safety floors.',
         owner: 'System Demand Balancing Engine',
         evidence: 'Corridor surplus (35 units) < Aggregate demand (120 units)',
       },
       {
         tick: 3,
         title: 'Cluster Escalated to LGA Command',
-        detail: 'System automatically flags demand shock cluster on LGA Dashboard with high-priority alert.',
+        detail:
+          'System automatically flags demand shock cluster on LGA Dashboard with high-priority alert.',
         owner: 'System Monitoring Engine',
         evidence: 'Cluster alert #CLU-402 raised to LGA Supervisor',
       },
       {
         tick: 4,
         title: 'LGA Supervisor Releases Buffer',
-        detail: 'Supervisor authorizes emergency release of 200 ORS sachets from Ota Central Medical Store buffer.',
+        detail:
+          'Supervisor authorizes emergency release of 200 ORS sachets from Ota Central Medical Store buffer.',
         owner: 'LGA Health Supervisor',
         evidence: 'Supervisor release approval #SUP-771 with digital signature',
       },
       {
         tick: 5,
         title: 'Central Buffer Deployed & Contained',
-        detail: 'Buffer batch dispatched with express vehicle to Ward 2 clinics; stockouts averted.',
+        detail:
+          'Buffer batch dispatched with express vehicle to Ward 2 clinics; stockouts averted.',
         owner: 'Central Store Logistics Team',
         evidence: 'Central buffer dispatch #CMS-092 confirmed delivered',
       },
@@ -323,8 +357,14 @@ const SCENARIOS: ScenarioMeta[] = [
   },
 ];
 
-export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunnerProps) {
-  const [selectedId, setSelectedId] = useState<ScenarioId>('authorised-ambient-transfer');
+export function ScenarioLabRunner({
+  colors,
+  isDark,
+  uiScale,
+}: ScenarioLabRunnerProps) {
+  const [selectedId, setSelectedId] = useState<ScenarioId>(
+    'authorised-ambient-transfer',
+  );
   const [currentTick, setCurrentTick] = useState<number>(4);
 
   const scenario = SCENARIOS.find((s) => s.id === selectedId) ?? SCENARIOS[0];
@@ -450,7 +490,9 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
         >
           {scenario.name}
         </Text>
-        <Text style={[styles.goalText, { color: colors.mute, fontSize: s(12) }]}>
+        <Text
+          style={[styles.goalText, { color: colors.mute, fontSize: s(12) }]}
+        >
           {scenario.goal}
         </Text>
       </View>
@@ -485,9 +527,13 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
               { color: colors.ink, fontSize: s(12) },
             ]}
           >
-            • On-hand: <Text style={{ fontWeight: '700' }}>50 units</Text> | Floor: <Text style={{ fontWeight: '700' }}>30 units</Text>{'\n'}
-            • Capped surplus: <Text style={{ fontWeight: '700' }}>20 units</Text> released{'\n'}
-            • Remainder deficit: <Text style={{ fontWeight: '700' }}>40 units</Text> escalated to LGA Central Store
+            • On-hand: <Text style={{ fontWeight: '700' }}>50 units</Text> |
+            Floor: <Text style={{ fontWeight: '700' }}>30 units</Text>
+            {'\n'}• Capped surplus:{' '}
+            <Text style={{ fontWeight: '700' }}>20 units</Text> released{'\n'}•
+            Remainder deficit:{' '}
+            <Text style={{ fontWeight: '700' }}>40 units</Text> escalated to LGA
+            Central Store
           </Text>
         </View>
       )}
@@ -516,7 +562,9 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
               { color: colors.ink, fontSize: s(12) },
             ]}
           >
-            Tamper seal #7842 was severed prior to receiving inspection. Nurse Fatima has refused custody. Cargo quarantined and escalated to LGA Pharmacist.
+            Tamper seal #7842 was severed prior to receiving inspection. Nurse
+            Fatima has refused custody. Cargo quarantined and escalated to LGA
+            Pharmacist.
           </Text>
         </View>
       )}
@@ -545,7 +593,8 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
               { color: colors.ink, fontSize: s(12) },
             ]}
           >
-            3 clinics faced sudden pediatric gastroenteritis outbreak. LGA Supervisor released 200 sachets from Ota Central Medical Store.
+            3 clinics faced sudden pediatric gastroenteritis outbreak. LGA
+            Supervisor released 200 sachets from Ota Central Medical Store.
           </Text>
         </View>
       )}
@@ -559,7 +608,10 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
       >
         <View style={styles.stepHeader}>
           <Text
-            style={[styles.stepCounter, { color: colors.cobalt, fontSize: s(12) }]}
+            style={[
+              styles.stepCounter,
+              { color: colors.cobalt, fontSize: s(12) },
+            ]}
           >
             STEP {clampedTick} OF {maxTicks}
           </Text>
@@ -604,7 +656,10 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
           onPress={handleNextTick}
           style={[
             styles.actionBtn,
-            { backgroundColor: isDark ? colors.lime : colors.cobalt, flex: 1.5 },
+            {
+              backgroundColor: isDark ? colors.lime : colors.cobalt,
+              flex: 1.5,
+            },
           ]}
         >
           <Text
@@ -631,7 +686,12 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
             },
           ]}
         >
-          <Text style={[styles.actionBtnTxt, { color: colors.ink, fontSize: s(13) }]}>
+          <Text
+            style={[
+              styles.actionBtnTxt,
+              { color: colors.ink, fontSize: s(13) },
+            ]}
+          >
             Replay
           </Text>
         </Press>
@@ -647,7 +707,12 @@ export function ScenarioLabRunner({ colors, isDark, uiScale }: ScenarioLabRunner
             },
           ]}
         >
-          <Text style={[styles.actionBtnTxt, { color: colors.ink, fontSize: s(13) }]}>
+          <Text
+            style={[
+              styles.actionBtnTxt,
+              { color: colors.ink, fontSize: s(13) },
+            ]}
+          >
             Reset
           </Text>
         </Press>

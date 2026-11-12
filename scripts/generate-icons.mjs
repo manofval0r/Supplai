@@ -134,7 +134,7 @@ const faviconSvg = `
 
 async function generate() {
   console.log('Generating Supplai icons with sharp...');
-  
+
   const mobileAssets = path.join(rootDir, 'apps', 'mobile', 'assets');
   const dashboardPublic = path.join(rootDir, 'apps', 'dashboard', 'public');
   const dashboardApp = path.join(rootDir, 'apps', 'dashboard', 'app');
@@ -155,21 +155,27 @@ async function generate() {
     .resize(1024, 1024)
     .png()
     .toFile(path.join(mobileAssets, 'android-icon-foreground.png'));
-  console.log('Created apps/mobile/assets/android-icon-foreground.png (1024x1024)');
+  console.log(
+    'Created apps/mobile/assets/android-icon-foreground.png (1024x1024)',
+  );
 
   // 3. Mobile adaptive background (1024x1024)
   await sharp(Buffer.from(adaptiveBackgroundSvg))
     .resize(1024, 1024)
     .png()
     .toFile(path.join(mobileAssets, 'android-icon-background.png'));
-  console.log('Created apps/mobile/assets/android-icon-background.png (1024x1024)');
+  console.log(
+    'Created apps/mobile/assets/android-icon-background.png (1024x1024)',
+  );
 
   // 4. Mobile adaptive monochrome (1024x1024)
   await sharp(Buffer.from(adaptiveMonochromeSvg))
     .resize(1024, 1024)
     .png()
     .toFile(path.join(mobileAssets, 'android-icon-monochrome.png'));
-  console.log('Created apps/mobile/assets/android-icon-monochrome.png (1024x1024)');
+  console.log(
+    'Created apps/mobile/assets/android-icon-monochrome.png (1024x1024)',
+  );
 
   // 5. Mobile splash-icon.png (512x512)
   await sharp(Buffer.from(adaptiveForegroundSvg))
@@ -207,7 +213,9 @@ async function generate() {
     .png()
     .toFile(path.join(dashboardApp, 'favicon.ico'));
 
-  console.log('Created web dashboard favicons and app icons in apps/dashboard/public and apps/dashboard/app');
+  console.log(
+    'Created web dashboard favicons and app icons in apps/dashboard/public and apps/dashboard/app',
+  );
 }
 
 generate().catch((err) => {

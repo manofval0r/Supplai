@@ -208,8 +208,12 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
   const artOpacity = isDark ? 0.55 : 0.75;
 
   const wordmarkColor = isDark ? '#F4F7FF' : '#030407';
-  const tagPillBg = isDark ? 'rgba(21, 88, 201, 0.25)' : 'rgba(21, 88, 201, 0.08)';
-  const tagPillBorder = isDark ? 'rgba(212, 255, 36, 0.35)' : 'rgba(21, 88, 201, 0.22)';
+  const tagPillBg = isDark
+    ? 'rgba(21, 88, 201, 0.25)'
+    : 'rgba(21, 88, 201, 0.08)';
+  const tagPillBorder = isDark
+    ? 'rgba(212, 255, 36, 0.35)'
+    : 'rgba(21, 88, 201, 0.22)';
   const tagTextColor = isDark ? '#D4FF24' : '#1558C9';
 
   const fenceStroke = isDark ? '#D4FF24' : '#1558C9';
@@ -412,7 +416,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
           >
             <Svg width="100%" height={175} viewBox="0 0 360 175">
               {/* Horizon vertical corridor picket ticks */}
-              <G stroke={fenceStroke} strokeOpacity={fenceOpacity} strokeWidth={1.2}>
+              <G
+                stroke={fenceStroke}
+                strokeOpacity={fenceOpacity}
+                strokeWidth={1.2}
+              >
                 {leftTicks.map((x, idx) => (
                   <Path
                     key={`lt-${idx}`}

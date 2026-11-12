@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ui, useAppConfig, type ThemeColors, type ThemeMode } from '../lib/theme';
+import {
+  ui,
+  useAppConfig,
+  type ThemeColors,
+  type ThemeMode,
+} from '../lib/theme';
 import { Art } from '../components/LineArt';
 import {
   Press,
@@ -409,7 +414,8 @@ export function AccountScreen({
             Developer menu{'\u00A0'}
           </Text>
           <Text style={[styles.leadSub, { color: colors.mute }]}>
-            Configure simulations, test PIN handover, and customize UI & 2D art scale.
+            Configure simulations, test PIN handover, and customize UI & 2D art
+            scale.
           </Text>
 
           <View
@@ -1143,13 +1149,15 @@ export function AccountScreen({
                 icon: <ClockIcon />,
                 title: 'Delivery is taking long',
                 sub: 'Check rider GPS or reassign',
-                query: 'Where is my active delivery right now and what is the ETA?',
+                query:
+                  'Where is my active delivery right now and what is the ETA?',
               },
               {
                 icon: <FlagIcon />,
                 title: 'Wrong or damaged items',
                 sub: 'Report broken seal or count mismatch',
-                query: 'The crate seal 7842 is broken or damaged. What is the refusal protocol?',
+                query:
+                  'The crate seal 7842 is broken or damaged. What is the refusal protocol?',
               },
               {
                 icon: <LockIcon />,
@@ -1161,7 +1169,8 @@ export function AccountScreen({
                 icon: <HelpIcon />,
                 title: 'Medicine transport rules',
                 sub: 'Ambient vs cold-chain standards',
-                query: 'What are the transport and weather packaging rules for ORS and Zinc?',
+                query:
+                  'What are the transport and weather packaging rules for ORS and Zinc?',
               },
             ].map((topic, idx) => (
               <Press
@@ -1401,7 +1410,9 @@ export function AccountScreen({
               key={msg.id}
               style={[
                 styles.mobileBubbleRow,
-                msg.role === 'user' ? styles.bubbleRowUser : styles.bubbleRowAsst,
+                msg.role === 'user'
+                  ? styles.bubbleRowUser
+                  : styles.bubbleRowAsst,
               ]}
             >
               <View
@@ -1409,7 +1420,11 @@ export function AccountScreen({
                   styles.mobileBubble,
                   msg.role === 'user'
                     ? { backgroundColor: colors.cobalt }
-                    : { backgroundColor: colors.tile, borderColor: colors.line, borderWidth: 1 },
+                    : {
+                        backgroundColor: colors.tile,
+                        borderColor: colors.line,
+                        borderWidth: 1,
+                      },
                 ]}
               >
                 <Text
@@ -1438,7 +1453,12 @@ export function AccountScreen({
                 <Text
                   style={[
                     styles.mobileBubbleTime,
-                    { color: msg.role === 'user' ? 'rgba(255,255,255,0.7)' : colors.mute },
+                    {
+                      color:
+                        msg.role === 'user'
+                          ? 'rgba(255,255,255,0.7)'
+                          : colors.mute,
+                    },
                   ]}
                 >
                   {new Date(msg.timestamp).toLocaleTimeString([], {
@@ -1452,13 +1472,25 @@ export function AccountScreen({
         </ScrollView>
 
         {/* Suggested Quick Prompts */}
-        <View style={[styles.mobilePromptBar, { backgroundColor: colors.bg, borderTopColor: colors.line }]}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}>
+        <View
+          style={[
+            styles.mobilePromptBar,
+            { backgroundColor: colors.bg, borderTopColor: colors.line },
+          ]}
+        >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
+          >
             {defaultChatQuickPrompts.map((p) => (
               <Press
                 key={p.id}
                 onPress={() => handleMobileSend(p.query)}
-                style={[styles.mobilePromptChip, { backgroundColor: colors.tile, borderColor: colors.line }]}
+                style={[
+                  styles.mobilePromptChip,
+                  { backgroundColor: colors.tile, borderColor: colors.line },
+                ]}
               >
                 <Text style={[styles.mobilePromptText, { color: colors.ink }]}>
                   {p.label}
@@ -1469,13 +1501,21 @@ export function AccountScreen({
         </View>
 
         {/* Chat Input Bar */}
-        <View style={[styles.mobileInputBar, { backgroundColor: colors.tile, borderTopColor: colors.line }]}>
+        <View
+          style={[
+            styles.mobileInputBar,
+            { backgroundColor: colors.tile, borderTopColor: colors.line },
+          ]}
+        >
           <TextInput
             value={chatInput}
             onChangeText={setChatInput}
             placeholder="Ask about nearby stock, safety rules, or PIN..."
             placeholderTextColor={colors.mute}
-            style={[styles.mobileTextInput, { color: colors.ink, backgroundColor: colors.bg }]}
+            style={[
+              styles.mobileTextInput,
+              { color: colors.ink, backgroundColor: colors.bg },
+            ]}
             onSubmitEditing={() => handleMobileSend(chatInput)}
           />
           <Press

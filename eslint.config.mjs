@@ -15,6 +15,7 @@ export default tseslint.config(
       '.agents/**',
       'artifacts/**',
       'tools/presentation/**',
+      'scripts/**/*.mjs',
       'apps/mobile/metro.config.js',
       'eslint.config.mjs',
     ],

@@ -210,7 +210,11 @@ export function RolePicker({
                   <Text
                     style={[
                       styles.tileTitle,
-                      { color: '#ffffff', fontSize: s(16.5), lineHeight: s(20) },
+                      {
+                        color: '#ffffff',
+                        fontSize: s(16.5),
+                        lineHeight: s(20),
+                      },
                     ]}
                   >
                     Track delivery{'\u00A0'}

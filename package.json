@@ -2,7 +2,7 @@
   "name": "supplai",
   "version": "0.1.0",
   "private": true,
-  "description": "SMS-first medicine stock coordination for Nigerian primary health centres",
+  "description": "Role-based medicine redistribution for Nigerian primary health centres",
   "type": "commonjs",
   "workspaces": [
     "apps/*",

@@ -122,7 +122,11 @@ describe('Scenario Lab Endpoints & Resilience', () => {
       url: '/api/demo/reset',
     });
     expect(resetRes.statusCode).toBe(200);
-    const body = resetRes.json<{ ok: boolean; timestamp: string; message: string }>();
+    const body = resetRes.json<{
+      ok: boolean;
+      timestamp: string;
+      message: string;
+    }>();
     expect(body.ok).toBe(true);
     expect(body.message).toContain('reset to baseline');
 
