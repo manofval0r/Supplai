@@ -112,11 +112,10 @@
   text-underline-offset: 4px;
 }
 
-.loginLink {
+.dashboardLink {
   display: inline-flex;
   min-height: 50px;
   align-items: center;
-  justify-self: end;
   gap: 14px;
   padding: 0 19px;
   border: 2px solid var(--ink);
@@ -131,11 +130,22 @@
     box-shadow 160ms ease;
 }
 
-.loginLink:hover,
+.navigation .dashboardLink {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  transform: translateY(-50%);
+}
+
+.dashboardLink:hover,
 .primaryButton:hover,
 .ctaButton:hover {
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0 var(--ink);
+}
+
+.navBackdrop {
+  display: none;
 }
 
 .navToggle {
@@ -156,6 +166,17 @@
   width: 18px;
   height: 2px;
   background: var(--ink);
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.navToggleOpen span:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.navToggleOpen span:last-child {
+  transform: translateY(-4px) rotate(-45deg);
 }
 
 .hero {
@@ -1109,66 +1130,95 @@
 
 @media (max-width: 700px) {
   .navbar {
+    z-index: 50;
     width: calc(100% - 24px);
-    grid-template-columns: 1fr auto auto;
-    gap: 8px;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
     padding-inline: 7px;
   }
 
   .brand {
-    min-height: 46px;
-    gap: 7px;
-    padding-right: 12px;
-    font-size: 17px;
+    min-height: 40px;
+    gap: 6px;
+    padding: 3px 11px 3px 5px;
+    font-size: 15px;
   }
 
   .brandMark {
-    width: 31px;
-    height: 31px;
+    width: 27px;
+    height: 27px;
+    font-size: 21px;
   }
 
   .navigation {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    left: 0;
-    display: none;
-    min-height: auto;
+    position: fixed;
+    z-index: 51;
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    width: min(84vw, 340px, calc(100vw - 24px));
+    min-height: 0;
     align-items: stretch;
     flex-direction: column;
     gap: 0;
-    padding: 8px 18px;
+    justify-content: flex-start;
+    padding: 72px 18px 22px;
     border: var(--line);
-    border-radius: 24px;
+    border-radius: 28px;
     background: var(--paper);
-    box-shadow: 4px 4px 0 var(--ink);
+    box-shadow: -5px 5px 0 var(--ink);
+    transform: translateX(calc(100% + 24px));
+    visibility: hidden;
+    transition:
+      transform 220ms ease,
+      visibility 220ms ease;
   }
 
-  .navigationOpen {
-    display: flex;
+  .navigation.navigationOpen {
+    transform: translateX(0);
+    visibility: visible;
   }
 
   .navigation a {
-    min-height: 48px;
+    min-height: 54px;
     align-content: center;
     border-bottom: 1px solid rgb(128 128 128 / 30%);
+    font-size: 14px;
   }
 
   .navigation a:last-child {
     border-bottom: 0;
   }
 
-  .loginLink {
-    min-height: 46px;
-    gap: 8px;
-    padding-inline: 13px;
-    font-size: 12px;
+  .navigation .dashboardLink {
+    position: static;
+    min-height: 52px;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-inline: 18px;
+    transform: none;
   }
 
   .navToggle {
+    position: relative;
+    z-index: 52;
     display: flex;
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
+    justify-self: end;
+  }
+
+  .navBackdrop {
+    position: fixed;
+    z-index: 40;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgb(17 23 19 / 42%);
+    cursor: default;
   }
 
   .hero {
@@ -1244,6 +1294,32 @@
   .callToAction {
     margin-bottom: 48px;
     padding: 29px 23px;
+  }
+}
+
+@media (max-width: 360px) {
+  .navbar {
+    width: calc(100% - 16px);
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .brand {
+    min-height: 36px;
+    gap: 4px;
+    padding: 2px 8px 2px 4px;
+    font-size: 13px;
+  }
+
+  .brandMark {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+  }
+
+  .navToggle {
+    width: 38px;
+    height: 38px;
   }
 }
 
