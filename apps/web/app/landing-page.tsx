@@ -1,4 +1,9 @@
 import Link from 'next/link';
+import AppPreview3D from '../components/AppPreview3D';
+
+const EXPO_PREVIEW_URL =
+  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ??
+  'https://expo.dev/accounts/manofval0r/projects/supplai';
 
 const steps = [
   {
@@ -72,6 +77,10 @@ export default function LandingPage() {
               </small>
             </span>
           </div>
+          <p className="hero-demo-note">
+            <span aria-hidden="true" />
+            Demo build. Facilities, stock, riders, and deliveries are fictional.
+          </p>
         </div>
 
         <div
@@ -172,6 +181,47 @@ export default function LandingPage() {
         <div className="strip-location">
           <i /> Designed for local health networks
         </div>
+      </section>
+
+      <section
+        aria-labelledby="app-preview-title"
+        className="app-preview-section"
+        id="app-preview"
+      >
+        <div className="app-preview-copy">
+          <div className="eyebrow eyebrow-on-dark">
+            <span className="eyebrow-dot" /> The facility app
+          </div>
+          <h2 id="app-preview-title">
+            Hold the whole handover
+            <br />
+            in one hand.
+          </h2>
+          <p>
+            The Expo app is the working surface for facility teams and riders.
+            Rotate the phone, move between screens, and see the same workflow
+            the demo runs on.
+          </p>
+          <ul className="app-preview-features">
+            <li>Confirm stock, batch, expiry, and the source custodian</li>
+            <li>Two-sided handover with a rider code and seal check</li>
+            <li>Safety floors and FEFO guidance before a release</li>
+          </ul>
+          <a
+            className="button button-lime"
+            href={EXPO_PREVIEW_URL}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Download the latest Expo preview{' '}
+            <span aria-hidden="true">{'\u2192'}</span>
+          </a>
+          <small className="app-preview-meta">
+            Android preview build. All facilities, stock, and deliveries are
+            fictional.
+          </small>
+        </div>
+        <AppPreview3D />
       </section>
 
       <section className="how-section" id="how-it-works">

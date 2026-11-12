@@ -469,6 +469,33 @@ textarea:focus-visible,
   }
 }
 
+.demo-banner {
+  position: relative;
+  z-index: 60;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  color: #f5f7fb;
+  background: #030407;
+  font-family: Inter, 'Inter_500Medium', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.demo-banner-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #d4ff24;
+  box-shadow: 0 0 0 3px rgb(212 255 36 / 18%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

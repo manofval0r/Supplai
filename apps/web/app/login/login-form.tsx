@@ -125,7 +125,7 @@ export default function LoginForm() {
       </section>
       <footer className="login-footer">
         <span>Supplai demo</span>
-        <span>Fictional facilities and stock figures</span>
+        <span>Fictional facilities, stock, and deliveries</span>
       </footer>
     </main>
   );

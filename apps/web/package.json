@@ -6,6 +6,7 @@
     "dev": "next dev --webpack -p 3002",
     "build": "next build --webpack",
     "start": "next start -p 3002",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@types/three": "^0.160.0",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "vitest": "^5.1.0"
   }
 }
