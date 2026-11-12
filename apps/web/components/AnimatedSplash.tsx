@@ -478,7 +478,7 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
               },
             ]}
           >
-            <HomeCorridorScene forceDark={isDark} height={68} />
+            <HomeCorridorScene height={68} />
           </Animated.View>
 
           {/* Animated scrolling curb bar at the very bottom (like Chowdeck's bottom track) */}

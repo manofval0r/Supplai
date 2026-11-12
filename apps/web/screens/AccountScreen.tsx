@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import {
-  designTokens,
-  ui,
-  useAppConfig,
-  type ThemeColors,
-  type ThemeMode,
-} from '../lib/theme';
+import { designTokens, ui, useAppConfig, type ThemeColors } from '../lib/theme';
 import { Art } from '../components/LineArt';
 import {
   Press,
@@ -74,8 +68,6 @@ export function AccountScreen({
   const {
     colors,
     isDark,
-    themeMode,
-    setThemeMode,
     activeDelivery,
     setActiveDelivery,
     savedPlace,
@@ -217,62 +209,6 @@ export function AccountScreen({
           >
             Settings{'\u00A0'}
           </Text>
-
-          <Text style={[styles.secLbl, { color: colors.mute }]}>
-            APPEARANCE
-          </Text>
-          <View style={{ marginBottom: 12 }}>
-            <SegmentedControl<ThemeMode>
-              options={[
-                { key: 'light', label: 'Light' },
-                { key: 'dark', label: 'Dark' },
-                { key: 'system', label: 'System' },
-              ]}
-              value={themeMode}
-              onChange={setThemeMode}
-            />
-          </View>
-
-          {/* 3 Palette Swatches */}
-          <View style={styles.swatchRow}>
-            <View
-              style={[
-                styles.swatch,
-                {
-                  backgroundColor: '#030407',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255,255,255,0.14)',
-                },
-              ]}
-            >
-              <Text style={[styles.swatchName, { color: '#ffffff' }]}>
-                Midnight{'\n'}Black
-              </Text>
-              <Text
-                style={[styles.swatchHex, { color: 'rgba(255,255,255,0.75)' }]}
-              >
-                #030407
-              </Text>
-            </View>
-            <View style={[styles.swatch, { backgroundColor: '#1558C9' }]}>
-              <Text style={[styles.swatchName, { color: '#ffffff' }]}>
-                Electric{'\n'}Cobalt
-              </Text>
-              <Text
-                style={[styles.swatchHex, { color: 'rgba(255,255,255,0.82)' }]}
-              >
-                #1558C9
-              </Text>
-            </View>
-            <View style={[styles.swatch, { backgroundColor: '#D4FF24' }]}>
-              <Text style={[styles.swatchName, { color: '#030407' }]}>
-                Acid{'\n'}Lime
-              </Text>
-              <Text style={[styles.swatchHex, { color: 'rgba(3,4,7,0.75)' }]}>
-                #D4FF24
-              </Text>
-            </View>
-          </View>
 
           <Text style={[styles.secLbl, { color: colors.mute }]}>
             PREFERENCES
@@ -1634,7 +1570,7 @@ export function AccountScreen({
                   { color: colors.mute, fontSize: s(12.5) },
                 ]}
               >
-                Appearance, dark mode, alerts, haptics
+                Alerts and haptics
               </Text>
             </View>
             <ChevronRightIcon />
@@ -1966,30 +1902,6 @@ const styles = StyleSheet.create({
     fontFamily: ui.font.semi,
     fontSize: 15,
     paddingRight: 2,
-  },
-  swatchRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 18,
-  },
-  swatch: {
-    flex: 1,
-    height: 82,
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.md,
-    padding: 10,
-    justifyContent: 'space-between',
-  },
-  swatchName: {
-    fontFamily: ui.font.bold,
-    fontSize: 12,
-    lineHeight: 14,
-  },
-  swatchHex: {
-    fontFamily: ui.font.bold,
-    fontSize: 10.5,
-    letterSpacing: 0.4,
   },
   radioCircle: {
     width: 22,

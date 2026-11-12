@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useColorScheme } from 'react-native';
 
 export const palette = {
   midnight: '#030407',
@@ -85,33 +84,6 @@ export const lightColors: ThemeColors = {
   heroSubColor: 'rgba(255, 255, 255, 0.68)',
 };
 
-export const darkColors: ThemeColors = {
-  bg: '#030407',
-  bgSoft: '#0b0e15',
-  tile: '#10131c',
-  tileHover: '#171b27',
-  surface: '#0d1018',
-  ink: '#f5f7fb',
-  mute: '#8b95a7',
-  line: '#1b2030',
-  cobalt: '#1558C9',
-  cobaltSoft: 'rgba(21, 88, 201, 0.22)',
-  lime: '#D4FF24',
-  limeInk: '#030407',
-  artStroke: '#D4FF24',
-  artFill: 'rgba(21, 88, 201, 0.42)',
-  artHighlight: '#1558C9',
-  dockBg: 'rgba(16, 19, 28, 0.94)',
-  dockBorder: 'rgba(255, 255, 255, 0.09)',
-  dockActiveBg: '#D4FF24',
-  dockActiveInk: '#030407',
-  red: '#ff5c61',
-  heroTileBg: '#1558C9',
-  heroSubColor: 'rgba(255, 255, 255, 0.80)',
-};
-
-export type ThemeMode = 'light' | 'dark' | 'system';
-
 export interface SavedPlaceItem {
   name: string;
   sub: string;
@@ -124,8 +96,6 @@ export const DEFAULT_SAVED_PLACES: SavedPlaceItem[] = [
 ];
 
 export interface AppConfigValue {
-  themeMode: ThemeMode;
-  setThemeMode: (mode: ThemeMode) => void;
   isDark: boolean;
   colors: ThemeColors;
   activeDelivery: boolean;
@@ -171,8 +141,6 @@ export interface AppConfigValue {
 }
 
 const AppConfigContext = createContext<AppConfigValue>({
-  themeMode: 'light',
-  setThemeMode: () => {},
   isDark: false,
   colors: lightColors,
   activeDelivery: true,
@@ -217,8 +185,6 @@ const AppConfigContext = createContext<AppConfigValue>({
 });
 
 export function AppConfigProvider({ children }: { children: React.ReactNode }) {
-  const sysScheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
   const [activeDelivery, setActiveDelivery] = useState<boolean>(true);
   const [savedPlace, setSavedPlace] = useState<string>('Aiyetoro Central');
   const [savedPlaces, setSavedPlaces] =
@@ -243,9 +209,8 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [simZincStock, setSimZincStock] = useState<number>(120);
   const [showSplash, setShowSplash] = useState<boolean>(true);
 
-  const isDark =
-    themeMode === 'dark' || (themeMode === 'system' && sysScheme === 'dark');
-  const colors = isDark ? darkColors : lightColors;
+  const isDark = false;
+  const colors = lightColors;
 
   const s = useCallback(
     (size: number) => Math.round(size * uiScale * 10) / 10,
@@ -285,8 +250,6 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<AppConfigValue>(
     () => ({
-      themeMode,
-      setThemeMode,
       isDark,
       colors,
       activeDelivery,
@@ -330,7 +293,6 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
       resetDemoState,
     }),
     [
-      themeMode,
       isDark,
       colors,
       activeDelivery,

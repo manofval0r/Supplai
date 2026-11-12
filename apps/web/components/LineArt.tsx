@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
-import { darkColors, useAppConfig } from '../lib/theme';
+import { useAppConfig } from '../lib/theme';
 
 export type ArtName =
   | 'cyclist'
@@ -152,17 +152,14 @@ export function Art({
  * and at the bottom of the Animated 2D Medicine Splash Screen.
  */
 export function HomeCorridorScene({
-  forceDark = false,
   height,
 }: {
-  forceDark?: boolean;
   height?: number;
 } = {}) {
   const { colors, reduceMotion, courierSpeed, artScale } = useAppConfig();
-  const palette = forceDark ? darkColors : colors;
-  const c = palette.artStroke;
-  const f = palette.artFill;
-  const hl = palette.artHighlight;
+  const c = colors.artStroke;
+  const f = colors.artFill;
+  const hl = colors.artHighlight;
   const p = {
     stroke: c,
     strokeWidth: 1.9,
