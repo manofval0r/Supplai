@@ -1580,6 +1580,7 @@ export function AccountScreen({
       />
 
       <ScrollView
+        nativeID="web-account-content"
         style={{ flex: 1 }}
         contentContainerStyle={styles.hubScroll}
         showsVerticalScrollIndicator={false}

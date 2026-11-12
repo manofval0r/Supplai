@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { designTokens, ui, useAppConfig } from '../lib/theme';
 import { Stage3D } from './Stage3D';
-import { Art, HomeCorridorScene } from './LineArt';
+import { Art } from './LineArt';
 import { Press, ScreenBackdrop, PinIcon, ChevronRightIcon } from './ui';
 
 export type AppMode =
@@ -368,8 +368,6 @@ export function RolePicker({
         </View>
 
         <View style={{ flex: 1 }} />
-
-        <HomeCorridorScene />
       </View>
     </View>
   );

@@ -4,7 +4,6 @@ export const landingContent = {
     { label: 'Our network', href: '#our-network' },
   ],
   hero: {
-    eyebrow: 'A stronger supply network for local care',
     headline: ['Essential medicine,', "where it's needed."],
     description:
       'Supplai helps health facilities coordinate essential stock and accountable delivery, so care teams can focus on the people who need them.',

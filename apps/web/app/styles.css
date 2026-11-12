@@ -198,10 +198,6 @@ select {
     font-size: 15px !important;
   }
 
-  #web-dock-wrap {
-    padding: 8px 24px 24px !important;
-  }
-
   #web-dock {
     width: min(100%, 880px);
     margin: 0 auto;
@@ -398,6 +394,13 @@ body {
 }
 
 #web-dock-wrap {
+  position: fixed !important;
+  z-index: 100;
+  bottom: 0;
+  left: 50%;
+  width: min(100%, 928px);
+  padding: 8px 18px calc(12px + env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%);
   background: transparent !important;
 }
 
@@ -408,6 +411,11 @@ body {
 
 #web-activity-content {
   padding-top: 40px !important;
+}
+
+#web-activity-content > div,
+#web-account-content > div {
+  padding-bottom: 110px !important;
 }
 
 #web-activity-stats > div {

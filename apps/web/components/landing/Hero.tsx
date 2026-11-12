@@ -9,10 +9,6 @@ export default function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.heroCopy}>
-        <p className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} aria-hidden="true" />
-          {hero.eyebrow}
-        </p>
         <h1 className={styles.heroTitle}>
           {hero.headline[0]}
           <span>{hero.headline[1]}</span>
