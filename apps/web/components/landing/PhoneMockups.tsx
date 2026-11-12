@@ -4,6 +4,10 @@ import { landingContent } from './content';
 import styles from './landing.module.css';
 import { PREVIEW_SCREENS } from './preview-screens';
 
+const EXPO_PREVIEW_URL =
+  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ??
+  'https://expo.dev/accounts/manofval0r/projects/supplai';
+
 export default function PhoneMockups() {
   const { facilityApp } = landingContent;
 
@@ -27,6 +31,21 @@ export default function PhoneMockups() {
             <li key={feature}>{feature}</li>
           ))}
         </ul>
+        <div className={styles.phoneActions}>
+          <a
+            className={`${styles.primaryButton} ${styles.downloadButton}`}
+            href={EXPO_PREVIEW_URL}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Download the latest Expo preview{' '}
+            <span aria-hidden="true">{'\u2192'}</span>
+          </a>
+        </div>
+        <p className={styles.phoneNote}>
+          Android preview build. All facilities, stock, and deliveries are
+          fictional.
+        </p>
       </div>
       <div className={styles.phoneVisuals}>
         <AppPreview3D />
