@@ -9,8 +9,6 @@ export const landingContent = {
       'Supplai helps health facilities coordinate essential stock and accountable delivery, so care teams can focus on the people who need them.',
     primaryAction: 'Go to dashboard',
     secondaryAction: 'How Supplai works',
-    proofTitle: 'Connected care, closer to home.',
-    proofDescription: 'Built for facility teams and local delivery partners',
   },
   network: {
     benefits: [

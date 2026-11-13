@@ -180,20 +180,66 @@
 }
 
 .hero {
-  display: grid;
-  width: 95%;
-  min-height: 620px;
-  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
-  align-items: center;
-  gap: clamp(24px, 4vw, 56px);
-  margin: 0 auto;
-  padding: 56px 0 36px;
+  --sw: min(100vw, 2400px);
+  --sh: calc(var(--sw) / 3);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: #fff2cf;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  min-height: 100svh;
+  padding: 110px 20px calc(var(--sh) * 0.64);
 }
 
-.heroCopy {
+.hero__scene {
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--sw);
+  height: auto;
+  aspect-ratio: 3 / 1;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.hero__ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--sh) * 0.403);
+  background: linear-gradient(#1d7258 0 88%, #76867c 88%);
+  z-index: -1;
+}
+
+.hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  width: 100%;
   max-width: 760px;
+}
+
+.hero::after {
+  --cl: clamp(36px, 6vw, 80px);
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: var(--cl);
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(
+      circle var(--cl) at 50% 100%,
+      #fff 98%,
+      transparent 100%
+    )
+    0 0 / calc(var(--cl) * 2) var(--cl) repeat-x;
 }
 
 .eyebrow {
@@ -218,7 +264,6 @@
   background: var(--orange);
 }
 
-.heroTitle,
 .sectionTitle,
 .callToAction h2 {
   font-size: clamp(48px, 4.8vw, 68px);
@@ -228,8 +273,12 @@
 }
 
 .heroTitle {
-  max-width: 850px;
-  margin: 26px 0 22px;
+  font-size: clamp(44px, 8.5vw, 140px);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  word-spacing: 0.12em;
+  margin: 0 0 22px;
 }
 
 .heroTitle span,
@@ -248,12 +297,18 @@
   line-height: 1.75;
 }
 
+.hero__sub {
+  max-width: 52ch;
+  margin-inline: auto;
+}
+
 .heroActions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 16px;
 }
 
 .primaryButton,
@@ -290,175 +345,15 @@
   background: var(--yellow);
 }
 
-.heroProof {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 34px;
-}
-
-.proofMark {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  flex: 0 0 46px;
-  place-items: center;
-  border: var(--line);
-  border-radius: 50%;
-  background: var(--mint);
-  font-size: 30px;
-  line-height: 1;
-}
-
-.heroProof strong,
-.heroProof small {
-  display: block;
-}
-
-.heroProof strong {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.heroProof small {
-  margin-top: 3px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.heroScene {
-  position: relative;
-  width: 100%;
-  max-width: 700px;
-  justify-self: end;
-  overflow: hidden;
-  border: var(--line);
-  border-radius: 35% 35% 20px 20px;
-  background: var(--blue);
-  box-shadow: var(--shadow);
-  isolation: isolate;
-}
-
-.heroScene::before,
-.heroScene::after {
-  position: absolute;
-  z-index: -1;
-  width: 72px;
-  height: 72px;
-  border: var(--line);
-  border-radius: 50%;
-  background: var(--paper);
-  content: '';
-}
-
-.heroScene::before {
-  top: -36px;
-  left: 18%;
-}
-
-.heroScene::after {
-  top: -36px;
-  right: 18%;
-}
-
-.heroScene svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.cloud {
-  fill: var(--paper);
-}
-
-.sun {
-  fill: var(--yellow);
-  stroke: var(--ink);
-  stroke-width: 4px;
-}
-
-.hillBack {
-  fill: var(--mint);
-}
-
-.hillFront {
-  fill: #73b777;
-}
-
-.road {
-  fill: #4a514b;
-  stroke: var(--ink);
-  stroke-width: 3px;
-}
-
-.roadLine {
-  fill: none;
-  stroke: var(--yellow);
-  stroke-dasharray: 24 24;
-  stroke-linecap: round;
-  stroke-width: 5px;
-}
-
-.town {
-  fill: var(--orange);
-  stroke: var(--ink);
-  stroke-linejoin: round;
-  stroke-width: 4px;
-}
-
-.windows {
-  fill: var(--paper);
-}
-
-.tree {
-  fill: var(--forest);
-  stroke: var(--ink);
-  stroke-width: 3px;
-}
-
-.vehicle {
-  fill: var(--pink);
-  stroke: var(--ink);
-  stroke-linejoin: round;
-  stroke-width: 4px;
-}
-
-.vehicleWindow {
-  fill: var(--blue);
-}
-
-.wheel {
-  fill: var(--ink);
-}
-
-.wheelHub {
-  fill: var(--paper);
-}
-
-.vehicleMark {
-  fill: none;
-  stroke: var(--ink);
-  stroke-linecap: round;
-  stroke-width: 3px;
-}
-
-.sceneSparkle {
-  position: absolute;
-  top: 28%;
-  right: 17%;
-  color: var(--forest);
-  font-size: 38px;
-  font-weight: 800;
-}
-
 .featureSection {
   display: grid;
-  width: 95%;
+  width: 100%;
   grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
   align-items: stretch;
   gap: 16px;
-  margin: 14px auto 72px;
+  margin: 0 auto 72px;
+  padding: 14px 2.5% 0;
+  background: #fff;
 }
 
 .featureTabs {
@@ -980,37 +875,6 @@
   fill: var(--yellow);
 }
 
-@keyframes hero-rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes vehicle-ride {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(46px);
-  }
-}
-
-@keyframes cloud-drift {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(12px);
-  }
-}
-
 @keyframes marquee-scroll {
   to {
     transform: translateX(calc(-50% - 7px));
@@ -1035,20 +899,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .heroCopy {
-    animation: hero-rise 600ms ease both;
-  }
-
-  .heroScene svg > .cloud {
-    animation: cloud-drift 7s ease-in-out infinite;
-  }
-
-  .vehicle {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: vehicle-ride 8s ease-in-out infinite;
-  }
-
   .marqueeTrack {
     animation: marquee-scroll 30s linear infinite;
   }
@@ -1059,25 +909,6 @@
 }
 
 @media (max-width: 780px) {
-  .hero {
-    min-height: auto;
-    grid-template-columns: 1fr;
-    gap: 28px;
-    padding-top: 48px;
-  }
-
-  .heroCopy {
-    max-width: 680px;
-  }
-
-  .heroTitle {
-    font-size: clamp(52px, 11vw, 84px);
-  }
-
-  .heroScene {
-    display: none;
-  }
-
   .featureSection {
     grid-template-columns: 1fr;
     margin-bottom: 64px;
@@ -1210,12 +1041,6 @@
     cursor: default;
   }
 
-  .hero {
-    width: 95%;
-    padding-top: 48px;
-  }
-
-  .featureSection,
   .stepperSection,
   .phoneSection,
   .callToAction,
@@ -1315,7 +1140,11 @@
 @media (max-width: 640px) {
   .heroTitle {
     margin-block: 20px;
-    font-size: clamp(46px, 12vw, 68px);
+    font-size: clamp(38px, 11vw, 56px);
+  }
+
+  .hero {
+    padding-top: 96px;
   }
 
   .heroDescription,

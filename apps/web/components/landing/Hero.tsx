@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { landingContent } from './content';
-import HeroScene from './HeroScene';
 import styles from './landing.module.css';
 
 export default function Hero() {
@@ -8,12 +7,21 @@ export default function Hero() {
 
   return (
     <section className={styles.hero}>
-      <div className={styles.heroCopy}>
+      <img
+        className={styles.hero__scene}
+        src="/hero-background.svg"
+        alt=""
+        aria-hidden="true"
+      />
+      <div className={styles.hero__ground} aria-hidden="true" />
+      <div className={styles.hero__content}>
         <h1 className={styles.heroTitle}>
           {hero.headline[0]}
           <span>{hero.headline[1]}</span>
         </h1>
-        <p className={styles.heroDescription}>{hero.description}</p>
+        <p className={`${styles.hero__sub} ${styles.heroDescription}`}>
+          {hero.description}
+        </p>
         <div className={styles.heroActions}>
           <Link className={styles.primaryButton} href="/dashboard">
             {hero.primaryAction} <span aria-hidden="true">→</span>
@@ -22,17 +30,7 @@ export default function Hero() {
             {hero.secondaryAction}
           </a>
         </div>
-        <div className={styles.heroProof}>
-          <span className={styles.proofMark} aria-hidden="true">
-            +
-          </span>
-          <span>
-            <strong>{hero.proofTitle}</strong>
-            <small>{hero.proofDescription}</small>
-          </span>
-        </div>
       </div>
-      <HeroScene />
     </section>
   );
 }
