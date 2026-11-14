@@ -1,0 +1,346 @@
+.footer {
+  position: relative;
+  margin-top: clamp(56px, 8vw, 110px);
+  overflow: hidden;
+  border-radius: 40px 40px 0 0;
+  background: #030407;
+  color: #fff;
+  isolation: isolate;
+}
+
+.footer::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(
+      900px 420px at 88% -10%,
+      rgb(21 88 201 / 38%),
+      transparent 70%
+    ),
+    radial-gradient(
+      620px 320px at 4% 38%,
+      rgb(212 255 36 / 7%),
+      transparent 70%
+    );
+  content: '';
+}
+
+.inner {
+  width: min(95%, 1440px);
+  margin: 0 auto;
+}
+
+/* ---------- CTA band ---------- */
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: clamp(28px, 4vw, 48px);
+  padding: clamp(24px, 3.4vw, 44px);
+  border-radius: 28px;
+  background: #d4ff24;
+  color: #030407;
+}
+
+.ctaCopy {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.ctaEyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.cta h2 {
+  margin: 0;
+  font-size: clamp(30px, 4.4vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btnDark,
+.btnGhost {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.btnDark {
+  background: #030407;
+  color: #d4ff24 !important;
+}
+
+.btnGhost {
+  border: 2px solid #030407;
+  color: #030407 !important;
+}
+
+.btnDark:hover,
+.btnGhost:hover {
+  transform: translateY(-2px);
+}
+
+.btnGhost:hover {
+  background: #030407;
+  color: #fff !important;
+}
+
+/* ---------- main grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 0.7fr));
+  gap: clamp(28px, 4vw, 64px);
+  padding: clamp(40px, 5vw, 72px) 0 clamp(28px, 3vw, 44px);
+}
+
+.brandCol {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.lead {
+  max-width: 400px;
+  margin: 0;
+  color: rgb(255 255 255 / 74%);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  color: rgb(255 255 255 / 86%);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.chip i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #d4ff24;
+  box-shadow: 0 0 0 4px rgb(212 255 36 / 16%);
+}
+
+.col {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+
+.col h3 {
+  margin: 0 0 12px;
+  color: rgb(255 255 255 / 48%);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.col a {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  color: #fff !important;
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition:
+    color 160ms ease,
+    gap 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.col a::after {
+  color: #d4ff24;
+  content: '→';
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 160ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.col a:hover {
+  color: #d4ff24 !important;
+}
+
+.col a:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  color: rgb(255 255 255 / 66%);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rule b {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  place-items: center;
+  border-radius: 7px;
+  background: rgb(21 88 201 / 55%);
+  color: #d4ff24;
+  font-size: 13px;
+}
+
+/* ---------- illustration ---------- */
+.scene {
+  position: relative;
+  height: clamp(150px, 17vw, 240px);
+  margin-top: 8px;
+}
+
+.scene svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.route {
+  animation: route-flow 1.6s linear infinite;
+}
+
+.wordmark {
+  position: relative;
+  z-index: 0;
+  margin: 0.04em 0 0;
+  padding-bottom: 0.2em;
+  color: transparent;
+  font-size: clamp(88px, 25vw, 440px);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.82;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-text-stroke: 1.5px rgb(21 88 201 / 70%);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---------- bottom bar ---------- */
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 20px 0 calc(24px + env(safe-area-inset-bottom));
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  color: rgb(255 255 255 / 56%);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgb(3 4 7 / 72%);
+}
+
+.top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 999px;
+  color: #fff !important;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.top:hover {
+  background: #d4ff24;
+  color: #030407 !important;
+}
+
+@keyframes route-flow {
+  to {
+    stroke-dashoffset: -32;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route {
+    animation: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .brandCol {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer {
+    border-radius: 28px 28px 0 0;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .col:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .ctaActions,
+  .btnDark,
+  .btnGhost {
+    width: 100%;
+    justify-content: center;
+  }
+}

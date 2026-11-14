@@ -1,0 +1,156 @@
+.wrap {
+  width: min(95%, 1440px);
+  margin: 0 auto;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 28px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  position: relative;
+  padding: 22px 22px 20px;
+  border: 1px solid #e6e9ef;
+  border-radius: 24px;
+  background: #fff;
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 160ms ease;
+}
+
+.step:hover {
+  border-color: #030407;
+  transform: translateY(-3px);
+}
+
+.step:first-child {
+  background: #d4ff24;
+  border-color: #d4ff24;
+}
+
+.num {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #030407;
+  color: #d4ff24;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.step:first-child .num {
+  color: #fff;
+}
+
+.step h3 {
+  margin: 14px 0 6px;
+  color: #030407;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.step p {
+  margin: 0;
+  color: #646f82;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.step:first-child p {
+  color: rgb(3 4 7 / 72%);
+}
+
+.step code {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #e9f0fd;
+  color: #1558c9;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.panel {
+  margin-top: 28px;
+  overflow: hidden;
+  border-radius: 36px;
+  background-color: #f6f8fc;
+  background-image: radial-gradient(#d3dbea 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+.panelBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 28px;
+  background: #030407;
+  color: #fff;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.live i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d4ff24;
+  box-shadow: 0 0 0 0 rgb(212 255 36 / 60%);
+  animation: live-pulse 2s ease-out infinite;
+}
+
+.panelBar span:last-child {
+  color: rgb(255 255 255 / 56%);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.panelBody :global(#supplai-root),
+.panelBody :global(#web-app-shell),
+.panelBody :global(#web-role-screen) {
+  background: transparent !important;
+}
+
+.panelBody {
+  padding: clamp(8px, 2vw, 28px) 0 clamp(20px, 3vw, 40px);
+}
+
+@keyframes live-pulse {
+  to {
+    box-shadow: 0 0 0 12px rgb(212 255 36 / 0%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live i {
+    animation: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .steps {
+    grid-template-columns: 1fr;
+  }
+}

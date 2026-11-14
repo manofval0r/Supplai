@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { landingContent } from './content';
-import styles from './landing.module.css';
+import styles from './footer.module.css';
+import landing from './landing.module.css';
 
 function BrandMark() {
   return (
-    <Link className={styles.brand} href="/" aria-label="Supplai home">
-      <span className={styles.brandMark} aria-hidden="true">
+    <Link className={landing.brand} href="/" aria-label="Supplai home">
+      <span className={landing.brandMark} aria-hidden="true">
         +
       </span>
       <span>supplai</span>
@@ -13,134 +14,203 @@ function BrandMark() {
   );
 }
 
-export function SiteFooter() {
-  const { footer } = landingContent;
-
+function Scene() {
   return (
-    <footer className={styles.footer}>
-      <div className={styles.footerInner}>
-        <div className={styles.footerTop}>
-          <div className={styles.footerBrand}>
-            <BrandMark />
-            <p className={styles.footerLead}>
-              Role-based mobile and web logistics coordinating verified,
-              ambient-only essential medicine transfers between Nigerian primary
-              health centres.
-            </p>
-            <p className={styles.footerDisclosure}>
-              Demo Data · Ado-Odo/Ota LGA Simulation · {footer.description}
-            </p>
-          </div>
-
-          <div className={styles.footerColumns}>
-            <div className={styles.footerCol}>
-              <h3>Platform</h3>
-              <Link href="/">Overview</Link>
-              <Link href="/dashboard">Interactive Console</Link>
-              <Link href="/lga">LGA Oversight Desk</Link>
-              <Link href="/app-preview">App Preview &amp; APK</Link>
-              <Link href="/login">Demo Sign In</Link>
-            </div>
-
-            <div className={styles.footerCol}>
-              <h3>Workflow &amp; Safety</h3>
-              <Link href="/#our-network">Our Network</Link>
-              <Link href="/#how-it-works">3-Step Handover</Link>
-              <Link href="/#app-preview">Facility Mobile App</Link>
-              <span className={styles.footerStatic}>
-                ORS 20.5 g &amp; Zinc 20 mg Only
-              </span>
-              <span className={styles.footerStatic}>
-                Cold-Chain Routed to LGA Store
-              </span>
-            </div>
-          </div>
-
-          <svg
-            aria-hidden="true"
-            className={styles.footerBadge}
-            viewBox="0 0 120 120"
-          >
-            <defs>
-              <path
-                d="M60 60m-43 0a43 43 0 1 1 86 0a43 43 0 1 1-86 0"
-                id="footer-badge-circle"
-              />
-            </defs>
-            <circle cx="60" cy="60" r="57" />
-            <text>
-              <textPath href="#footer-badge-circle">
-                supplai · supplai · supplai ·
-              </textPath>
-            </text>
-            <path d="M60 36v48M36 60h48" />
-          </svg>
-        </div>
-
-        <svg
-          aria-hidden="true"
-          className={styles.footerIllustration}
-          viewBox="0 0 1200 132"
-          preserveAspectRatio="none"
-        >
+    <div className={styles.scene} aria-hidden="true">
+      <svg viewBox="0 0 1200 240" preserveAspectRatio="xMidYMax slice">
+        <path d="M0 214 H1200" stroke="#1558C9" strokeWidth="3" fill="none" />
+        {/* far skyline */}
+        <g fill="#1558C9" fillOpacity="0.22">
+          <rect x="40" y="150" width="54" height="64" />
+          <rect x="100" y="124" width="40" height="90" />
+          <rect x="300" y="140" width="70" height="74" />
+          <rect x="376" y="160" width="44" height="54" />
+          <rect x="760" y="132" width="60" height="82" />
+          <rect x="826" y="156" width="50" height="58" />
+          <rect x="1090" y="136" width="56" height="78" />
+        </g>
+        {/* source clinic */}
+        <g>
+          <rect x="150" y="150" width="130" height="64" rx="6" fill="#1558C9" />
+          <rect x="176" y="176" width="22" height="38" rx="3" fill="#030407" />
+          <rect
+            x="214"
+            y="170"
+            width="40"
+            height="22"
+            rx="3"
+            fill="#030407"
+            fillOpacity="0.55"
+          />
           <path
-            d="M0 108 H190 L224 72 H360 L388 94 H552 L584 48 H668 L700 84 H890 L926 56 H1040 L1076 94 H1200"
-            fill="none"
-            stroke="#1558C9"
-            strokeWidth="3"
+            d="M215 128 V150 M204 139 H226"
+            stroke="#D4FF24"
+            strokeWidth="5"
+            strokeLinecap="round"
           />
+        </g>
+        {/* LGA store */}
+        <g>
           <rect
-            x="58"
-            y="58"
-            width="64"
-            height="50"
-            rx="6"
-            fill="#1558C9"
-            fillOpacity="0.35"
-            stroke="#1558C9"
-            strokeWidth="2"
-          />
-          <path d="M90 73 V93 M80 83 H100" stroke="#D4FF24" strokeWidth="3.5" />
-          <rect
-            x="592"
-            y="24"
-            width="70"
-            height="58"
+            x="520"
+            y="70"
+            width="150"
+            height="144"
             rx="8"
             fill="#1558C9"
             stroke="#D4FF24"
-            strokeWidth="2.5"
+            strokeWidth="3"
           />
-          <path d="M627 39 V65 M614 52 H640" stroke="#D4FF24" strokeWidth="4" />
+          {[0, 1, 2].map((row) =>
+            [0, 1, 2].map((col) => (
+              <rect
+                key={`${row}-${col}`}
+                x={540 + col * 42}
+                y={92 + row * 34}
+                width="26"
+                height="18"
+                rx="3"
+                fill="#030407"
+                fillOpacity="0.5"
+              />
+            )),
+          )}
+          <circle cx="595" cy="46" r="20" fill="#D4FF24" />
+          <path
+            d="M595 36 V56 M585 46 H605"
+            stroke="#030407"
+            strokeWidth="4.5"
+            strokeLinecap="round"
+          />
+        </g>
+        {/* receiving PHC */}
+        <g>
           <rect
-            x="934"
-            y="34"
-            width="92"
-            height="48"
+            x="930"
+            y="140"
+            width="150"
+            height="74"
             rx="6"
             fill="#1558C9"
-            fillOpacity="0.28"
-            stroke="#1558C9"
-            strokeWidth="2"
+            fillOpacity="0.8"
           />
-          <circle cx="224" cy="72" r="6" fill="#D4FF24" />
-          <circle cx="627" cy="82" r="6" fill="#D4FF24" />
-          <circle cx="926" cy="56" r="6" fill="#D4FF24" />
+          <rect x="990" y="172" width="26" height="42" rx="3" fill="#030407" />
           <path
-            d="M224 72 Q420 18 627 82 T926 56"
-            fill="none"
+            d="M1005 112 V138 M992 125 H1018"
             stroke="#D4FF24"
-            strokeWidth="2.5"
-            strokeDasharray="8 8"
+            strokeWidth="5"
+            strokeLinecap="round"
           />
-        </svg>
+        </g>
+        {/* dispatch route */}
+        <path
+          className={styles.route}
+          d="M232 206 C330 120 440 120 595 206 S880 120 1005 206"
+          fill="none"
+          stroke="#D4FF24"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray="10 12"
+        />
+        <circle cx="232" cy="206" r="7" fill="#D4FF24" />
+        <circle cx="595" cy="206" r="7" fill="#D4FF24" />
+        <circle cx="1005" cy="206" r="7" fill="#D4FF24" />
+      </svg>
+    </div>
+  );
+}
 
-        <div className={styles.footerBottom}>
-          <span>Supplai Logistics · Fictional Demo Environment</span>
+export function SiteFooter() {
+  const { callToAction, footer } = landingContent;
+
+  return (
+    <footer className={styles.footer}>
+      <div className={styles.inner}>
+        <section className={styles.cta} aria-label="Get started">
+          <div className={styles.ctaCopy}>
+            <p className={styles.ctaEyebrow}>{callToAction.eyebrow}</p>
+            <h2>{callToAction.headline}</h2>
+          </div>
+          <div className={styles.ctaActions}>
+            <Link className={styles.btnDark} href="/dashboard">
+              {callToAction.action} <span aria-hidden="true">→</span>
+            </Link>
+            <Link className={styles.btnGhost} href="/app-preview">
+              See the mobile app
+            </Link>
+          </div>
+        </section>
+
+        <div className={styles.grid}>
+          <div className={styles.brandCol}>
+            <BrandMark />
+            <p className={styles.lead}>
+              Role-based mobile and web logistics coordinating verified,
+              ambient-only essential medicine transfers between Nigerian primary
+              health centres. {footer.description}
+            </p>
+            <div className={styles.chips}>
+              <span className={styles.chip}>
+                <i /> Demo environment
+              </span>
+              <span className={styles.chip}>Ado-Odo/Ota LGA simulation</span>
+            </div>
+          </div>
+
+          <nav className={styles.col} aria-label="Platform">
+            <h3>Platform</h3>
+            <Link href="/">Overview</Link>
+            <Link href="/dashboard">Interactive console</Link>
+            <Link href="/lga">LGA oversight desk</Link>
+            <Link href="/app-preview">App preview &amp; APK</Link>
+            <Link href="/login">Demo sign in</Link>
+          </nav>
+
+          <nav className={styles.col} aria-label="Workflow">
+            <h3>Workflow</h3>
+            <Link href="/#our-network">Our network</Link>
+            <Link href="/#how-it-works">3-step handover</Link>
+            <Link href="/#app-preview">Facility mobile app</Link>
+          </nav>
+
+          <div className={styles.col}>
+            <h3>Safety rules</h3>
+            <span className={styles.rule}>
+              <b>✓</b> ORS 20.5 g &amp; Zinc 20 mg only
+            </span>
+            <span className={styles.rule}>
+              <b>✓</b> Source safety floor ≥ 20
+            </span>
+            <span className={styles.rule}>
+              <b>✓</b> Two-sided PIN &amp; seal handover
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <Scene />
+      <p className={styles.wordmark} aria-hidden="true">
+        supplai
+      </p>
+
+      <div className={styles.bottom}>
+        <div
+          className={styles.inner}
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 14,
+          }}
+        >
           <span>
-            Palette: Midnight Black #030407 · Electric Cobalt #1558C9 · Acid
-            Lime #D4FF24
+            © {new Date().getFullYear()} Supplai Logistics · All facilities,
+            stock, and deliveries are fictional.
           </span>
+          <Link className={styles.top} href="#top">
+            Back to top <span aria-hidden="true">↑</span>
+          </Link>
         </div>
       </div>
     </footer>
@@ -148,21 +218,5 @@ export function SiteFooter() {
 }
 
 export default function CtaFooter() {
-  const { callToAction } = landingContent;
-
-  return (
-    <>
-      <section className={styles.callToAction}>
-        <div>
-          <p className={styles.ctaEyebrow}>{callToAction.eyebrow}</p>
-          <h2>{callToAction.headline}</h2>
-        </div>
-        <Link className={styles.ctaButton} href="/dashboard">
-          {callToAction.action} <span aria-hidden="true">→</span>
-        </Link>
-      </section>
-
-      <SiteFooter />
-    </>
-  );
+  return <SiteFooter />;
 }
