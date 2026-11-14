@@ -324,18 +324,18 @@ select {
 }
 
 :root {
-  --color-forest: #0b5240;
-  --color-orange: #ff8a4c;
-  --color-yellow: #ffc700;
-  --color-cream: #fff4d6;
-  --color-ink: #111410;
-  --color-body: #3e4d44;
-  --color-muted: #4b5a51;
-  --color-line: #d8cbb1;
-  --color-pink: #f6b7c7;
-  --color-sky: #a8ddf0;
-  --color-lavender: #d4c5f1;
-  --color-mint: #bfe5d0;
+  --color-forest: #1558c9;
+  --color-orange: #1558c9;
+  --color-yellow: #d4ff24;
+  --color-cream: #ffffff;
+  --color-ink: #030407;
+  --color-body: #333c4d;
+  --color-muted: #646f82;
+  --color-line: #e6e9ef;
+  --color-pink: #e9f0fd;
+  --color-sky: #dde7fb;
+  --color-lavender: #f2f4f8;
+  --color-mint: #e9f0fd;
   --font-display: Inter, 'Inter_700Bold', sans-serif;
   --font-body: Inter, 'Inter_400Regular', sans-serif;
   --space-1: 4px;
@@ -344,12 +344,17 @@ select {
   --space-4: 24px;
   --space-5: 32px;
   --space-6: 48px;
-  --radius-card: 24px;
-  --radius-pill: 999px;
-  --border-card: 2px solid var(--color-ink);
-  --shadow-card: 4px 4px 0 var(--color-ink);
+  --radius-card: 20px;
+  --radius-pill: 16px;
+  --border-card: 1px solid var(--color-line);
+  --shadow-card: 0 8px 24px rgba(3, 4, 7, 0.06);
   --motion-fast: 150ms;
   --motion-base: 250ms;
+}
+
+:focus-visible {
+  outline: 2px solid #1558c9;
+  outline-offset: 2px;
 }
 
 html,

@@ -7,7 +7,7 @@ import {
   View,
   type LayoutChangeEvent,
 } from 'react-native';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { HomeIcon, ActivityIcon, UserIcon } from './ui';
 
 export type DockTab = 'home' | 'activity' | 'account';
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
-    shadowColor: designTokens.colors.ink,
+    shadowColor: '#030407',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.16,
     shadowRadius: 24,
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     bottom: 6,
     left: 6,
     borderRadius: 23,
-    shadowColor: designTokens.colors.forest,
+    shadowColor: '#1558C9',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.28,
     shadowRadius: 10,

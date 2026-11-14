@@ -1,9 +1,9 @@
 .site-page {
-  --site-ink: #14251f;
-  --site-muted: #60716a;
-  --site-green: #183c31;
+  --site-ink: #030407;
+  --site-muted: #646f82;
+  --site-green: #1558c9;
   --site-lime: #d4ff24;
-  --site-paper: #f7f8f4;
+  --site-paper: #ffffff;
   min-height: 100vh;
   overflow: hidden;
   color: var(--site-ink);

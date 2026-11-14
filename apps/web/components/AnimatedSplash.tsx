@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { Art, HomeCorridorScene } from './LineArt';
 
 export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
@@ -195,36 +195,36 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
   const leftTicks = Array.from({ length: 18 }, (_, i) => 28 + i * 5.5);
   const rightTicks = Array.from({ length: 18 }, (_, i) => 232 + i * 5.5);
 
-  const splashBg = isDark ? '#081811' : designTokens.colors.cream;
-  const cloudFill = designTokens.colors.forest;
+  const splashBg = isDark ? '#030407' : '#FFFFFF';
+  const cloudFill = '#1558C9';
   const cloudFillOpacity = isDark ? 0.28 : 0.08;
-  const cloudStroke = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const cloudStroke = isDark ? '#D4FF24' : '#1558C9';
   const cloudStrokeOpacity = isDark ? 0.35 : 0.22;
 
-  const artColor = isDark ? '#FFD44D' : designTokens.colors.forest;
-  const artFill = isDark ? '#16745A' : '#DDECE4';
-  const artHl = isDark ? 'rgba(255,199,0,0.45)' : 'rgba(255,199,0,0.6)';
+  const artColor = isDark ? '#D4FF24' : '#1558C9';
+  const artFill = isDark ? '#1558C9' : '#E9F0FD';
+  const artHl = isDark ? 'rgba(21,88,201,0.45)' : 'rgba(212,255,36,0.6)';
   const artOpacity = isDark ? 0.55 : 0.75;
 
-  const wordmarkColor = isDark ? '#F8F5EC' : designTokens.colors.ink;
+  const wordmarkColor = isDark ? '#F4F7FF' : '#030407';
   const tagPillBg = isDark
-    ? 'rgba(22, 116, 90, 0.25)'
-    : 'rgba(11, 82, 64, 0.08)';
+    ? 'rgba(21, 88, 201, 0.25)'
+    : 'rgba(21, 88, 201, 0.08)';
   const tagPillBorder = isDark
-    ? 'rgba(255, 199, 0, 0.35)'
-    : 'rgba(11, 82, 64, 0.22)';
-  const tagTextColor = isDark ? '#FFD44D' : designTokens.colors.forest;
+    ? 'rgba(212, 255, 36, 0.35)'
+    : 'rgba(21, 88, 201, 0.22)';
+  const tagTextColor = isDark ? '#D4FF24' : '#1558C9';
 
-  const fenceStroke = isDark ? '#FFD44D' : designTokens.colors.forest;
+  const fenceStroke = isDark ? '#D4FF24' : '#1558C9';
   const fenceOpacity = isDark ? 0.55 : 0.32;
-  const backHillFill = isDark ? '#0D2118' : '#E5F0E7';
-  const midHillFill = isDark ? '#193A2B' : '#D9E7D7';
-  const treeFill = designTokens.colors.forest;
+  const backHillFill = isDark ? '#0A1936' : '#E4EDFB';
+  const midHillFill = isDark ? '#0F2552' : '#D6E4F8';
+  const treeFill = '#1558C9';
   const treeOpacity = isDark ? 0.55 : 0.28;
-  const stageFill = isDark ? '#081811' : '#FFF0CC';
+  const stageFill = isDark ? '#030407' : '#F2F4F8';
 
-  const curbWrapBorder = isDark ? '#FFD44D' : designTokens.colors.forest;
-  const curbSegmentDark = isDark ? '#081811' : designTokens.colors.forest;
+  const curbWrapBorder = isDark ? '#D4FF24' : '#1558C9';
+  const curbSegmentDark = isDark ? '#030407' : '#1558C9';
 
   return (
     <Animated.View
@@ -375,19 +375,11 @@ export function AnimatedSplash({ onFinish }: { onFinish: () => void }) {
           <View style={styles.brandRow}>
             <View style={styles.brandBadge}>
               <Svg width={36} height={36} viewBox="0 0 36 36">
-                <Circle
-                  cx="18"
-                  cy="18"
-                  r="16"
-                  fill={designTokens.colors.yellow}
-                />
-                <Path
-                  d="M4 30 L11 25 L8 21 Z"
-                  fill={designTokens.colors.yellow}
-                />
+                <Circle cx="18" cy="18" r="16" fill="#D4FF24" />
+                <Path d="M4 30 L11 25 L8 21 Z" fill="#D4FF24" />
                 <Path
                   d="M18 11 V25 M11 18 H25"
-                  stroke={designTokens.colors.ink}
+                  stroke="#030407"
                   strokeWidth={3.6}
                   strokeLinecap="round"
                 />
@@ -625,7 +617,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 18,
-    backgroundColor: designTokens.colors.forest,
+    backgroundColor: '#1558C9',
     overflow: 'hidden',
     borderTopWidth: 1.5,
   },
@@ -642,7 +634,7 @@ const styles = StyleSheet.create({
   curbLight: {
     width: 24,
     height: '100%',
-    backgroundColor: designTokens.colors.yellow,
+    backgroundColor: '#D4FF24',
   },
   curbDark: {
     width: 24,

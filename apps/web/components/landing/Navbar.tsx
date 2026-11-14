@@ -47,6 +47,12 @@ export default function Navbar() {
               {item.label}
             </a>
           ))}
+          <Link href="/app-preview" onClick={() => setMenuOpen(false)}>
+            App Preview
+          </Link>
+          <Link href="/lga" onClick={() => setMenuOpen(false)}>
+            LGA Desk
+          </Link>
           <Link
             className={styles.dashboardLink}
             href="/dashboard"

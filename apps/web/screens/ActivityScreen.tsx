@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { Art, type ArtName } from '../components/LineArt';
 import { Press, ScreenBackdrop, SegmentedControl } from '../components/ui';
 import { Stage3D } from '../components/Stage3D';
@@ -285,9 +285,7 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.md,
+    borderRadius: 18,
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
@@ -304,9 +302,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   liveCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.lg,
+    borderRadius: 22,
     padding: 18,
     position: 'relative',
     overflow: 'hidden',
@@ -364,10 +360,10 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.65)',
   },
   idleCard: {
-    borderRadius: designTokens.radius.md,
+    borderRadius: 18,
     padding: 16,
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
+    borderWidth: 1,
+    borderColor: 'rgba(100, 111, 130, 0.25)',
     borderStyle: 'dashed',
     alignItems: 'center',
   },
@@ -382,9 +378,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   groupCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.lg,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   row: {

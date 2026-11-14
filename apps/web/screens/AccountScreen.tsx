@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { designTokens, ui, useAppConfig, type ThemeColors } from '../lib/theme';
+import { ui, useAppConfig, type ThemeColors } from '../lib/theme';
 import { Art } from '../components/LineArt';
 import {
   Press,
@@ -1860,9 +1860,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   groupCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.lg,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   row: {
@@ -1892,9 +1890,7 @@ const styles = StyleSheet.create({
   },
   signOutBtn: {
     height: 48,
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.pill,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1912,13 +1908,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   walletCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.lg,
+    borderRadius: 22,
     padding: 20,
-    backgroundColor: designTokens.colors.forest,
+    backgroundColor: '#1558C9',
     marginBottom: 14,
-    shadowColor: designTokens.colors.forest,
+    shadowColor: '#1558C9',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.28,
     shadowRadius: 24,
@@ -1939,7 +1933,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 24,
     borderRadius: 6,
-    backgroundColor: designTokens.colors.yellow,
+    backgroundColor: '#D4FF24',
   },
   walletBal: {
     fontFamily: ui.font.bold,

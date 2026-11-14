@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { Stage3D } from './Stage3D';
 import { Art } from './LineArt';
 import { Press, ScreenBackdrop, PinIcon, ChevronRightIcon } from './ui';
@@ -111,11 +111,11 @@ export function RolePicker({
               style={[
                 styles.tileLg,
                 {
-                  backgroundColor: colors.orange,
+                  backgroundColor: colors.tile,
                   width: compactCards ? '100%' : undefined,
                   flex: compactCards ? 0 : 1,
                   height: compactCards ? s(130) : s(176),
-                  borderRadius: s(24),
+                  borderRadius: s(22),
                   padding: compactCards ? 14 : 16,
                 },
               ]}
@@ -125,7 +125,7 @@ export function RolePicker({
                   style={[
                     styles.tileTitle,
                     {
-                      color: designTokens.colors.onBright,
+                      color: colors.ink,
                       fontSize: s(17),
                       lineHeight: s(20),
                     },
@@ -137,7 +137,7 @@ export function RolePicker({
                   style={[
                     styles.tileSub,
                     {
-                      color: designTokens.colors.bodyOnBright,
+                      color: colors.mute,
                       fontSize: s(12.5),
                       lineHeight: s(16),
                     },
@@ -169,11 +169,11 @@ export function RolePicker({
               style={[
                 styles.tileLg,
                 {
-                  backgroundColor: colors.yellow,
+                  backgroundColor: colors.tile,
                   width: compactCards ? '100%' : undefined,
                   flex: compactCards ? 0 : 1,
                   height: compactCards ? s(130) : s(176),
-                  borderRadius: s(24),
+                  borderRadius: s(22),
                   padding: compactCards ? 14 : 16,
                 },
               ]}
@@ -183,7 +183,7 @@ export function RolePicker({
                   style={[
                     styles.tileTitle,
                     {
-                      color: designTokens.colors.onBright,
+                      color: colors.ink,
                       fontSize: s(17),
                       lineHeight: s(20),
                     },
@@ -195,7 +195,7 @@ export function RolePicker({
                   style={[
                     styles.tileSub,
                     {
-                      color: designTokens.colors.bodyOnBright,
+                      color: colors.mute,
                       fontSize: s(12.5),
                       lineHeight: s(16),
                     },
@@ -265,7 +265,7 @@ export function RolePicker({
                   </Text>
                   <View
                     style={{
-                      backgroundColor: 'rgba(255, 199, 0, 0.22)',
+                      backgroundColor: 'rgba(212, 255, 36, 0.18)',
                       paddingHorizontal: 7,
                       paddingVertical: 2,
                       borderRadius: 999,

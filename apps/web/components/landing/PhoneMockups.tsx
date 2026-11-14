@@ -1,12 +1,13 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import AppPreview3D from '../AppPreview3D';
 import { landingContent } from './content';
 import styles from './landing.module.css';
 import { PREVIEW_SCREENS } from './preview-screens';
+import { DEFAULT_EXPO_PREVIEW_URL } from '../../lib/drive-preview';
 
 const EXPO_PREVIEW_URL =
-  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ??
-  'https://expo.dev/accounts/manofval0r/projects/supplai';
+  process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? DEFAULT_EXPO_PREVIEW_URL;
 
 export default function PhoneMockups() {
   const { facilityApp } = landingContent;
@@ -41,6 +42,12 @@ export default function PhoneMockups() {
             Download the latest Expo preview{' '}
             <span aria-hidden="true">{'\u2192'}</span>
           </a>
+          <Link
+            className={`${styles.primaryButton} ${styles.downloadButton}`}
+            href="/app-preview"
+          >
+            Open full App Preview &amp; Videos
+          </Link>
         </div>
         <p className={styles.phoneNote}>
           Android preview build. All facilities, stock, and deliveries are

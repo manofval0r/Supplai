@@ -39,6 +39,8 @@ export default function CtaFooter() {
               {item.label}
             </a>
           ))}
+          <Link href="/app-preview">App Preview</Link>
+          <Link href="/lga">LGA Desk</Link>
           <Link href="/dashboard">Dashboard</Link>
         </nav>
         <svg
