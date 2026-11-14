@@ -37,10 +37,14 @@ export default function LgaDecisionClient() {
       });
       setActionResult(`${item.reference}: ${res.message}`);
       await refresh();
-    } catch {
-      setActionResult(
-        `${item.reference}: Recorded escalation decision in Demo mode (API offline). Next owner: ${item.nextOwner}.`,
-      );
+    } catch (error) {
+      if (bundle?.source === 'live' && error instanceof Error) {
+        setActionResult(`${item.reference}: ${error.message}`);
+      } else {
+        setActionResult(
+          `${item.reference}: Recorded escalation decision in Demo mode (API offline). Next owner: ${item.nextOwner}.`,
+        );
+      }
     } finally {
       setBusyRef(null);
     }
@@ -237,120 +241,137 @@ export default function LgaDecisionClient() {
             </h2>
 
             <div style={{ display: 'grid', gap: 12, marginBottom: 28 }}>
-              {bundle.queue.map((item) => (
-                <article
-                  key={item.reference}
+              {bundle.queue.length === 0 ? (
+                <div
                   style={{
                     background: '#f2f4f8',
-                    borderRadius: 20,
-                    padding: 18,
-                    display: 'grid',
-                    gap: 10,
+                    borderRadius: 18,
+                    padding: 20,
+                    color: '#646f82',
+                    fontSize: 13.5,
                   }}
                 >
-                  <div
+                  No active transfers in queue — all clinic requests are
+                  currently balanced.
+                </div>
+              ) : (
+                bundle.queue.map((item) => (
+                  <article
+                    key={item.reference}
                     style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                      background: '#f2f4f8',
+                      borderRadius: 20,
+                      padding: 18,
+                      display: 'grid',
                       gap: 10,
                     }}
                   >
-                    <div>
-                      <span
-                        style={{
-                          fontWeight: 800,
-                          fontSize: 15,
-                          color: '#030407',
-                          marginRight: 8,
-                        }}
-                      >
-                        {item.reference}
-                      </span>
-                      <span style={{ fontSize: 13.5, color: '#646f82' }}>
-                        {item.fromFacility} → {item.toFacility} ·{' '}
-                        {item.quantity} {item.drug}
-                      </span>
-                    </div>
-
-                    <span
+                    <div
                       style={{
-                        padding: '4px 10px',
-                        borderRadius: 999,
-                        fontSize: 11.5,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        background:
-                          item.priority === 'critical'
-                            ? '#fee2e2'
-                            : item.priority === 'attention'
-                              ? '#D4FF24'
-                              : '#e9f0fd',
-                        color:
-                          item.priority === 'critical' ? '#b91c1c' : '#030407',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 10,
                       }}
                     >
-                      {item.priority} · {item.status}
-                    </span>
-                  </div>
+                      <div>
+                        <span
+                          style={{
+                            fontWeight: 800,
+                            fontSize: 15,
+                            color: '#030407',
+                            marginRight: 8,
+                          }}
+                        >
+                          {item.reference}
+                        </span>
+                        <span style={{ fontSize: 13.5, color: '#646f82' }}>
+                          {item.fromFacility} → {item.toFacility} ·{' '}
+                          {item.quantity} {item.drug}
+                        </span>
+                      </div>
 
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns:
-                        'repeat(auto-fit, minmax(220px, 1fr))',
-                      gap: 10,
-                      fontSize: 13,
-                      color: '#030407',
-                    }}
-                  >
-                    <div>
-                      <strong style={{ color: '#646f82' }}>
-                        Attention reason:{' '}
-                      </strong>
-                      {item.attentionReason}
-                    </div>
-                    <div>
-                      <strong style={{ color: '#646f82' }}>
-                        Next accountable owner:{' '}
-                      </strong>
-                      {item.nextOwner}
-                    </div>
-                    <div>
-                      <strong style={{ color: '#646f82' }}>
-                        Safety-floor evidence:{' '}
-                      </strong>
-                      {item.safetyFloorEvidence}
-                    </div>
-                  </div>
-
-                  {item.status !== 'delivered' ? (
-                    <div>
-                      <button
-                        disabled={busyRef === item.reference}
-                        onClick={() => void handleEscalateOrRelease(item)}
+                      <span
                         style={{
-                          height: 40,
-                          padding: '0 16px',
-                          borderRadius: 12,
-                          border: 'none',
-                          background: '#1558C9',
-                          color: '#ffffff',
+                          padding: '4px 10px',
+                          borderRadius: 999,
+                          fontSize: 11.5,
                           fontWeight: 700,
-                          fontSize: 13,
-                          cursor: 'pointer',
+                          textTransform: 'uppercase',
+                          background:
+                            item.priority === 'critical'
+                              ? '#fee2e2'
+                              : item.priority === 'attention'
+                                ? '#D4FF24'
+                                : '#e9f0fd',
+                          color:
+                            item.priority === 'critical'
+                              ? '#b91c1c'
+                              : '#030407',
                         }}
-                        type="button"
                       >
-                        {busyRef === item.reference
-                          ? 'Recording decision...'
-                          : 'Escalate / Record Oversight'}
-                      </button>
+                        {item.priority} · {item.status}
+                      </span>
                     </div>
-                  ) : null}
-                </article>
-              ))}
+
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns:
+                          'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: 10,
+                        fontSize: 13,
+                        color: '#030407',
+                      }}
+                    >
+                      <div>
+                        <strong style={{ color: '#646f82' }}>
+                          Attention reason:{' '}
+                        </strong>
+                        {item.attentionReason}
+                      </div>
+                      <div>
+                        <strong style={{ color: '#646f82' }}>
+                          Next accountable owner:{' '}
+                        </strong>
+                        {item.nextOwner}
+                      </div>
+                      <div>
+                        <strong style={{ color: '#646f82' }}>
+                          Safety-floor evidence:{' '}
+                        </strong>
+                        {item.safetyFloorEvidence}
+                      </div>
+                    </div>
+
+                    {item.status !== 'delivered' ? (
+                      <div>
+                        <button
+                          disabled={busyRef === item.reference}
+                          onClick={() => void handleEscalateOrRelease(item)}
+                          style={{
+                            height: 40,
+                            padding: '0 16px',
+                            borderRadius: 12,
+                            border: 'none',
+                            background: '#1558C9',
+                            color: '#ffffff',
+                            fontWeight: 700,
+                            fontSize: 13,
+                            cursor: 'pointer',
+                          }}
+                          type="button"
+                        >
+                          {busyRef === item.reference
+                            ? 'Recording decision...'
+                            : 'Escalate / Record Oversight'}
+                        </button>
+                      </div>
+                    ) : null}
+                  </article>
+                ))
+              )}
             </div>
 
             <h2
@@ -364,23 +385,38 @@ export default function LgaDecisionClient() {
               Operational Exceptions ({bundle.failures.length})
             </h2>
             <div style={{ display: 'grid', gap: 10 }}>
-              {bundle.failures.map((f) => (
+              {bundle.failures.length === 0 ? (
                 <div
-                  key={f.id}
                   style={{
                     background: '#ffffff',
                     border: '1px solid #e6e9ef',
                     borderRadius: 16,
                     padding: '14px 16px',
                     fontSize: 13.5,
+                    color: '#646f82',
                   }}
                 >
-                  <strong style={{ color: '#1558C9' }}>
-                    [{f.category.toUpperCase()}] {f.reference}
-                  </strong>{' '}
-                  — {f.detail}
+                  No operational exceptions recorded.
                 </div>
-              ))}
+              ) : (
+                bundle.failures.map((f) => (
+                  <div
+                    key={f.id}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #e6e9ef',
+                      borderRadius: 16,
+                      padding: '14px 16px',
+                      fontSize: 13.5,
+                    }}
+                  >
+                    <strong style={{ color: '#1558C9' }}>
+                      [{f.category.toUpperCase()}] {f.reference}
+                    </strong>{' '}
+                    — {f.detail}
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}
