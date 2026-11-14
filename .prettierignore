@@ -1,6 +1,8 @@
 .pdfstudio/
 .taste-skill/
 artifacts/
+conversations/
+conversations-backup/
 node_modules/
 dist/
 .next/
