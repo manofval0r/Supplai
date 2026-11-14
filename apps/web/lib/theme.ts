@@ -178,7 +178,7 @@ const AppConfigContext = createContext<AppConfigValue>({
   setSimOrsStock: () => {},
   simZincStock: 120,
   setSimZincStock: () => {},
-  showSplash: true,
+  showSplash: false,
   setShowSplash: () => {},
   triggerSplash: () => {},
   resetDemoState: () => {},
@@ -207,7 +207,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [simEtaMin, setSimEtaMin] = useState<number>(4);
   const [simOrsStock, setSimOrsStock] = useState<number>(80);
   const [simZincStock, setSimZincStock] = useState<number>(120);
-  const [showSplash, setShowSplash] = useState<boolean>(true);
+  const [showSplash, setShowSplash] = useState<boolean>(false);
 
   const isDark = false;
   const colors = lightColors;
@@ -225,7 +225,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const triggerSplash = useCallback(() => {
-    setShowSplash(true);
+    setShowSplash(false);
   }, []);
 
   const resetDemoState = useCallback(() => {

@@ -125,7 +125,7 @@ export function RolePicker({
                   style={[
                     styles.tileTitle,
                     {
-                      color: colors.ink,
+                      color: '#ffffff',
                       fontSize: s(17),
                       lineHeight: s(20),
                     },
@@ -137,7 +137,7 @@ export function RolePicker({
                   style={[
                     styles.tileSub,
                     {
-                      color: colors.mute,
+                      color: 'rgba(255, 255, 255, 0.84)',
                       fontSize: s(12.5),
                       lineHeight: s(16),
                     },

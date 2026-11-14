@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import AppPreview3D from '../AppPreview3D';
 import { landingContent } from './content';
@@ -8,6 +7,13 @@ import { DEFAULT_EXPO_PREVIEW_URL } from '../../lib/drive-preview';
 
 const EXPO_PREVIEW_URL =
   process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? DEFAULT_EXPO_PREVIEW_URL;
+
+const APP_SPECS = [
+  'Expo SDK 58',
+  'Safety Floor >= 20',
+  'FEFO + Seal #7842',
+  'PIN 5082 & OTA',
+];
 
 export default function PhoneMockups() {
   const { facilityApp } = landingContent;
@@ -32,31 +38,38 @@ export default function PhoneMockups() {
             <li key={feature}>{feature}</li>
           ))}
         </ul>
+
+        <div className={styles.phoneSpecs}>
+          {APP_SPECS.map((spec) => (
+            <span className={styles.phoneSpecChip} key={spec}>
+              {spec}
+            </span>
+          ))}
+        </div>
+
         <div className={styles.phoneActions}>
           <a
-            className={`${styles.primaryButton} ${styles.downloadButton}`}
+            className={styles.downloadButton}
             href={EXPO_PREVIEW_URL}
             rel="noreferrer"
             target="_blank"
           >
-            Download the latest Expo preview{' '}
-            <span aria-hidden="true">{'\u2192'}</span>
+            Download Latest Expo APK <span aria-hidden="true">→</span>
           </a>
-          <Link
-            className={`${styles.primaryButton} ${styles.downloadButton}`}
-            href="/app-preview"
-          >
-            Open full App Preview &amp; Videos
+          <Link className={styles.previewSecondaryButton} href="/app-preview">
+            Full App Preview &amp; Videos
           </Link>
         </div>
         <p className={styles.phoneNote}>
-          Android preview build. All facilities, stock, and deliveries are
-          fictional.
+          Android preview build (`b8dd3fa6`). All facilities, stock, and
+          deliveries are fictional.
         </p>
       </div>
+
       <div className={styles.phoneVisuals}>
         <AppPreview3D />
       </div>
+
       <div
         aria-label="Facility app screens"
         className={styles.phoneRail}
@@ -64,17 +77,25 @@ export default function PhoneMockups() {
         tabIndex={0}
       >
         {PREVIEW_SCREENS.map((screen) => (
-          <figure className={styles.phoneTile} key={screen.id}>
-            <div className={styles.phoneTileScreen}>
-              <Image
-                alt={`Supplai app ${screen.label} screen`}
-                fill
-                sizes="(max-width: 640px) 140px, 160px"
-                src={screen.src}
-              />
-            </div>
-            <figcaption>{screen.label}</figcaption>
-          </figure>
+          <Link
+            className={styles.phoneTile}
+            href="/app-preview#screens"
+            key={screen.id}
+          >
+            <figure className={styles.phoneTileFigure}>
+              <div className={styles.phoneTileScreen}>
+                <img
+                  alt={`Supplai app ${screen.label} screen`}
+                  loading="eager"
+                  src={screen.src}
+                />
+              </div>
+              <figcaption>
+                <span className={styles.phoneTileTag}>{screen.role}</span>
+                <strong>{screen.label}</strong>
+              </figcaption>
+            </figure>
+          </Link>
         ))}
       </div>
     </section>
