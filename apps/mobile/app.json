@@ -21,7 +21,12 @@
       },
       "predictiveBackGestureEnabled": false
     },
-    "plugins": ["expo-notifications", "expo-font", "expo-asset"],
+    "plugins": [
+      "expo-notifications",
+      "expo-font",
+      "expo-asset",
+      "./plugins/withProguardRules.js"
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -30,6 +35,12 @@
         "projectId": "db127b8e-a89d-47b1-8d84-8986e5e19cd5"
       }
     },
-    "owner": "manofval0r"
+    "owner": "manofval0r",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/db127b8e-a89d-47b1-8d84-8986e5e19cd5"
+    }
   }
 }

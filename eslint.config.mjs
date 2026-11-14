@@ -17,6 +17,7 @@ export default tseslint.config(
       'tools/presentation/**',
       'scripts/**/*.mjs',
       'apps/mobile/metro.config.js',
+      'apps/mobile/plugins/**',
       'eslint.config.mjs',
     ],
   },

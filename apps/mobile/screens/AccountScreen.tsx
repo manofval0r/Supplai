@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import * as Updates from 'expo-updates';
 import { ui, useAppConfig, type ThemeColors } from '../lib/theme';
 import { Art } from '../components/LineArt';
 import {
@@ -108,6 +116,52 @@ export function AccountScreen({
   const [subView, setSubView] = useState<AccountSubView>(initialSubView);
   const [supportQuery, setSupportQuery] = useState('');
   const [supportToast, setSupportToast] = useState<string | null>(null);
+  const { isChecking, isDownloading, isUpdatePending, downloadProgress } =
+    Updates.useUpdates();
+  const [otaStatus, setOtaStatus] = useState<
+    | 'idle'
+    | 'checking'
+    | 'downloading'
+    | 'ready'
+    | 'up-to-date'
+    | 'unavailable'
+    | 'error'
+  >('idle');
+  const [otaNote, setOtaNote] = useState<string>(
+    Updates.channel
+      ? `Channel: ${Updates.channel}`
+      : 'Check for OTA fixes and UI updates',
+  );
+
+  const handleCheckForUpdates = async () => {
+    if (!Updates.isEnabled) {
+      setOtaStatus('unavailable');
+      setOtaNote('OTA updates are only enabled in preview/release builds.');
+      return;
+    }
+    try {
+      setOtaStatus('checking');
+      setOtaNote('Checking Expo for updates...');
+      const check = await Updates.checkForUpdateAsync();
+      if (!check.isAvailable) {
+        setOtaStatus('up-to-date');
+        setOtaNote(
+          `Up to date${Updates.channel ? ` (${Updates.channel})` : ''}`,
+        );
+        return;
+      }
+      setOtaStatus('downloading');
+      setOtaNote('Downloading update in real time...');
+      await Updates.fetchUpdateAsync();
+      setOtaStatus('ready');
+      setOtaNote('Update downloaded. Restart to apply.');
+    } catch (err) {
+      setOtaStatus('error');
+      setOtaNote(
+        err instanceof Error ? err.message : 'Unable to reach update server.',
+      );
+    }
+  };
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
@@ -302,6 +356,94 @@ export function AccountScreen({
                 </Text>
               </View>
               <ChevronRightIcon />
+            </View>
+          </View>
+
+          <Text style={[styles.secLbl, { color: colors.mute, marginTop: 22 }]}>
+            APP UPDATES
+          </Text>
+          <View style={[styles.groupCard, { backgroundColor: colors.tile }]}>
+            <View style={styles.row}>
+              <View style={[styles.rowIco, { backgroundColor: iconBoxBg }]}>
+                {otaStatus === 'checking' ||
+                otaStatus === 'downloading' ||
+                isChecking ||
+                isDownloading ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={isDark ? colors.lime : colors.cobalt}
+                  />
+                ) : (
+                  <CheckIcon color={isDark ? colors.lime : colors.cobalt} />
+                )}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.rowTitle, { color: colors.ink }]}>
+                  {otaStatus === 'downloading' || isDownloading
+                    ? `Downloading ${Math.round((downloadProgress ?? 0) * 100)}%`
+                    : otaStatus === 'ready' || isUpdatePending
+                      ? 'Update ready'
+                      : 'Check for updates'}
+                </Text>
+                <Text style={[styles.rowSub, { color: colors.mute }]}>
+                  {otaNote}
+                </Text>
+              </View>
+              {otaStatus === 'ready' || isUpdatePending ? (
+                <Press
+                  onPress={() => {
+                    void Updates.reloadAsync();
+                  }}
+                  style={{
+                    backgroundColor: colors.cobalt,
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 999,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#ffffff',
+                      fontSize: 13,
+                      fontFamily: ui.font.semi,
+                    }}
+                  >
+                    Restart
+                  </Text>
+                </Press>
+              ) : (
+                <Press
+                  disabled={
+                    otaStatus === 'checking' ||
+                    otaStatus === 'downloading' ||
+                    isChecking ||
+                    isDownloading
+                  }
+                  onPress={() => {
+                    void handleCheckForUpdates();
+                  }}
+                  style={{
+                    backgroundColor: isDark ? colors.bgSoft : '#ffffff',
+                    paddingHorizontal: 14,
+                    paddingVertical: 8,
+                    borderRadius: 999,
+                    borderWidth: 1,
+                    borderColor: colors.line,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: colors.ink,
+                      fontSize: 13,
+                      fontFamily: ui.font.semi,
+                    }}
+                  >
+                    {otaStatus === 'checking' || isChecking
+                      ? 'Checking...'
+                      : 'Check'}
+                  </Text>
+                </Press>
+              )}
             </View>
           </View>
         </ScrollView>
