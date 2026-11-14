@@ -465,7 +465,7 @@ export function ScenarioLabRunner({
                 { color: isDark ? colors.limeInk : '#ffffff' },
               ]}
             >
-              LAB FIXTURE
+              DEMO DATA · FICTIONAL SCENARIO
             </Text>
           </View>
           <Text

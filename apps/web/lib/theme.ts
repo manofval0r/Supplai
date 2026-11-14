@@ -7,58 +7,31 @@ import React, {
 } from 'react';
 
 export const palette = {
-  midnight: '#071811',
-  forest: '#0B5240',
-  orange: '#FF8A4C',
-  yellow: '#FFC700',
-  pink: '#F6B7C7',
-  sky: '#A8DDF0',
-  lavender: '#D4C5F1',
-  mint: '#BFE5D0',
-  cobalt: '#0B5240',
-  lime: '#FFC700',
-  limeInk: '#17140C',
-  red: '#B42318',
-  green: '#0B5240',
+  midnight: '#030407',
+  cobalt: '#1558C9',
+  lime: '#D4FF24',
+  limeInk: '#030407',
+  red: '#e5484d',
+  green: '#12a36b',
 };
 
-export const designTokens = {
-  colors: {
-    ...palette,
-    cream: '#FFF4D6',
-    white: '#FFFFFF',
-    black: '#000000',
-    ink: '#111410',
-    muted: '#4B5A51',
-    onBright: '#111410',
-    bodyOnBright: '#302419',
-    line: '#D8CBB1',
-  },
+export const ui = {
+  ink: '#030407',
+  mute: '#646f82',
+  line: '#e6e9ef',
+  accent: '#1558C9',
+  cobalt: '#1558C9',
+  lime: '#D4FF24',
+  green: '#12a36b',
+  red: '#e5484d',
+  fillSoft: '#eef0f4',
+  tint: '#e9f0fd',
   font: {
-    family: 'Inter',
     regular: 'Inter_400Regular',
     medium: 'Inter_500Medium',
     semi: 'Inter_600SemiBold',
     bold: 'Inter_700Bold',
   },
-  spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48, section: 88 },
-  radius: { sm: 12, md: 20, lg: 24, pill: 999 },
-  border: { card: 2, ink: '#111410' },
-  motion: { fast: 150, base: 250 },
-} as const;
-
-export const ui = {
-  ink: designTokens.colors.ink,
-  mute: designTokens.colors.muted,
-  line: designTokens.colors.line,
-  accent: palette.forest,
-  cobalt: palette.forest,
-  lime: palette.yellow,
-  green: palette.forest,
-  red: palette.red,
-  fillSoft: designTokens.colors.cream,
-  tint: palette.mint,
-  font: designTokens.font,
 };
 
 export interface ThemeColors {
@@ -70,13 +43,6 @@ export interface ThemeColors {
   ink: string;
   mute: string;
   line: string;
-  forest: string;
-  orange: string;
-  yellow: string;
-  pink: string;
-  sky: string;
-  lavender: string;
-  mint: string;
   cobalt: string;
   cobaltSoft: string;
   lime: string;
@@ -94,35 +60,28 @@ export interface ThemeColors {
 }
 
 export const lightColors: ThemeColors = {
-  bg: designTokens.colors.cream,
-  bgSoft: '#FFF0CC',
-  tile: '#ffffff',
-  tileHover: '#FFF9E8',
+  bg: '#ffffff',
+  bgSoft: '#f4f6fa',
+  tile: '#f2f4f8',
+  tileHover: '#e8ecf4',
   surface: '#ffffff',
-  ink: designTokens.colors.ink,
-  mute: designTokens.colors.muted,
-  line: designTokens.colors.line,
-  forest: palette.forest,
-  orange: palette.orange,
-  yellow: palette.yellow,
-  pink: palette.pink,
-  sky: palette.sky,
-  lavender: palette.lavender,
-  mint: palette.mint,
-  cobalt: palette.forest,
-  cobaltSoft: '#DDECE4',
-  lime: palette.yellow,
-  limeInk: '#17140C',
-  artStroke: palette.forest,
-  artFill: '#DDECE4',
-  artHighlight: palette.yellow,
+  ink: '#030407',
+  mute: '#646f82',
+  line: '#e6e9ef',
+  cobalt: '#1558C9',
+  cobaltSoft: '#e9f0fd',
+  lime: '#D4FF24',
+  limeInk: '#030407',
+  artStroke: '#1558C9',
+  artFill: '#dde7fb',
+  artHighlight: '#D4FF24',
   dockBg: 'rgba(255, 255, 255, 0.94)',
-  dockBorder: 'rgba(17, 20, 16, 0.16)',
-  dockActiveBg: palette.forest,
+  dockBorder: 'rgba(3, 4, 7, 0.08)',
+  dockActiveBg: '#1558C9',
   dockActiveInk: '#ffffff',
-  red: palette.red,
-  heroTileBg: palette.forest,
-  heroSubColor: 'rgba(255, 255, 255, 0.82)',
+  red: '#e5484d',
+  heroTileBg: '#030407',
+  heroSubColor: 'rgba(255, 255, 255, 0.68)',
 };
 
 export interface SavedPlaceItem {
@@ -219,7 +178,7 @@ const AppConfigContext = createContext<AppConfigValue>({
   setSimOrsStock: () => {},
   simZincStock: 120,
   setSimZincStock: () => {},
-  showSplash: false,
+  showSplash: true,
   setShowSplash: () => {},
   triggerSplash: () => {},
   resetDemoState: () => {},
@@ -248,7 +207,7 @@ export function AppConfigProvider({ children }: { children: React.ReactNode }) {
   const [simEtaMin, setSimEtaMin] = useState<number>(4);
   const [simOrsStock, setSimOrsStock] = useState<number>(80);
   const [simZincStock, setSimZincStock] = useState<number>(120);
-  const [showSplash, setShowSplash] = useState<boolean>(false);
+  const [showSplash, setShowSplash] = useState<boolean>(true);
 
   const isDark = false;
   const colors = lightColors;
@@ -371,35 +330,35 @@ export function useAppConfig() {
 // Keep legacy theme object for any shared helper compatibility
 export const theme = {
   colors: {
-    canvas: designTokens.colors.cream,
+    canvas: '#f8fbff',
     surface: '#ffffff',
-    ink: designTokens.colors.ink,
-    muted: designTokens.colors.muted,
-    mutedLight: '#68756D',
-    line: designTokens.colors.line,
-    primary: palette.forest,
-    primaryDeep: '#071811',
-    primarySoft: '#DDECE4',
-    green: palette.forest,
-    greenSoft: '#DDECE4',
-    amber: palette.orange,
-    amberSoft: '#FFF0CC',
-    red: palette.red,
-    redSoft: '#FCE4DF',
-    neutralSoft: designTokens.colors.cream,
+    ink: '#030407',
+    muted: '#646f82',
+    mutedLight: '#8da2b5',
+    line: '#e6e9ef',
+    primary: '#1558C9',
+    primaryDeep: '#030407',
+    primarySoft: '#e9f0fd',
+    green: '#12a36b',
+    greenSoft: '#d1fae5',
+    amber: '#f59e0b',
+    amberSoft: '#fef3c7',
+    red: '#e5484d',
+    redSoft: '#fee2e2',
+    neutralSoft: '#f1f5f9',
   },
   borders: {
     thin: 1.5,
     normal: 2,
     thick: 3,
-    color: designTokens.border.ink,
+    color: '#030407',
   },
   radii: {
-    xs: 8,
-    sm: 12,
-    md: 20,
-    lg: 24,
-    full: designTokens.radius.pill,
+    xs: 6,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    full: 9999,
   },
   shadows: {
     xs: {

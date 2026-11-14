@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { View } from 'react-native';
-import { designTokens, useAppConfig } from '../lib/theme';
+import { useAppConfig } from '../lib/theme';
 
 const ROUTE: [number, number][] = [
   [7.242, 3.036],
@@ -25,23 +25,21 @@ function createMapHtml(
 ) {
   const tileFilter = isDark
     ? 'invert(1) hue-rotate(185deg) saturate(.6) brightness(.78) contrast(1.08)'
-    : 'saturate(.58) sepia(.18) contrast(.96) brightness(1.03)';
-  const bg = isDark ? '#081811' : designTokens.colors.cream;
-  const forest = isDark ? '#16745A' : designTokens.colors.forest;
-  const yellow = isDark ? '#FFD44D' : designTokens.colors.yellow;
+    : 'saturate(.72) contrast(.97) brightness(1.03)';
+  const bg = isDark ? '#0b0e15' : '#e8ecf2';
   const periodSec = Math.max(4, Math.round(26 / Math.max(0.5, speedMult)));
 
   return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-html,body,#m{margin:0;height:100%;width:100%;background:${bg};font-family:Inter,system-ui,sans-serif}
+html,body,#m{margin:0;height:100%;width:100%;background:${bg};font-family:-apple-system,Inter,system-ui,sans-serif}
 .osm{filter:${tileFilter}}
-.mk{display:inline-flex;gap:6px;background:${forest};color:#fff;font:700 12px system-ui;padding:7px 13px;border:2px solid #111410;border-radius:999px;white-space:nowrap;box-shadow:2px 2px 0 #111410}
-.mk.g{background:${yellow};color:#111410}
+.mk{display:inline-flex;gap:6px;background:#030407;color:#fff;font:700 12px system-ui;padding:6px 12px;border-radius:16px;white-space:nowrap;box-shadow:0 6px 16px rgba(3,4,7,.3)}
+.mk.g{background:#D4FF24;color:#030407}
 .puck{position:relative;width:44px;height:44px;display:grid;place-items:center}
-.puck:before{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(11,82,64,.28);animation:p 2s ease-out infinite}
+.puck:before{content:"";position:absolute;inset:0;border-radius:50%;background:rgba(21,88,201,.38);animation:p 2s ease-out infinite}
 @keyframes p{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.7);opacity:0}}
-.puck i{position:relative;width:30px;height:30px;border-radius:50%;background:${forest};border:3px solid ${yellow};box-shadow:0 3px 0 #111410}
+.puck i{position:relative;width:30px;height:30px;border-radius:50%;background:#1558C9;border:3px solid #D4FF24;box-shadow:0 4px 12px rgba(21,88,201,.55)}
 .leaflet-div-icon{background:transparent!important;border:0!important}
 </style></head><body><div id="m"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -49,8 +47,8 @@ html,body,#m{margin:0;height:100%;width:100%;background:${bg};font-family:Inter,
 var route=${JSON.stringify(ROUTE)};
 var m=L.map('m',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false,touchZoom:false});
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,className:'osm'}).addTo(m);
-L.polyline(route,{color:'${bg}',weight:11,opacity:.98,lineCap:'round',lineJoin:'round'}).addTo(m);
-L.polyline(route,{color:'${forest}',weight:6,lineCap:'round',lineJoin:'round'}).addTo(m);
+L.polyline(route,{color:'#fff',weight:11,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(m);
+L.polyline(route,{color:'#1558C9',weight:6,lineCap:'round',lineJoin:'round'}).addTo(m);
 function lab(t,c,a){return L.divIcon({className:'',html:'<div class="mk '+c+'">'+t+'</div>',iconSize:null,iconAnchor:a})}
 L.marker(route[0],{icon:lab(${JSON.stringify(origin)},'g',[44,40])}).addTo(m);
 L.marker(route[route.length-1],{icon:lab(${JSON.stringify(dest)},'',[64,40])}).addTo(m);
@@ -118,7 +116,7 @@ export function OsmMap({
     <View
       style={{
         flex: 1,
-        backgroundColor: isDark ? '#081811' : designTokens.colors.cream,
+        backgroundColor: isDark ? '#0b0e15' : '#e8ecf2',
       }}
     >
       <iframe

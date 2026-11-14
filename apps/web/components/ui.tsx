@@ -10,7 +10,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { Art, type ArtName } from './LineArt';
 
 export interface SpotConfig {
@@ -145,9 +145,7 @@ export function Button({
         styles.btn,
         {
           height: s(54),
-          minHeight: s(54),
-          borderRadius: s(designTokens.radius.pill),
-          borderColor: designTokens.border.ink,
+          borderRadius: s(16),
           backgroundColor: bg,
         },
         disabled && styles.btnDisabled,
@@ -834,9 +832,7 @@ export function CodeIcon({ color }: { color?: string }) {
 const styles = StyleSheet.create({
   btn: {
     height: 54,
-    minHeight: 54,
-    borderRadius: 999,
-    borderWidth: 2,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
@@ -882,7 +878,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    shadowColor: designTokens.colors.ink,
+    shadowColor: '#030407',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.22,
     shadowRadius: 4,
@@ -901,7 +897,7 @@ const styles = StyleSheet.create({
     bottom: 4,
     left: 4,
     borderRadius: 10,
-    shadowColor: designTokens.colors.ink,
+    shadowColor: '#030407',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,

@@ -15,7 +15,7 @@ import {
   registerForRemoteNotificationsAsync,
   scheduleCriticalAlert,
 } from '../lib/notifications';
-import { designTokens, ui, useAppConfig } from '../lib/theme';
+import { ui, useAppConfig } from '../lib/theme';
 import { Stage3D } from '../components/Stage3D';
 import {
   ScreenBackdrop,
@@ -1191,9 +1191,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   qtyCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.lg,
+    borderRadius: 20,
     padding: 16,
   },
   qtyRow: {
@@ -1358,9 +1356,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   handoverCard: {
-    borderWidth: designTokens.border.card,
-    borderColor: designTokens.border.ink,
-    borderRadius: designTokens.radius.md,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 20,
   },

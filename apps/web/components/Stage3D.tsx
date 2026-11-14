@@ -205,7 +205,7 @@ export function Stage3D({
         const labelPlate = new THREE.Mesh(
           makeRoundedBox(1.24, 1.05, 0.04, 0.06, 2),
           new THREE.MeshStandardMaterial({
-            color: 0x0b5240,
+            color: 0x1558c9,
             roughness: 0.25,
             metalness: 0.08,
           }),
@@ -214,7 +214,7 @@ export function Stage3D({
         grp.add(labelPlate);
 
         // Yellow medical cross
-        const cross = makeCross(0.52, 0.16, 0.04, 0xffc700);
+        const cross = makeCross(0.52, 0.16, 0.04, 0xd4ff24);
         cross.position.set(0, 0.14, 0.165);
         grp.add(cross);
 
@@ -222,7 +222,7 @@ export function Stage3D({
         const dosageBadge = new THREE.Mesh(
           makeRoundedBox(0.82, 0.18, 0.03, 0.04, 2),
           new THREE.MeshStandardMaterial({
-            color: 0xffc700,
+            color: 0xd4ff24,
             roughness: 0.2,
           }),
         );
@@ -234,7 +234,7 @@ export function Stage3D({
         tabGeo.rotateX(Math.PI / 2);
         const t1 = new THREE.Mesh(
           tabGeo,
-          new THREE.MeshStandardMaterial({ color: 0xffc700, roughness: 0.22 }),
+          new THREE.MeshStandardMaterial({ color: 0xd4ff24, roughness: 0.22 }),
         );
         t1.position.set(0.95, -0.52, 0.45);
         t1.rotation.set(0.3, -0.4, 0.2);
@@ -261,7 +261,7 @@ export function Stage3D({
         const box = new THREE.Mesh(
           makeRoundedBox(1.75, 1.1, 1.35, 0.14, 3),
           new THREE.MeshStandardMaterial({
-            color: 0x0b5240,
+            color: 0x1558c9,
             roughness: 0.28,
             metalness: 0.08,
           }),
@@ -284,7 +284,7 @@ export function Stage3D({
         // Floating yellow arrow
         const arrowGrp = new THREE.Group();
         const arrowMat = new THREE.MeshStandardMaterial({
-          color: 0xffc700,
+          color: 0xd4ff24,
           roughness: 0.22,
         });
         const stem = new THREE.Mesh(
@@ -315,7 +315,7 @@ export function Stage3D({
         const cBox = new THREE.Mesh(
           makeRoundedBox(1.32, 0.76, 1.02, 0.1, 3),
           new THREE.MeshStandardMaterial({
-            color: 0x0b5240,
+            color: 0x1558c9,
             roughness: 0.26,
             metalness: 0.08,
           }),
@@ -331,7 +331,7 @@ export function Stage3D({
         );
         cLid.position.y = 0.02;
 
-        const cCross = makeCross(0.34, 0.1, 0.03, 0xffc700);
+        const cCross = makeCross(0.34, 0.1, 0.03, 0xd4ff24);
         cCross.position.set(0, -0.42, 0.53);
 
         crateSubGrp.add(cBox, cLid, cCross);
@@ -340,7 +340,7 @@ export function Stage3D({
         // Hovering yellow GPS beacon pin
         const pinGrp = new THREE.Group();
         const limeMat = new THREE.MeshStandardMaterial({
-          color: 0xffc700,
+          color: 0xd4ff24,
           roughness: 0.18,
           metalness: 0.06,
         });
@@ -380,7 +380,7 @@ export function Stage3D({
         const ring2 = new THREE.Mesh(
           new THREE.TorusGeometry(1.24, 0.045, 12, 32),
           new THREE.MeshBasicMaterial({
-            color: 0xffc700,
+            color: 0xd4ff24,
             transparent: true,
             opacity: 0.55,
           }),
@@ -436,7 +436,7 @@ export function Stage3D({
         const labelPlate = new THREE.Mesh(
           makeRoundedBox(1.6, 1.48, 0.04, 0.06, 2),
           new THREE.MeshStandardMaterial({
-            color: 0x0b5240,
+            color: 0x1558c9,
             roughness: 0.25,
             metalness: 0.08,
           }),
@@ -445,7 +445,7 @@ export function Stage3D({
         orsGrp.add(labelPlate);
 
         // Yellow medical cross
-        const cross = makeCross(0.65, 0.2, 0.05, 0xffc700);
+        const cross = makeCross(0.65, 0.2, 0.05, 0xd4ff24);
         cross.position.set(0, 0.22, 0.19);
         orsGrp.add(cross);
 
@@ -453,7 +453,7 @@ export function Stage3D({
         const dosage = new THREE.Mesh(
           makeRoundedBox(1.05, 0.24, 0.03, 0.04, 2),
           new THREE.MeshStandardMaterial({
-            color: 0xffc700,
+            color: 0xd4ff24,
             roughness: 0.2,
           }),
         );
@@ -521,7 +521,7 @@ export function Stage3D({
         // Zinc header stripe in forest green
         const zStripe = new THREE.Mesh(
           makeRoundedBox(2.5, 0.18, 0.02, 0.02, 2),
-          new THREE.MeshStandardMaterial({ color: 0x0b5240, roughness: 0.3 }),
+          new THREE.MeshStandardMaterial({ color: 0x1558c9, roughness: 0.3 }),
         );
         zStripe.position.set(0, 0.72, 0.05);
         zincGrp.add(zStripe);
@@ -538,7 +538,7 @@ export function Stage3D({
         const box = new THREE.Mesh(
           makeRoundedBox(2.25, 1.45, 1.65, 0.14, 4),
           new THREE.MeshStandardMaterial({
-            color: 0x0b5240,
+            color: 0x1558c9,
             roughness: 0.28,
             metalness: 0.06,
           }),
@@ -567,7 +567,7 @@ export function Stage3D({
         badge.position.set(-0.56, -0.08, 0.84);
         rootGrp.add(badge);
 
-        const cross = makeCross(0.42, 0.13, 0.03, 0x0b5240);
+        const cross = makeCross(0.42, 0.13, 0.03, 0x1558c9);
         cross.position.set(-0.56, -0.08, 0.875);
         rootGrp.add(cross);
 
@@ -575,7 +575,7 @@ export function Stage3D({
         const sealTag = new THREE.Mesh(
           makeRoundedBox(0.92, 0.52, 0.03, 0.04, 2),
           new THREE.MeshStandardMaterial({
-            color: 0xffc700,
+            color: 0xd4ff24,
             roughness: 0.22,
           }),
         );

@@ -43,7 +43,7 @@ export const landingContent = {
       {
         number: '01',
         title: 'See what is available',
-        body: 'Facilities share essential-medicine stock with trusted partners nearby.',
+        body: 'Facilities share essential-medicine stock with nearby peer facilities.',
       },
       {
         number: '02',
