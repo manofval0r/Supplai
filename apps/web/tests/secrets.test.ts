@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -67,6 +67,39 @@ describe('root environment example', () => {
   it('has no committed bearer tokens', () => {
     for (const entry of entries) {
       expect(entry.value).not.toMatch(/eyJ[a-zA-Z0-9_-]{20,}/);
+    }
+  });
+});
+
+function walkSourceFiles(dir: string): string[] {
+  const results: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      results.push(...walkSourceFiles(full));
+    } else if (/\.(ts|tsx|js|jsx|json)$/.test(entry)) {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
+describe('client source secret scan', () => {
+  it('contains no hardcoded bearer, Supabase, GitHub, or Expo tokens in web or mobile config', () => {
+    const targets = [
+      ...walkSourceFiles(join(repoRoot, 'apps', 'web', 'app')),
+      ...walkSourceFiles(join(repoRoot, 'apps', 'web', 'components')),
+      ...walkSourceFiles(join(repoRoot, 'apps', 'web', 'lib')),
+      join(repoRoot, 'apps', 'mobile', 'app.json'),
+    ];
+    const tokenPattern =
+      /eyJ[A-Za-z0-9_-]{20,}|sbp_[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,}|SUPABASE_SECRET_KEY\s*[:=]\s*['"][^'"]+['"]/;
+
+    for (const file of targets) {
+      const content = readFileSync(file, 'utf8');
+      expect(content, `Potential secret found in ${file}`).not.toMatch(
+        tokenPattern,
+      );
     }
   });
 });
