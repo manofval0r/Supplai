@@ -17,7 +17,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 
 export default function LandingPage() {
   return (
-    <main className={`${styles.page} ${plusJakartaSans.variable}`}>
+    <main id="top" className={`${styles.page} ${plusJakartaSans.variable}`}>
       <Navbar />
       <Hero />
       <FeatureTabs />

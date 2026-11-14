@@ -19,7 +19,7 @@ export default function SiteShell({
   hideFooter?: boolean;
 }) {
   return (
-    <div className={`${styles.page} ${plusJakartaSans.variable}`}>
+    <div id="top" className={`${styles.page} ${plusJakartaSans.variable}`}>
       <Navbar />
       <div className={styles.shellBody}>{children}</div>
       {!hideFooter && <SiteFooter />}
