@@ -16,6 +16,8 @@ coverage/
 .taste-skill/
 .claude/
 artifacts/
+conversations/
+conversations-backup/
 qa/
 pptx/
 pdfqa-*.jpg
@@ -25,6 +27,8 @@ stack_trace.txt
 report.pdf
 dev-handover.pdf
 supplai_deck.pptx
+Food, Groceries & Local Markets Delivery Near You _ Chowdeck.pdf
+Phase-5-Refined-Chowdeck-Bento-v2/
 
 # Repository-local planning and presentation files
 AKOLO-PLAN.md
