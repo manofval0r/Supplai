@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import AppPreview3D from '../../components/AppPreview3D';
+import SiteShell from '../../components/landing/SiteShell';
 import { PREVIEW_SCREENS } from '../../components/landing/preview-screens';
 import {
   buildDriveFolderEmbedUrl,
@@ -16,6 +16,13 @@ export const metadata: Metadata = {
     'Explore high-fidelity Supplai mobile app mockups, live Google Drive video walkthroughs, and download the latest Expo Android preview build.',
 };
 
+const BUILD_FACTS = [
+  { label: 'Channel', value: 'EAS Preview' },
+  { label: 'Runtime', value: '0.1.0 · SDK 58' },
+  { label: 'Commit Ref', value: 'b8dd3fa6 APK' },
+  { label: 'Guardrail', value: 'Ambient ORS & Zinc' },
+];
+
 export default function AppPreviewPage() {
   const expoPreviewUrl =
     process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? DEFAULT_EXPO_PREVIEW_URL;
@@ -27,80 +34,151 @@ export default function AppPreviewPage() {
   );
 
   return (
-    <main className="site-page" style={{ paddingBottom: 72 }}>
-      <header className="site-header">
-        <Link className="site-brand" href="/">
-          <span className="brand-mark">+</span>
-          <span>supplai</span>
-        </Link>
-        <nav aria-label="App preview navigation" className="site-nav">
-          <Link href="/dashboard">Console</Link>
-          <Link href="/lga">LGA Desk</Link>
-          <Link
-            href="/app-preview"
-            style={{ color: '#1558C9', fontWeight: 700 }}
-          >
-            App Preview
-          </Link>
-        </nav>
-      </header>
-
+    <SiteShell>
       <section
         style={{
-          width: 'min(100% - 32px, 1180px)',
-          margin: '36px auto 0',
+          width: 'min(95%, 1240px)',
+          margin: '28px auto 0',
           display: 'grid',
           gap: 36,
         }}
       >
+        {/* Flagship Midnight Black Hero Stage */}
         <div
           style={{
+            position: 'relative',
+            overflow: 'hidden',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: 28,
             alignItems: 'center',
-            background: '#f2f4f8',
-            borderRadius: 24,
-            padding: '28px 24px',
+            background: '#030407',
+            color: '#ffffff',
+            border: '3px solid #030407',
+            borderRadius: 30,
+            boxShadow: '6px 6px 0 #1558C9',
+            padding: 'clamp(24px, 4vw, 44px)',
           }}
         >
-          <div>
-            <p
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 800 300"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              opacity: 0.14,
+              pointerEvents: 'none',
+            }}
+          >
+            <path
+              d="M0 240 H220 L270 160 H470 L530 210 H800"
+              fill="none"
+              stroke="#1558C9"
+              strokeWidth="4"
+            />
+            <circle cx="270" cy="160" r="8" fill="#D4FF24" />
+            <circle cx="470" cy="160" r="8" fill="#D4FF24" />
+            <path
+              d="M270 160 Q370 70 470 160"
+              fill="none"
+              stroke="#D4FF24"
+              strokeWidth="3"
+              strokeDasharray="9 8"
+            />
+          </svg>
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div
               style={{
-                fontSize: 12,
-                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '6px 12px',
+                borderRadius: 999,
+                background: '#1558C9',
+                border: '1.5px solid #D4FF24',
+                color: '#D4FF24',
+                fontSize: 11,
+                fontWeight: 800,
                 letterSpacing: 0.8,
-                color: '#1558C9',
                 textTransform: 'uppercase',
-                margin: '0 0 8px',
+                marginBottom: 14,
               }}
             >
               Android Preview Build · Demo Data
-            </p>
+            </div>
+
             <h1
               style={{
-                fontSize: 'clamp(28px, 4vw, 40px)',
+                fontSize: 'clamp(32px, 4.5vw, 48px)',
                 fontWeight: 800,
-                letterSpacing: -1,
-                margin: '0 0 12px',
-                color: '#030407',
+                letterSpacing: -1.4,
+                lineHeight: 1.02,
+                margin: '0 0 14px',
+                color: '#ffffff',
               }}
             >
-              Supplai Mobile App Preview
+              The mobile field companion for clinic logistics.
             </h1>
+
             <p
               style={{
                 fontSize: 15,
                 lineHeight: 1.6,
-                color: '#646f82',
-                margin: '0 0 22px',
+                color: 'rgba(255, 255, 255, 0.78)',
+                margin: '0 0 20px',
               }}
             >
-              Inspect the high-fidelity facility, rider, and Scenario Lab
-              screens, watch live walkthrough videos from our shared Drive
-              folder, or install the latest EAS Android preview APK directly on
-              your device.
+              Inspect real Expo SDK 58 screen captures, rotate the interactive
+              3D mockup, watch Google Drive flow walkthroughs, or install the
+              verified Android preview APK.
             </p>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: 10,
+                marginBottom: 22,
+              }}
+            >
+              {BUILD_FACTS.map((fact) => (
+                <div
+                  key={fact.label}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: 14,
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.16)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 10.5,
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.6,
+                      color: '#D4FF24',
+                    }}
+                  >
+                    {fact.label}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 13.5,
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      marginTop: 2,
+                    }}
+                  >
+                    {fact.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
               <a
                 href={expoPreviewUrl}
@@ -109,13 +187,14 @@ export default function AppPreviewPage() {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 8,
+                  gap: 10,
                   height: 48,
-                  padding: '0 20px',
-                  borderRadius: 16,
-                  background: '#1558C9',
-                  color: '#ffffff',
-                  fontWeight: 700,
+                  padding: '0 22px',
+                  borderRadius: 999,
+                  background: '#D4FF24',
+                  border: '2px solid #D4FF24',
+                  color: '#030407',
+                  fontWeight: 800,
                   fontSize: 14,
                   textDecoration: 'none',
                 }}
@@ -128,46 +207,96 @@ export default function AppPreviewPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   height: 48,
-                  padding: '0 18px',
-                  borderRadius: 16,
-                  background: '#ffffff',
-                  border: '1px solid #e6e9ef',
-                  color: '#030407',
-                  fontWeight: 600,
+                  padding: '0 20px',
+                  borderRadius: 999,
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  color: '#ffffff',
+                  fontWeight: 700,
                   fontSize: 14,
                   textDecoration: 'none',
                 }}
               >
-                Open Interactive Web Console
+                Open Web Console
               </Link>
             </div>
-            <p style={{ fontSize: 12, color: '#646f82', marginTop: 14 }}>
-              All facilities, stock levels, and courier routes shown are
+            <p
+              style={{
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.62)',
+                marginTop: 14,
+                marginBottom: 0,
+              }}
+            >
+              All facilities, stock balances, and courier routes shown are
               fictional scenario data for demonstration.
             </p>
           </div>
 
-          <div style={{ minHeight: 360 }}>
+          <div style={{ minHeight: 380, position: 'relative', zIndex: 1 }}>
             <AppPreview3D />
           </div>
         </div>
 
-        <div>
-          <h2
+        {/* Verified Android Screen Gallery */}
+        <div id="screens" style={{ scrollMarginTop: 108 }}>
+          <div
             style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: '#030407',
-              margin: '0 0 14px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginBottom: 18,
             }}
           >
-            High-Fidelity Screen Mockups
-          </h2>
+            <div>
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: 0.9,
+                  color: '#1558C9',
+                  textTransform: 'uppercase',
+                  margin: '0 0 6px',
+                }}
+              >
+                Captured From Pixel 9a Preview Build
+              </p>
+              <h2
+                style={{
+                  fontSize: 'clamp(24px, 3vw, 32px)',
+                  fontWeight: 800,
+                  letterSpacing: -0.8,
+                  color: '#030407',
+                  margin: 0,
+                }}
+              >
+                Verified Mobile Workflows
+              </h2>
+            </div>
+            <Link
+              href="/lga"
+              style={{
+                padding: '8px 16px',
+                borderRadius: 999,
+                border: '2px solid #030407',
+                background: '#D4FF24',
+                color: '#030407',
+                fontWeight: 800,
+                fontSize: 12.5,
+                textDecoration: 'none',
+              }}
+            >
+              Inspect LGA Oversight Sync →
+            </Link>
+          </div>
+
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: 16,
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: 18,
             }}
           >
             {PREVIEW_SCREENS.map((screen) => (
@@ -175,59 +304,131 @@ export default function AppPreviewPage() {
                 key={screen.id}
                 style={{
                   margin: 0,
-                  background: '#f2f4f8',
-                  borderRadius: 18,
+                  background: '#ffffff',
+                  border: '2.5px solid #030407',
+                  borderRadius: 22,
+                  boxShadow: '4px 4px 0 #030407',
                   padding: 12,
-                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
                 }}
               >
                 <div
                   style={{
-                    position: 'relative',
                     width: '100%',
-                    aspectRatio: '9 / 19',
+                    aspectRatio: '9 / 19.5',
                     borderRadius: 14,
                     overflow: 'hidden',
+                    border: '2px solid #030407',
                     background: '#030407',
                   }}
                 >
-                  <Image
+                  <img
                     alt={`Supplai app ${screen.label} screen`}
-                    fill
-                    sizes="(max-width: 640px) 160px, 200px"
+                    loading="eager"
                     src={screen.src}
-                    style={{ objectFit: 'cover' }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      display: 'block',
+                    }}
                   />
                 </div>
-                <figcaption
-                  style={{
-                    marginTop: 10,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#030407',
-                  }}
-                >
-                  {screen.label}
+                <figcaption>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      background: '#e9f0fd',
+                      color: '#1558C9',
+                      fontSize: 10.5,
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.4,
+                      marginBottom: 4,
+                    }}
+                  >
+                    {screen.role}
+                  </span>
+                  <div
+                    style={{
+                      fontSize: 14.5,
+                      fontWeight: 800,
+                      color: '#030407',
+                    }}
+                  >
+                    {screen.label}
+                  </div>
+                  <p
+                    style={{
+                      margin: '4px 0 0',
+                      fontSize: 12,
+                      lineHeight: 1.45,
+                      color: '#646f82',
+                    }}
+                  >
+                    {screen.caption}
+                  </p>
                 </figcaption>
               </figure>
             ))}
           </div>
         </div>
 
-        <div>
-          <h2
+        {/* Live Video Walkthroughs */}
+        <div
+          style={{
+            background: '#f2f4f8',
+            border: '2.5px solid #030407',
+            borderRadius: 24,
+            boxShadow: '5px 5px 0 #030407',
+            padding: 'clamp(20px, 3vw, 32px)',
+          }}
+        >
+          <div
             style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: '#030407',
-              margin: '0 0 8px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginBottom: 14,
             }}
           >
-            Live Video Walkthroughs (Google Drive)
-          </h2>
-          <p style={{ fontSize: 14, color: '#646f82', margin: '0 0 16px' }}>
-            Streamed directly from the shared Google Drive preview folder.
-          </p>
+            <div>
+              <span
+                style={{
+                  display: 'inline-block',
+                  padding: '4px 10px',
+                  borderRadius: 999,
+                  background: '#D4FF24',
+                  border: '1.5px solid #030407',
+                  color: '#030407',
+                  fontSize: 11,
+                  fontWeight: 800,
+                  marginBottom: 8,
+                }}
+              >
+                GOOGLE DRIVE WALKTHROUGHS
+              </span>
+              <h2
+                style={{
+                  fontSize: 22,
+                  fontWeight: 800,
+                  color: '#030407',
+                  margin: 0,
+                }}
+              >
+                Live Video Previews &amp; Recordings
+              </h2>
+            </div>
+            <p style={{ fontSize: 13.5, color: '#646f82', margin: 0 }}>
+              Streamed from our shared Google Drive preview folder.
+            </p>
+          </div>
 
           {driveVideos.length > 0 ? (
             <div
@@ -242,7 +443,8 @@ export default function AppPreviewPage() {
                 <div
                   key={video.id}
                   style={{
-                    background: '#f2f4f8',
+                    background: '#ffffff',
+                    border: '2px solid #030407',
                     borderRadius: 18,
                     padding: 14,
                   }}
@@ -289,9 +491,10 @@ export default function AppPreviewPage() {
           {folderId ? (
             <div
               style={{
-                background: '#f2f4f8',
+                background: '#ffffff',
+                border: '2px solid #030407',
                 borderRadius: 20,
-                padding: 14,
+                padding: 12,
               }}
             >
               <iframe
@@ -309,21 +512,45 @@ export default function AppPreviewPage() {
           ) : driveVideos.length === 0 ? (
             <div
               style={{
-                background: '#f2f4f8',
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr',
+                gap: 16,
+                alignItems: 'center',
+                background: '#ffffff',
+                border: '2px dashed #1558C9',
                 borderRadius: 18,
                 padding: 20,
-                color: '#646f82',
-                fontSize: 13.5,
               }}
             >
-              Google Drive preview folder not configured yet. Set{' '}
-              <code>NEXT_PUBLIC_DRIVE_PREVIEW_FOLDER_ID</code> (folder ID or
-              URL) or <code>NEXT_PUBLIC_DRIVE_PREVIEW_VIDEOS</code> to render
-              live walkthrough videos here.
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 14,
+                  background: '#1558C9',
+                  color: '#D4FF24',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 20,
+                  fontWeight: 800,
+                }}
+                aria-hidden="true"
+              >
+                ▶
+              </div>
+              <div
+                style={{ fontSize: 13.5, color: '#030407', lineHeight: 1.55 }}
+              >
+                <strong>Ready for shared Drive folder playback.</strong> Set{' '}
+                <code>NEXT_PUBLIC_DRIVE_PREVIEW_FOLDER_ID</code> (Google Drive
+                folder ID or share URL) or{' '}
+                <code>NEXT_PUBLIC_DRIVE_PREVIEW_VIDEOS</code> to embed
+                walkthrough recordings directly in this gallery.
+              </div>
             </div>
           ) : null}
         </div>
       </section>
-    </main>
+    </SiteShell>
   );
 }
