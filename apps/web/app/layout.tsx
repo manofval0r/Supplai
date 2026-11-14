@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import '@zakisheriff/liquid-glass/styles.css';
 import './styles.css';
 import './site-pages.css';
 
@@ -37,7 +36,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-theme="light">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

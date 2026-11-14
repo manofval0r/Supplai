@@ -1,15 +1,15 @@
 .page {
-  --ink: #111713;
-  --muted: #53645b;
-  --forest: #164b38;
-  --forest-deep: #103c2d;
-  --cream: #fbf5e8;
-  --paper: #fffdf7;
-  --mint: #bcebd1;
-  --orange: #ff8b4b;
-  --yellow: #ffd84d;
-  --blue: #8bc5ef;
-  --pink: #f2a9c2;
+  --ink: #030407;
+  --muted: #646f82;
+  --forest: #1558c9;
+  --forest-deep: #030407;
+  --cream: #ffffff;
+  --paper: #ffffff;
+  --mint: #d4ff24;
+  --orange: #d4ff24;
+  --yellow: #d4ff24;
+  --blue: #e9f0fd;
+  --pink: #f2f4f8;
   --line: 3px solid var(--ink);
   --shadow: 6px 6px 0 var(--ink);
   --radius-card: 18px;
@@ -185,7 +185,7 @@
   position: relative;
   isolation: isolate;
   overflow-x: clip;
-  background: #fff2cf;
+  background: #ffffff;
   display: flex;
   justify-content: center;
   text-align: center;
@@ -213,7 +213,7 @@
   right: 0;
   bottom: 0;
   height: calc(var(--sh) * 0.403);
-  background: linear-gradient(#1d7258 0 88%, #76867c 88%);
+  background: linear-gradient(#1558c9 0 88%, #030407 88%);
   z-index: -1;
 }
 

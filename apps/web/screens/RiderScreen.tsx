@@ -8,7 +8,7 @@ import {
 } from '../lib/notifications';
 import { ui, useAppConfig } from '../lib/theme';
 import { OsmMap } from '../components/OsmMap';
-import { BackButton, Press, PhoneIcon, ChatIcon } from '../components/ui';
+import { Press, ChevronLeftIcon, PhoneIcon, ChatIcon } from '../components/ui';
 
 export function RiderScreen({
   riderName = 'Ade Okafor',
@@ -125,7 +125,15 @@ export function RiderScreen({
           },
         ]}
       >
-        <BackButton onPress={onSwitchRole} />
+        <Press
+          onPress={onSwitchRole}
+          style={[
+            styles.backBtn,
+            { backgroundColor: isDark ? colors.tile : '#ffffff' },
+          ]}
+        >
+          <ChevronLeftIcon />
+        </Press>
         <View style={{ flex: 1 }}>
           <Text style={[styles.hudTitle, { color: colors.ink }]}>
             To {destName}
