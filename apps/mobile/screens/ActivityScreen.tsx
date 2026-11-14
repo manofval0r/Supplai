@@ -253,6 +253,59 @@ export function ActivityScreen({
             </View>
           </View>
         )}
+
+        {/* Read-only LGA Oversight Summary (matches /lga contract) */}
+        <View style={{ marginTop: 18 }}>
+          <Text
+            style={[styles.secLbl, { color: colors.mute, fontSize: s(11.5) }]}
+          >
+            LGA OVERSIGHT · DEMO DATA
+          </Text>
+          <View
+            style={[
+              styles.groupCard,
+              { backgroundColor: colors.tile, padding: 16, gap: 6 },
+            ]}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                style={[
+                  styles.rowTitle,
+                  { color: colors.ink, fontSize: s(14.5) },
+                ]}
+              >
+                SUP-409 · Ota Ward → Aiyetoro PHC
+              </Text>
+              <Text
+                style={{
+                  fontFamily: ui.font.bold,
+                  fontSize: s(11),
+                  color: colors.cobalt,
+                }}
+              >
+                IN TRANSIT
+              </Text>
+            </View>
+            <Text
+              style={[styles.rowSub, { color: colors.mute, fontSize: s(12.5) }]}
+            >
+              Attention: Awaiting 4-digit receiver PIN &amp; tamper seal #7842
+              verification.
+            </Text>
+            <Text
+              style={[styles.rowSub, { color: colors.mute, fontSize: s(12.5) }]}
+            >
+              Next owner: Aiyetoro Central PHC Receiver · Safety floor (&gt;=20
+              units) verified.
+            </Text>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
