@@ -1,8 +1,22 @@
-# Supplai — Master Brief for Final Report (Farid)
+# Supplai — Master Brief for GBSN Final Report (Farid)
+
+> **What Supplai Is (20 words):**  
+> Supplai is a role-based mobile and web logistics platform coordinating verified, ambient-only essential medicine transfers between Nigerian primary health centres.
 
 **Prepared:** 2026-11-14  
-**Product:** Supplai — Role-based essential medicine redistribution for Nigerian primary health centres (Ado-Odo/Ota LGA simulation)  
-**Important Demo Disclosure:** All facilities, stock quantities, courier identities, wallet balances, and delivery routes in the demo are **fictional scenario data**. Live Supabase persistence is tabled until the new Supabase project reference is linked post-Round 13; the hosted API currently runs the deterministic in-memory repository.
+**Important Demo Disclosure:** All facilities, stock quantities, courier identities, wallet balances, and delivery routes in the demo are **fictional scenario data**. Live Supabase persistence is pending final smoke-test verification (`scripts/supabase-smoke.mjs`); the hosted API currently runs the deterministic in-memory repository.
+
+---
+
+## 0. GBSN Submission Prerequisites (Action Checklist for Farid)
+
+Before submitting, ensure all five GBSN deliverables/disclosures are included:
+
+1. **Written Report** — Problem framing, solution design, safety boundaries, system architecture, and verified test/rehearsal outcomes (all factual context is in Sections 1–5 below).
+2. **Creative Illustration (~3 minutes or equivalent non-video format)** — Visual walkthrough using the tracked screenshots (`docs/screenshots/mobile/` & `docs/screenshots/web/`), the `/app-preview` 3D showcase, and the Google Drive preview clips.
+3. **Permitted AI Use & Exact Credit Wording** — Written GBSN confirmation disclosing AI-assisted engineering/documentation and the exact team credit wording required by the competition rules.
+4. **Claims & Fictional Data Sheet** — Explicitly label every fictional, simulated, or partner-dependent element (facility names, stock numbers, wallet balances, rider GPS/ETA, and Ado-Odo/Ota LGA simulation).
+5. **Truthful Scope Statement** — State clearly that CSV import/export, live PHC onboarding, paid SMS, payments, patient-level records, and cold-chain transport are out of scope for this prototype.
 
 ---
 
@@ -69,5 +83,5 @@
   - Production Next.js build (`next build --webpack`) compiles 9 static routes (`/`, `/app-preview`, `/dashboard`, `/lga`, `/login`, icons, 404).
 - **Out of Scope / Tabled Items:**
   - **CSV Import/Export:** Explicitly out of scope for this release.
-  - **Supabase Live DB Smoke Test:** Tabled until the new Supabase project ref is linked and `SUPABASE_SECRET_KEY` is added to Render (`scripts/supabase-smoke.mjs` is ready to run).
-  - **Round 13 (Optional Polish):** Apple-style Liquid Glass UI upgrade (`@zakisheriff/liquid-glass` on web, `expo-glass-effect` on mobile).
+  - **Supabase Live DB Smoke Test:** `scripts/supabase-smoke.mjs` is ready and project-scoped Supabase MCP (`nigoztdsmxunmcxminmx`) is authorized; live DB write/rollback smoke test is queued next.
+  - **Liquid Glass Polish (Mobile App Only):** `expo-glass-effect` + `expo-blur` applied to the mobile `FloatingDock` (`apps/mobile/components/FloatingDock.tsx`); `apps/web` uses the flat Midnight Black (`#030407`), Electric Cobalt Blue (`#1558C9`), and Acid Lime (`#D4FF24`) design system without Liquid Glass.
