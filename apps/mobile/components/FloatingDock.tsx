@@ -7,6 +7,8 @@ import {
   View,
   type LayoutChangeEvent,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
+import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
 import { ui, useAppConfig } from '../lib/theme';
 import { HomeIcon, ActivityIcon, UserIcon } from './ui';
 
@@ -25,7 +27,8 @@ export function FloatingDock({
   activeTab: DockTab;
   onSelectTab: (tab: DockTab) => void;
 }) {
-  const { colors, reduceMotion, s } = useAppConfig();
+  const { colors, isDark, reduceMotion, s } = useAppConfig();
+  const useNativeGlass = isLiquidGlassAvailable();
   const [innerWidth, setInnerWidth] = useState(0);
   const activeIdx = Math.max(
     0,
@@ -62,92 +65,115 @@ export function FloatingDock({
         })
       : 0;
 
+  const dockContent = (
+    <>
+      {tabWidth > 0 && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.pill,
+            {
+              width: tabWidth,
+              borderRadius: s(23),
+              backgroundColor: colors.dockActiveBg,
+              transform: [{ translateX }],
+            },
+          ]}
+        />
+      )}
+      {TABS.map((tab, idx) => {
+        const isActive = tab.key === activeTab;
+        const iconColor = isActive ? colors.dockActiveInk : colors.mute;
+        const scale = tabScaleRefs[idx];
+
+        const onPressIn = () => {
+          Animated.spring(scale, {
+            toValue: 0.93,
+            useNativeDriver: true,
+            speed: 50,
+            bounciness: 4,
+          }).start();
+        };
+        const onPressOut = () => {
+          Animated.spring(scale, {
+            toValue: 1,
+            useNativeDriver: true,
+            speed: 40,
+            bounciness: 6,
+          }).start();
+        };
+
+        return (
+          <Pressable
+            key={tab.key}
+            onPress={() => onSelectTab(tab.key)}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            style={styles.tabPressable}
+          >
+            <Animated.View
+              style={[styles.tabInner, { transform: [{ scale }] }]}
+            >
+              {tab.key === 'home' && (
+                <HomeIcon color={iconColor} size={s(17)} />
+              )}
+              {tab.key === 'activity' && (
+                <ActivityIcon color={iconColor} size={s(17)} />
+              )}
+              {tab.key === 'account' && (
+                <UserIcon color={iconColor} size={s(17)} />
+              )}
+              <Text
+                style={[
+                  styles.tabLabel,
+                  {
+                    fontSize: s(13),
+                    color: isActive ? colors.dockActiveInk : colors.mute,
+                  },
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </Animated.View>
+          </Pressable>
+        );
+      })}
+    </>
+  );
+
+  const dockStyle = [
+    styles.dock,
+    {
+      height: s(58),
+      borderRadius: s(29),
+      backgroundColor: useNativeGlass ? 'transparent' : colors.dockBg,
+      borderColor: colors.dockBorder,
+      overflow: 'hidden' as const,
+    },
+  ];
+
   return (
     <View style={[styles.dockWrap, { backgroundColor: colors.bg }]}>
-      <View
-        onLayout={handleLayout}
-        style={[
-          styles.dock,
-          {
-            height: s(58),
-            borderRadius: s(29),
-            backgroundColor: colors.dockBg,
-            borderColor: colors.dockBorder,
-          },
-        ]}
-      >
-        {tabWidth > 0 && (
-          <Animated.View
-            pointerEvents="none"
-            style={[
-              styles.pill,
-              {
-                width: tabWidth,
-                borderRadius: s(23),
-                backgroundColor: colors.dockActiveBg,
-                transform: [{ translateX }],
-              },
-            ]}
-          />
-        )}
-        {TABS.map((tab, idx) => {
-          const isActive = tab.key === activeTab;
-          const iconColor = isActive ? colors.dockActiveInk : colors.mute;
-          const scale = tabScaleRefs[idx];
-
-          const onPressIn = () => {
-            Animated.spring(scale, {
-              toValue: 0.93,
-              useNativeDriver: true,
-              speed: 50,
-              bounciness: 4,
-            }).start();
-          };
-          const onPressOut = () => {
-            Animated.spring(scale, {
-              toValue: 1,
-              useNativeDriver: true,
-              speed: 40,
-              bounciness: 6,
-            }).start();
-          };
-
-          return (
-            <Pressable
-              key={tab.key}
-              onPress={() => onSelectTab(tab.key)}
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}
-              style={styles.tabPressable}
-            >
-              <Animated.View
-                style={[styles.tabInner, { transform: [{ scale }] }]}
-              >
-                {tab.key === 'home' && (
-                  <HomeIcon color={iconColor} size={s(17)} />
-                )}
-                {tab.key === 'activity' && (
-                  <ActivityIcon color={iconColor} size={s(17)} />
-                )}
-                {tab.key === 'account' && (
-                  <UserIcon color={iconColor} size={s(17)} />
-                )}
-                <Text
-                  style={[
-                    styles.tabLabel,
-                    {
-                      fontSize: s(13),
-                      color: isActive ? colors.dockActiveInk : colors.mute,
-                    },
-                  ]}
-                >
-                  {tab.label}
-                </Text>
-              </Animated.View>
-            </Pressable>
-          );
-        })}
-      </View>
+      {useNativeGlass ? (
+        <GlassView
+          onLayout={handleLayout}
+          glassEffectStyle="regular"
+          isInteractive
+          colorScheme={isDark ? 'dark' : 'light'}
+          style={dockStyle}
+        >
+          {dockContent}
+        </GlassView>
+      ) : (
+        <BlurView
+          onLayout={handleLayout}
+          intensity={48}
+          tint={isDark ? 'dark' : 'light'}
+          style={dockStyle}
+        >
+          {dockContent}
+        </BlurView>
+      )}
     </View>
   );
 }
