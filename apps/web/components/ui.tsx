@@ -1,14 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
+'use client';
+
+import React, { useRef } from 'react';
 import {
   Animated,
   Pressable,
   StyleSheet,
   Text,
   View,
-  type LayoutChangeEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import {
+  GlassButton,
+  GlassSegmented,
+  GlassSwitch,
+} from '@zakisheriff/liquid-glass';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 import { ui, useAppConfig } from '../lib/theme';
 import { Art, type ArtName } from './LineArt';
@@ -197,47 +203,14 @@ export function Toggle({
   value: boolean;
   onToggle: (next: boolean) => void;
 }) {
-  const { colors, isDark, reduceMotion } = useAppConfig();
-  const knobAnim = useRef(new Animated.Value(value ? 18 : 0)).current;
-
-  useEffect(() => {
-    const target = value ? 18 : 0;
-    if (reduceMotion) {
-      knobAnim.setValue(target);
-    } else {
-      Animated.spring(knobAnim, {
-        useNativeDriver: false,
-        toValue: target,
-        stiffness: 280,
-        damping: 22,
-        mass: 0.7,
-      }).start();
-    }
-  }, [value, knobAnim, reduceMotion]);
-
-  const activeBg = isDark ? colors.lime : colors.cobalt;
-  const inactiveBg = isDark ? '#252b3d' : '#d5dbe6';
-  const knobColor = value && isDark ? colors.limeInk : '#ffffff';
-
+  const { colors, isDark } = useAppConfig();
   return (
-    <Press
-      onPress={() => onToggle(!value)}
-      scaleTo={0.94}
-      style={[
-        styles.toggleTrack,
-        { backgroundColor: value ? activeBg : inactiveBg },
-      ]}
-    >
-      <Animated.View
-        style={[
-          styles.toggleKnob,
-          {
-            backgroundColor: knobColor,
-            transform: [{ translateX: knobAnim }],
-          },
-        ]}
-      />
-    </Press>
+    <GlassSwitch
+      checked={value}
+      onChange={onToggle}
+      tint={isDark ? colors.lime : colors.cobalt}
+      intensity={5}
+    />
   );
 }
 
@@ -245,7 +218,6 @@ export function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
-  variant = 'surface',
   height,
 }: {
   options: { key: T; label: string }[];
@@ -254,105 +226,41 @@ export function SegmentedControl<T extends string>({
   variant?: 'surface' | 'accent';
   height?: number;
 }) {
-  const { colors, isDark, reduceMotion, s } = useAppConfig();
-  const [innerWidth, setInnerWidth] = useState(0);
-  const count = Math.max(1, options.length);
   const activeIdx = Math.max(
     0,
     options.findIndex((o) => o.key === value),
   );
-  const animIndex = useRef(new Animated.Value(activeIdx)).current;
-
-  useEffect(() => {
-    if (reduceMotion) {
-      animIndex.setValue(activeIdx);
-    } else {
-      Animated.spring(animIndex, {
-        useNativeDriver: false,
-        toValue: activeIdx,
-        stiffness: 240,
-        damping: 22,
-        mass: 0.75,
-      }).start();
-    }
-  }, [activeIdx, animIndex, reduceMotion]);
-
-  const handleLayout = (e: LayoutChangeEvent) => {
-    const w = e.nativeEvent.layout.width - 8; // 4px padding left + right
-    if (w > 0) setInnerWidth(w);
-  };
-
-  const tabWidth = innerWidth > 0 ? innerWidth / count : 0;
-  const inputRange = options.map((_, i) => i);
-  const outputRange = options.map((_, i) => i * tabWidth);
-
-  const translateX =
-    tabWidth > 0 && count > 1
-      ? animIndex.interpolate({
-          inputRange,
-          outputRange,
-        })
-      : 0;
-
-  const isAccent = variant === 'accent';
-  const pillBg = isAccent
-    ? isDark
-      ? colors.lime
-      : colors.cobalt
-    : colors.surface;
-  const activeTextColor = isAccent
-    ? isDark
-      ? colors.limeInk
-      : '#ffffff'
-    : colors.ink;
-  const btnHeight = height ? s(height) : s(36);
-
   return (
-    <View
-      onLayout={handleLayout}
-      style={[
-        styles.segWrap,
-        { backgroundColor: colors.tile, borderRadius: s(14) },
-      ]}
-    >
-      {tabWidth > 0 && (
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.segPill,
-            {
-              width: tabWidth,
-              borderRadius: s(10),
-              backgroundColor: pillBg,
-              transform: [{ translateX }],
-            },
-          ]}
-        />
-      )}
-      {options.map((opt) => {
-        const active = opt.key === value;
-        return (
-          <Pressable
-            key={opt.key}
-            onPress={() => onChange(opt.key)}
-            style={[styles.segBtn, { height: btnHeight }]}
-          >
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.segText,
-                {
-                  fontSize: s(13),
-                  color: active ? activeTextColor : colors.mute,
-                },
-              ]}
-            >
-              {opt.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+    <GlassSegmented
+      options={options.map((o) => o.label)}
+      value={activeIdx}
+      onChange={(idx) => {
+        const opt = options[idx];
+        if (opt) onChange(opt.key);
+      }}
+      size={height && height <= 32 ? 'sm' : 'md'}
+      intensity={5}
+      style={{ width: '100%' }}
+    />
+  );
+}
+
+export function BackButton({
+  onPress,
+  label = 'Back',
+}: {
+  onPress?: () => void;
+  label?: string;
+}) {
+  return (
+    <GlassButton
+      variant="glass"
+      size="md"
+      intensity={6}
+      icon={<ChevronLeftIcon />}
+      aria-label={label}
+      onClick={onPress}
+    />
   );
 }
 
