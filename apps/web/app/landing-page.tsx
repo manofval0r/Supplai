@@ -6,6 +6,7 @@ import Marquee from '../components/landing/Marquee';
 import Navbar from '../components/landing/Navbar';
 import PhoneMockups from '../components/landing/PhoneMockups';
 import Stepper from '../components/landing/Stepper';
+import WebDemoSection from '../components/landing/WebDemoSection';
 import styles from '../components/landing/landing.module.css';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -24,6 +25,7 @@ export default function LandingPage() {
       <Stepper />
       <Marquee />
       <PhoneMockups />
+      <WebDemoSection />
       <CtaFooter />
     </main>
   );
