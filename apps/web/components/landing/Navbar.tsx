@@ -162,6 +162,15 @@ export default function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen, megaOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [menuOpen]);
+
   const scheduleMegaClose = () => {
     if (megaTimerRef.current) clearTimeout(megaTimerRef.current);
     megaTimerRef.current = setTimeout(() => setMegaOpen(false), 140);
@@ -175,6 +184,15 @@ export default function Navbar() {
 
   return (
     <>
+      {menuOpen && (
+        <button
+          aria-label="Close navigation"
+          className={styles.navBackdrop}
+          onClick={() => setMenuOpen(false)}
+          type="button"
+        />
+      )}
+
       <div
         className={styles.navbarFrame}
         onMouseLeave={() => {
@@ -395,15 +413,6 @@ export default function Navbar() {
           </div>
         )}
       </div>
-
-      {menuOpen && (
-        <button
-          aria-label="Close navigation"
-          className={styles.navBackdrop}
-          onClick={() => setMenuOpen(false)}
-          type="button"
-        />
-      )}
     </>
   );
 }
