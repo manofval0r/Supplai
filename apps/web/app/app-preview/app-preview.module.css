@@ -67,22 +67,36 @@
   font-size: 14px;
   font-weight: 800;
   text-decoration: none !important;
-  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition:
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 180ms ease,
+    background-color 160ms ease;
 }
 
 .btnLime {
   background: #d4ff24;
   color: #030407 !important;
+  border: 2.5px solid #030407;
+  box-shadow: 3px 3px 0 #030407;
 }
 
 .btnGhost {
-  border: 1.5px solid rgb(255 255 255 / 34%);
-  color: #fff !important;
+  border: 2px solid #030407;
+  background: #ffffff;
+  color: #030407 !important;
+  box-shadow: 3px 3px 0 #030407;
 }
 
-.btnLime:hover,
+.btnLime:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #030407;
+}
+
 .btnGhost:hover {
-  transform: translateY(-2px);
+  background: #1558c9;
+  color: #ffffff !important;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 #030407;
 }
 
 .phone3d {
@@ -166,19 +180,32 @@
 }
 
 .videos {
-  padding: clamp(24px, 4vw, 52px);
-  border-radius: 40px;
-  background: #030407;
-  color: #fff;
+  padding: clamp(28px, 4vw, 56px);
+  border: 3px solid #030407;
+  border-radius: 36px;
+  background: #f8fafe;
+  background-image:
+    radial-gradient(
+      700px 360px at 90% 0%,
+      rgb(21 88 201 / 10%),
+      transparent 70%
+    ),
+    radial-gradient(
+      460px 240px at 0% 100%,
+      rgb(212 255 36 / 10%),
+      transparent 70%
+    );
+  box-shadow: 6px 6px 0 #030407;
+  color: #030407;
 }
 
 .videos .kicker {
-  color: #d4ff24;
+  color: #1558c9;
 }
 
 .videos h2 {
   margin: 0;
-  color: #fff;
+  color: #030407;
   font-size: clamp(28px, 3.6vw, 46px);
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -186,9 +213,9 @@
 }
 
 .videos .sub {
-  max-width: 420px;
+  max-width: 440px;
   margin: 0;
-  color: rgb(255 255 255 / 62%);
+  color: #536074;
   font-size: 14.5px;
   line-height: 1.55;
 }
@@ -200,16 +227,18 @@
 }
 
 .video {
-  padding: 12px;
+  padding: 14px;
+  border: 2.5px solid #030407;
   border-radius: 24px;
-  background: rgb(255 255 255 / 7%);
+  background: #ffffff;
+  box-shadow: 4px 4px 0 #030407;
 }
 
 .video iframe,
 .folder iframe {
   display: block;
   width: 100%;
-  border: 0;
+  border: 2px solid #030407;
   border-radius: 16px;
   background: #030407;
 }
@@ -224,9 +253,11 @@
 
 .folder {
   margin-top: 18px;
-  padding: 12px;
+  padding: 14px;
+  border: 2.5px solid #030407;
   border-radius: 24px;
-  background: rgb(255 255 255 / 7%);
+  background: #ffffff;
+  box-shadow: 4px 4px 0 #030407;
 }
 
 .videoMeta {
@@ -236,11 +267,12 @@
   gap: 12px;
   padding: 12px 6px 2px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
+  color: #030407;
 }
 
 .videoMeta a {
-  color: #d4ff24;
+  color: #1558c9;
   text-decoration: none;
 }
 
@@ -255,16 +287,19 @@
   min-height: 190px;
   align-content: end;
   gap: 8px;
-  padding: 20px;
-  border: 1.5px dashed rgb(255 255 255 / 24%);
+  padding: 22px;
+  border: 2px dashed #1558c9;
   border-radius: 24px;
-  background:
-    radial-gradient(
-      260px 140px at 100% 0%,
-      rgb(21 88 201 / 40%),
-      transparent 70%
-    ),
-    rgb(255 255 255 / 3%);
+  background: #ffffff;
+  box-shadow: 3px 3px 0 rgb(21 88 201 / 12%);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.soonCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 rgb(21 88 201 / 20%);
 }
 
 .play {
@@ -272,19 +307,22 @@
   width: 46px;
   height: 46px;
   place-items: center;
+  border: 2px solid #030407;
   border-radius: 50%;
   background: #d4ff24;
   color: #030407;
   font-size: 15px;
+  box-shadow: 2px 2px 0 #030407;
 }
 
 .soonCard b {
   font-size: 17px;
   font-weight: 800;
+  color: #030407;
 }
 
 .soonCard span {
-  color: rgb(255 255 255 / 56%);
+  color: #646f82;
   font-size: 13px;
 }
 

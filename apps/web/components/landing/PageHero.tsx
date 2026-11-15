@@ -5,23 +5,21 @@ export type HeroChip = { label: string; value: string };
 
 function RouteVisual() {
   return (
-    <svg viewBox="0 0 420 300" aria-hidden="true">
-      <rect
-        x="8"
-        y="8"
-        width="404"
-        height="284"
-        rx="28"
-        fill="#1558C9"
-        fillOpacity="0.16"
-        stroke="#1558C9"
-        strokeOpacity="0.6"
-        strokeWidth="2"
-      />
+    <svg
+      viewBox="0 0 420 300"
+      aria-hidden="true"
+      style={{
+        background: '#ffffff',
+        borderRadius: 24,
+        border: '2.5px solid #030407',
+        boxShadow: '5px 5px 0 #030407',
+      }}
+    >
+      <rect x="8" y="8" width="404" height="284" rx="20" fill="#f8fafe" />
       <path
-        d="M40 232 H380 M40 196 H380"
+        d="M32 232 H388 M32 196 H388"
         stroke="#1558C9"
-        strokeOpacity="0.35"
+        strokeOpacity="0.22"
         strokeWidth="2"
       />
       {/* nodes */}
@@ -33,7 +31,14 @@ function RouteVisual() {
           strokeWidth="6"
           strokeLinecap="round"
         />
-        <circle cx="210" cy="150" r="34" fill="#D4FF24" />
+        <circle
+          cx="210"
+          cy="150"
+          r="34"
+          fill="#D4FF24"
+          stroke="#030407"
+          strokeWidth="2.5"
+        />
         <path
           d="M210 132 V168 M192 150 H228"
           stroke="#030407"
@@ -52,8 +57,8 @@ function RouteVisual() {
         className={styles.flow}
         d="M112 100 Q150 150 180 150 M240 150 Q300 130 316 104"
         fill="none"
-        stroke="#D4FF24"
-        strokeWidth="3"
+        stroke="#1558C9"
+        strokeWidth="3.5"
         strokeLinecap="round"
         strokeDasharray="8 10"
       />
@@ -62,10 +67,11 @@ function RouteVisual() {
         cx="210"
         cy="150"
         r="34"
-        fill="#D4FF24"
+        fill="#1558C9"
+        fillOpacity="0.2"
       />
       {/* rider */}
-      <g transform="translate(70 238)">
+      <g transform="translate(64 238)">
         <circle
           cx="0"
           cy="0"
@@ -85,15 +91,15 @@ function RouteVisual() {
         <path
           d="M0 0 L20 -22 H38 L46 0 M20 -22 L14 -34"
           fill="none"
-          stroke="#D4FF24"
-          strokeWidth="3"
+          stroke="#030407"
+          strokeWidth="3.5"
           strokeLinecap="round"
         />
       </g>
-      <rect x="236" y="212" width="132" height="50" rx="14" fill="#030407" />
+      <rect x="236" y="210" width="140" height="52" rx="14" fill="#030407" />
       <text
-        x="252"
-        y="234"
+        x="250"
+        y="232"
         fill="#D4FF24"
         fontSize="11"
         fontWeight="800"
@@ -101,7 +107,7 @@ function RouteVisual() {
       >
         SEAL #7842
       </text>
-      <text x="252" y="252" fill="#fff" fontSize="13" fontWeight="700">
+      <text x="250" y="250" fill="#fff" fontSize="13" fontWeight="700">
         Handover verified
       </text>
     </svg>

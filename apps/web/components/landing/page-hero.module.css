@@ -3,9 +3,11 @@
   width: min(95%, 1440px);
   margin: 22px auto 0;
   overflow: hidden;
-  border-radius: 36px;
-  background: #030407;
-  color: #fff;
+  border: 3px solid #030407;
+  border-radius: 32px;
+  background: #f8fafe;
+  color: #030407;
+  box-shadow: 6px 6px 0 #030407;
   isolation: isolate;
 }
 
@@ -15,13 +17,13 @@
   inset: 0;
   background:
     radial-gradient(
-      700px 380px at 92% 0%,
-      rgb(21 88 201 / 55%),
+      800px 400px at 92% 0%,
+      rgb(21 88 201 / 12%),
       transparent 70%
     ),
     radial-gradient(
       520px 280px at 0% 100%,
-      rgb(212 255 36 / 9%),
+      rgb(212 255 36 / 12%),
       transparent 70%
     );
   content: '';
@@ -32,51 +34,53 @@
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
   align-items: center;
   gap: clamp(24px, 4vw, 64px);
-  padding: clamp(32px, 5vw, 68px) clamp(24px, 4.4vw, 64px);
+  padding: clamp(32px, 5vw, 60px) clamp(24px, 4.4vw, 56px);
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 20px;
-  padding: 7px 14px;
-  border: 1px solid rgb(212 255 36 / 40%);
+  margin: 0 0 16px;
+  padding: 6px 14px;
+  border: 1.5px solid #1558c9;
   border-radius: 999px;
-  color: #d4ff24;
+  background: #e9f0fd;
+  color: #1558c9;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .eyebrow i {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #d4ff24;
-  box-shadow: 0 0 0 4px rgb(212 255 36 / 18%);
+  box-shadow: 0 0 0 3px #1558c9;
 }
 
 .title {
   max-width: 820px;
   margin: 0;
-  font-size: clamp(36px, 5.6vw, 76px);
+  font-size: clamp(34px, 5.2vw, 68px);
   font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 0.98;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  color: #030407;
 }
 
 .title em {
-  color: #d4ff24;
+  color: #1558c9;
   font-style: normal;
 }
 
 .lead {
   max-width: 600px;
-  margin: 22px 0 0;
-  color: rgb(255 255 255 / 74%);
-  font-size: clamp(15px, 1.35vw, 18px);
+  margin: 18px 0 0;
+  color: #536074;
+  font-size: clamp(15px, 1.3vw, 17.5px);
   font-weight: 500;
   line-height: 1.6;
 }
@@ -85,30 +89,31 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 28px;
+  margin-top: 26px;
 }
 
 .chip {
   display: grid;
   gap: 2px;
-  min-width: 118px;
-  padding: 11px 16px;
-  border: 1px solid rgb(255 255 255 / 16%);
+  min-width: 120px;
+  padding: 10px 16px;
+  border: 1.5px solid #030407;
   border-radius: 16px;
-  background: rgb(255 255 255 / 5%);
+  background: #ffffff;
+  box-shadow: 2px 2px 0 #030407;
 }
 
 .chip small {
-  color: rgb(255 255 255 / 52%);
+  color: #646f82;
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .chip b {
-  color: #fff;
-  font-size: 16px;
+  color: #030407;
+  font-size: 15.5px;
   font-weight: 800;
 }
 
@@ -116,7 +121,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 28px;
 }
 
 .visual {

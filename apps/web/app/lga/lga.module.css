@@ -10,11 +10,13 @@
   align-items: center;
   gap: 10px;
   padding: 0 18px;
+  border: 2px solid #030407;
   border-radius: 999px;
   background: #d4ff24;
   color: #030407;
   font-size: 13px;
   font-weight: 800;
+  box-shadow: 2px 2px 0 #030407;
 }
 
 .statusPill i {
@@ -27,22 +29,25 @@
 .refresh {
   min-height: 46px;
   padding: 0 22px;
-  border: 1.5px solid rgb(255 255 255 / 34%);
+  border: 2px solid #030407;
   border-radius: 999px;
-  background: transparent;
-  color: #fff;
+  background: #ffffff;
+  color: #030407;
+  box-shadow: 2px 2px 0 #030407;
   cursor: pointer;
   font: inherit;
   font-size: 13px;
   font-weight: 800;
   transition:
     background-color 160ms ease,
-    color 160ms ease;
+    color 160ms ease,
+    transform 160ms ease;
 }
 
 .refresh:hover {
-  background: #fff;
-  color: #030407;
+  background: #1558c9;
+  color: #ffffff;
+  transform: translateY(-2px);
 }
 
 .notice {
