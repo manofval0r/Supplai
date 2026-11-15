@@ -87,7 +87,7 @@ export function OsmMap({
   const source = useMemo(
     () => ({
       html: html(origin, dest, moving, topPad, bottomPad, isDark, courierSpeed),
-      baseUrl: 'https://web-roan-iota-40.vercel.app',
+      baseUrl: 'https://supplaiwithus.vercel.app',
     }),
     [origin, dest, moving, topPad, bottomPad, isDark, courierSpeed],
   );

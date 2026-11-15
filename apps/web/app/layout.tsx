@@ -3,7 +3,7 @@ import './styles.css';
 import './site-pages.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://web-roan-iota-40.vercel.app'),
+  metadataBase: new URL('https://supplaiwithus.vercel.app'),
   title: 'Supplai | Medicine logistics, made visible',
   description:
     'Coordinate medicine requests, stock, riders, and accountable delivery across states, LGAs, wards, and public facilities with Supplai.',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
       'Coordinate medicine requests, stock, riders, and accountable delivery across Nigerian public-health networks.',
     siteName: 'Supplai',
     type: 'website',
-    url: 'https://web-roan-iota-40.vercel.app',
+    url: 'https://supplaiwithus.vercel.app',
     locale: 'en_NG',
   },
   twitter: {
