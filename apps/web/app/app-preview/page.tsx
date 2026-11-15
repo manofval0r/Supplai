@@ -5,7 +5,9 @@ import PageHero from '../../components/landing/PageHero';
 import SiteShell from '../../components/landing/SiteShell';
 import { PREVIEW_SCREENS } from '../../components/landing/preview-screens';
 import {
+  APP_DEMO_VIDEO,
   buildDriveFolderEmbedUrl,
+  DEFAULT_DRIVE_FOLDER_URL,
   DEFAULT_EXPO_PREVIEW_URL,
   parseDriveFolderId,
   parseDriveVideoList,
@@ -24,9 +26,10 @@ export default function AppPreviewPage() {
   const folderId = parseDriveFolderId(
     process.env.NEXT_PUBLIC_DRIVE_PREVIEW_FOLDER_ID,
   );
-  const driveVideos = parseDriveVideoList(
+  const parsedVideos = parseDriveVideoList(
     process.env.NEXT_PUBLIC_DRIVE_PREVIEW_VIDEOS,
   );
+  const driveVideos = parsedVideos.length > 0 ? parsedVideos : [APP_DEMO_VIDEO];
 
   return (
     <SiteShell>
@@ -98,10 +101,14 @@ export default function AppPreviewPage() {
                 <p className={styles.kicker}>Walkthroughs</p>
                 <h2>Watch a handover happen.</h2>
               </div>
-              <p className={styles.sub}>
-                Recordings of the app running the full request, release,
-                dispatch, and receipt flow.
-              </p>
+              <a
+                className={styles.pillLink}
+                href={DEFAULT_DRIVE_FOLDER_URL}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Open Drive folder ↗
+              </a>
             </div>
 
             {driveVideos.length > 0 ? (

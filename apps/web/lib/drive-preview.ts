@@ -8,6 +8,27 @@ export interface DriveVideoItem {
 export const DEFAULT_EXPO_PREVIEW_URL =
   'https://expo.dev/artifacts/eas/vPPJ-HyC5LHMOn0leohpKOA57YvgOCbXqbYx2xcJeUU.apk';
 
+export const DEFAULT_DRIVE_FOLDER_ID = '11i1V9V2tsCLjAcRFSxF6UOwSOPzo_3e8';
+export const DEFAULT_DRIVE_FOLDER_URL = `https://drive.google.com/drive/folders/${DEFAULT_DRIVE_FOLDER_ID}`;
+
+export const WEB_DEMO_VIDEO: DriveVideoItem = {
+  id: '1URiKjIOjfZYxUqu6VKF3_S3d_CeK5Zte',
+  title: 'Supplai Web Console Demo',
+  embedUrl:
+    'https://drive.google.com/file/d/1URiKjIOjfZYxUqu6VKF3_S3d_CeK5Zte/preview',
+  viewUrl:
+    'https://drive.google.com/file/d/1URiKjIOjfZYxUqu6VKF3_S3d_CeK5Zte/view',
+};
+
+export const APP_DEMO_VIDEO: DriveVideoItem = {
+  id: '1f1X8dsvrG7VEYDlE54WOIi95vXy4HNBt',
+  title: 'Supplai Mobile App Demo',
+  embedUrl:
+    'https://drive.google.com/file/d/1f1X8dsvrG7VEYDlE54WOIi95vXy4HNBt/preview',
+  viewUrl:
+    'https://drive.google.com/file/d/1f1X8dsvrG7VEYDlE54WOIi95vXy4HNBt/view',
+};
+
 /**
  * Extracts a Google Drive folder ID from either a raw ID or a full Drive folder URL.
  */

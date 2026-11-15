@@ -1432,6 +1432,124 @@
   }
 }
 
+.phoneSection,
+.demoSection,
+.callToAction {
+  width: min(92%, 1180px);
+  margin: 0 auto 72px;
+}
+
+.demoSection {
+  scroll-margin-top: 108px;
+}
+
+.demoHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.demoHeader .sectionTitle,
+.demoHeader .sectionDescription {
+  margin-left: 0;
+  text-align: left;
+}
+
+.demoActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.demoPrimaryBtn,
+.demoSecondaryBtn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: transform 150ms ease;
+}
+
+.demoPrimaryBtn {
+  background: var(--yellow);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.demoSecondaryBtn {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.demoPrimaryBtn:hover,
+.demoSecondaryBtn:hover {
+  transform: translate(-1px, -1px);
+}
+
+.demoFrameCard {
+  padding: 14px;
+  border: var(--line);
+  border-radius: 26px;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+}
+
+.demoFrameRatio {
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 18px;
+  background: var(--ink);
+  aspect-ratio: 16 / 9;
+}
+
+.demoFrameRatio iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.demoFrameBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 6px 2px;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.demoFrameBar a {
+  color: var(--forest);
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .demoSection {
+    width: 95%;
+  }
+
+  .demoFrameCard {
+    padding: 10px;
+    border-radius: 20px;
+  }
+
+  .demoFrameRatio {
+    border-radius: 12px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .page *,
   .page *::before,
