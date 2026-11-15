@@ -6,7 +6,7 @@ export interface DriveVideoItem {
 }
 
 export const DEFAULT_EXPO_PREVIEW_URL =
-  'https://expo.dev/accounts/manofval0r/projects/supplai/builds/b8dd3fa6-8d2a-4f81-80d9-71b6481ee29e';
+  'https://expo.dev/artifacts/eas/vPPJ-HyC5LHMOn0leohpKOA57YvgOCbXqbYx2xcJeUU.apk';
 
 /**
  * Extracts a Google Drive folder ID from either a raw ID or a full Drive folder URL.

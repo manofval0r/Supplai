@@ -214,8 +214,9 @@
 
 .megaGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1.25fr 0.95fr;
   gap: 20px;
+  align-items: stretch;
 }
 
 .megaColumn {
@@ -239,14 +240,14 @@
 }
 
 .megaCard {
-  display: grid;
-  grid-template-columns: 44px 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
-  border: 2px solid #e6e9ef;
+  padding: 12px 14px;
+  border: 1.5px solid #e2e8f0;
   border-radius: 14px;
-  background: #f2f4f8;
+  background: #f8fafe;
   text-decoration: none !important;
   transition:
     border-color 150ms ease,
@@ -260,17 +261,26 @@
   transform: translateY(-1px);
 }
 
-.megaTag {
-  display: grid;
-  height: 30px;
-  place-items: center;
-  border: 1.5px solid var(--ink);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--ink);
-  font-size: 10px;
+.megaArrow {
+  color: var(--forest);
+  font-size: 15px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.megaIllustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.megaSvg {
+  width: 100%;
+  height: 100%;
+  max-height: 260px;
+  display: block;
 }
 
 .megaCard strong {

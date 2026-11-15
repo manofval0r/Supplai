@@ -36,10 +36,7 @@ export default function Stepper() {
       id="how-it-works"
     >
       <div className={styles.stepperIntro}>
-        <p className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} aria-hidden="true" />
-          {howItWorks.eyebrow}
-        </p>
+        <p className={styles.eyebrow}>{howItWorks.eyebrow}</p>
         <h2 className={styles.sectionTitle} id="how-it-works-title">
           {howItWorks.headline[0]}
           <span>{howItWorks.headline[1]}</span>

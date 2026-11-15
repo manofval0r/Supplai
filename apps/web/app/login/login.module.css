@@ -134,6 +134,38 @@
   margin: 0 auto;
 }
 
+.modeTabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 18px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafe;
+}
+
+.modeTab {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #536074;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.modeTabActive {
+  background: #030407;
+  color: #d4ff24;
+}
+
 .cardEyebrow {
   margin: 0 0 12px;
   color: #1558c9;

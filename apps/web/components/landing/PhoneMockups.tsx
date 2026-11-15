@@ -8,13 +8,6 @@ import { DEFAULT_EXPO_PREVIEW_URL } from '../../lib/drive-preview';
 const EXPO_PREVIEW_URL =
   process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? DEFAULT_EXPO_PREVIEW_URL;
 
-const APP_SPECS = [
-  'Expo SDK 58',
-  'Safety Floor >= 20',
-  'FEFO + Seal #7842',
-  'PIN 5082 & OTA',
-];
-
 export default function PhoneMockups() {
   const { facilityApp } = landingContent;
 
@@ -25,10 +18,7 @@ export default function PhoneMockups() {
       id="app-preview"
     >
       <div className={styles.phoneCopy}>
-        <p className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} aria-hidden="true" />
-          {facilityApp.eyebrow}
-        </p>
+        <p className={styles.eyebrow}>{facilityApp.eyebrow}</p>
         <h2 className={styles.sectionTitle} id="facility-app-title">
           {facilityApp.headline}
         </h2>
@@ -38,14 +28,6 @@ export default function PhoneMockups() {
             <li key={feature}>{feature}</li>
           ))}
         </ul>
-
-        <div className={styles.phoneSpecs}>
-          {APP_SPECS.map((spec) => (
-            <span className={styles.phoneSpecChip} key={spec}>
-              {spec}
-            </span>
-          ))}
-        </div>
 
         <div className={styles.phoneActions}>
           <a
@@ -61,7 +43,7 @@ export default function PhoneMockups() {
           </Link>
         </div>
         <p className={styles.phoneNote}>
-          Android preview build (`b8dd3fa6`). All facilities, stock, and
+          Android preview build (`5a2d041e`). All facilities, stock, and
           deliveries are fictional.
         </p>
       </div>
@@ -91,7 +73,6 @@ export default function PhoneMockups() {
                 />
               </div>
               <figcaption>
-                <span className={styles.phoneTileTag}>{screen.role}</span>
                 <strong>{screen.label}</strong>
               </figcaption>
             </figure>
