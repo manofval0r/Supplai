@@ -28,7 +28,7 @@ interface RpcRequestRow {
 interface JsonRequestInit {
   method: 'GET' | 'POST';
   headers?: Record<string, string>;
-  body: string;
+  body?: string;
 }
 
 export class SupabaseSmsRepository
@@ -575,8 +575,11 @@ export class SupabaseSmsRepository
 
   private async request(path: string, init: JsonRequestInit) {
     const response = await fetch(`${this.url}${path}`, {
-      ...init,
+      method: init.method,
       headers: this.headers(init.headers),
+      ...(init.method !== 'GET' && init.body !== undefined
+        ? { body: init.body }
+        : {}),
     });
     if (!response.ok)
       throw new Error(
