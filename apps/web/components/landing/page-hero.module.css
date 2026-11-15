@@ -38,27 +38,12 @@
 }
 
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 16px;
-  padding: 6px 14px;
-  border: 1.5px solid #1558c9;
-  border-radius: 999px;
-  background: #e9f0fd;
+  margin: 0 0 12px;
   color: #1558c9;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-.eyebrow i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #d4ff24;
-  box-shadow: 0 0 0 3px #1558c9;
 }
 
 .title {

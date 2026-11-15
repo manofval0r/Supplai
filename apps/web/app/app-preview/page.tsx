@@ -18,19 +18,6 @@ export const metadata: Metadata = {
     'Explore high-fidelity Supplai mobile app mockups, live Google Drive video walkthroughs, and download the latest Expo Android preview build.',
 };
 
-const BUILD_FACTS = [
-  { label: 'Channel', value: 'EAS Preview' },
-  { label: 'Runtime', value: '0.1.0 · SDK 58' },
-  { label: 'Commit', value: 'b8dd3fa6' },
-  { label: 'Guardrail', value: 'ORS & Zinc' },
-];
-
-const SOON = [
-  { title: 'Request to release', note: 'A clinic asks, a custodian confirms.' },
-  { title: 'Rider dispatch', note: 'Pickup, live route, and seal check.' },
-  { title: 'PIN-verified receipt', note: 'The handover closes on both sides.' },
-];
-
 export default function AppPreviewPage() {
   const expoPreviewUrl =
     process.env.NEXT_PUBLIC_EXPO_PREVIEW_URL ?? DEFAULT_EXPO_PREVIEW_URL;
@@ -44,14 +31,13 @@ export default function AppPreviewPage() {
   return (
     <SiteShell>
       <PageHero
-        eyebrow="Android preview build · demo data"
+        eyebrow="Android preview build · 5a2d041e"
         title={
           <>
             The field companion for <em>clinic logistics.</em>
           </>
         }
         description="Inspect real Expo SDK 58 screen captures, rotate the interactive 3D mockup, or install the verified Android preview build."
-        chips={BUILD_FACTS}
         actions={
           <>
             <a
@@ -97,7 +83,6 @@ export default function AppPreviewPage() {
                   />
                 </div>
                 <figcaption>
-                  <span className={styles.role}>{screen.role}</span>
                   <h3>{screen.label}</h3>
                   <p>{screen.caption}</p>
                 </figcaption>
@@ -106,60 +91,50 @@ export default function AppPreviewPage() {
           </div>
         </section>
 
-        <section className={styles.videos}>
-          <div className={styles.sectionHead}>
-            <div>
-              <p className={styles.kicker}>Walkthroughs</p>
-              <h2>Watch a handover happen.</h2>
+        {(driveVideos.length > 0 || folderId) && (
+          <section className={styles.videos}>
+            <div className={styles.sectionHead}>
+              <div>
+                <p className={styles.kicker}>Walkthroughs</p>
+                <h2>Watch a handover happen.</h2>
+              </div>
+              <p className={styles.sub}>
+                Recordings of the app running the full request, release,
+                dispatch, and receipt flow.
+              </p>
             </div>
-            <p className={styles.sub}>
-              Short recordings of the app running the full request, release,
-              dispatch, and receipt flow.
-            </p>
-          </div>
 
-          {driveVideos.length > 0 ? (
-            <div className={styles.videoGrid}>
-              {driveVideos.map((video) => (
-                <div className={styles.video} key={video.id}>
-                  <iframe
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    src={video.embedUrl}
-                    title={video.title}
-                  />
-                  <div className={styles.videoMeta}>
-                    <span>{video.title}</span>
-                    <a href={video.viewUrl} rel="noreferrer" target="_blank">
-                      Open in Drive ↗
-                    </a>
+            {driveVideos.length > 0 ? (
+              <div className={styles.videoGrid}>
+                {driveVideos.map((video) => (
+                  <div className={styles.video} key={video.id}>
+                    <iframe
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                      src={video.embedUrl}
+                      title={video.title}
+                    />
+                    <div className={styles.videoMeta}>
+                      <span>{video.title}</span>
+                      <a href={video.viewUrl} rel="noreferrer" target="_blank">
+                        Open in Drive ↗
+                      </a>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : null}
+                ))}
+              </div>
+            ) : null}
 
-          {folderId ? (
-            <div className={styles.folder}>
-              <iframe
-                src={buildDriveFolderEmbedUrl(folderId)}
-                title="Supplai Google Drive Live Previews Folder"
-              />
-            </div>
-          ) : driveVideos.length === 0 ? (
-            <div className={styles.soon}>
-              {SOON.map((item) => (
-                <div className={styles.soonCard} key={item.title}>
-                  <span className={styles.play} aria-hidden="true">
-                    ▶
-                  </span>
-                  <b>{item.title}</b>
-                  <span>{item.note} Recording coming soon.</span>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </section>
+            {folderId ? (
+              <div className={styles.folder}>
+                <iframe
+                  src={buildDriveFolderEmbedUrl(folderId)}
+                  title="Supplai Google Drive Live Previews Folder"
+                />
+              </div>
+            ) : null}
+          </section>
+        )}
       </div>
     </SiteShell>
   );

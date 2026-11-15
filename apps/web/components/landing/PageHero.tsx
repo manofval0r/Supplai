@@ -118,7 +118,6 @@ export default function PageHero({
   eyebrow,
   title,
   description,
-  chips,
   actions,
   visual,
 }: {
@@ -133,21 +132,9 @@ export default function PageHero({
     <section className={styles.hero}>
       <div className={styles.grid}>
         <div>
-          <p className={styles.eyebrow}>
-            <i /> {eyebrow}
-          </p>
+          <p className={styles.eyebrow}>{eyebrow}</p>
           <h1 className={styles.title}>{title}</h1>
           <p className={styles.lead}>{description}</p>
-          {chips && chips.length > 0 && (
-            <div className={styles.chips}>
-              {chips.map((chip) => (
-                <div className={styles.chip} key={chip.label}>
-                  <small>{chip.label}</small>
-                  <b>{chip.value}</b>
-                </div>
-              ))}
-            </div>
-          )}
           {actions && <div className={styles.actions}>{actions}</div>}
         </div>
         <div className={styles.visual}>{visual ?? <RouteVisual />}</div>

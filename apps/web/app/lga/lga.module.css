@@ -4,26 +4,10 @@
   padding: 28px 0 0;
 }
 
-.statusPill {
-  display: inline-flex;
-  min-height: 46px;
-  align-items: center;
-  gap: 10px;
-  padding: 0 18px;
-  border: 2px solid #030407;
-  border-radius: 999px;
-  background: #d4ff24;
-  color: #030407;
+.sourceText {
+  color: #536074;
   font-size: 13px;
-  font-weight: 800;
-  box-shadow: 2px 2px 0 #030407;
-}
-
-.statusPill i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #030407;
+  font-weight: 700;
 }
 
 .refresh {
@@ -231,26 +215,21 @@
   font-weight: 700;
 }
 
-.badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #e9f0fd;
-  color: #1558c9;
+.priorityText {
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+  color: #1558c9;
 }
 
 .badgeCritical {
-  background: #030407;
-  color: #d4ff24;
+  color: #b42318;
 }
 
 .badgeAttention {
-  background: #d4ff24;
-  color: #030407;
+  color: #9a5b00;
 }
 
 .facts {

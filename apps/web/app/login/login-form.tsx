@@ -33,9 +33,6 @@ export default function LoginForm() {
       <section className={styles.wrap}>
         <div className={styles.story}>
           <div>
-            <span className={styles.eyebrow}>
-              <i /> Your supply network, at a glance
-            </span>
             <h1>
               Welcome back
               <br />

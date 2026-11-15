@@ -86,22 +86,13 @@ export default function LgaDecisionClient() {
             Every handover, <em>accountable.</em>
           </>
         }
-        description="A read-mostly oversight surface: the priority queue, who owns the next step, and the safety-floor evidence behind each release."
-        chips={[
-          { label: 'Safety floor', value: '≥ 20 units' },
-          { label: 'Drugs', value: 'ORS · Zinc' },
-          {
-            label: 'Data',
-            value: bundle?.source === 'live' ? 'Live API' : 'Demo',
-          },
-        ]}
+        description="Priority transfer queue, accountable owner, and safety-floor evidence behind each release."
         actions={
           <>
-            <span className={styles.statusPill}>
-              <i />
+            <span className={styles.sourceText}>
               {bundle?.source === 'live'
                 ? 'Live API connected'
-                : 'Demo data · API fallback'}
+                : 'Demo fixture mode'}
             </span>
             <button
               className={styles.refresh}
@@ -182,7 +173,7 @@ export default function LgaDecisionClient() {
                                 </small>
                               </div>
                             </div>
-                            <span className={`${styles.badge} ${badgeTone}`}>
+                            <span className={`${styles.priorityText} ${badgeTone}`}>
                               {item.priority} · {item.status}
                             </span>
                           </div>

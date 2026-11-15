@@ -24,64 +24,26 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'login', label: 'Sign in', href: '/login' },
 ];
 
-const MEGA_COLUMNS = [
+const MEGA_LINKS = [
   {
-    heading: 'On Landing',
-    links: [
-      {
-        title: 'Clinic Skyline & Mission',
-        desc: 'Coordinate ambient-only medicine transfers across PHCs.',
-        href: '/',
-        tag: '01',
-      },
-      {
-        title: 'Our Network & Guardrails',
-        desc: 'Two-sided custody, safety floors, and zero cold-chain drift.',
-        href: '/#our-network',
-        tag: '02',
-      },
-      {
-        title: 'Facility App Showcase',
-        desc: 'Interactive 3D Expo phone mockup and screen walkthroughs.',
-        href: '/#app-preview',
-        tag: '03',
-      },
-      {
-        title: 'Three-Step Flow',
-        desc: 'From facility request and FEFO release to PIN-verified receipt.',
-        href: '/#how-it-works',
-        tag: '04',
-      },
-    ],
+    title: 'Operations Console',
+    desc: 'Request stock, release surplus, and manage live courier dispatch.',
+    href: '/dashboard',
   },
   {
-    heading: 'Live Surfaces',
-    links: [
-      {
-        title: 'Interactive Web Console',
-        desc: 'Run facility requests, releases, rider tracking, and Scenario Lab.',
-        href: '/dashboard',
-        tag: 'LIVE',
-      },
-      {
-        title: 'LGA Oversight Desk',
-        desc: 'Priority transfer queue, attention reasons, and escalations.',
-        href: '/lga',
-        tag: 'OPS',
-      },
-      {
-        title: 'Mobile App Preview & APK',
-        desc: 'EAS Android build download, high-res screens, and Drive clips.',
-        href: '/app-preview',
-        tag: 'APK',
-      },
-      {
-        title: 'Workspace Sign In',
-        desc: 'Demo sign-in gate with instant access into facility workflows.',
-        href: '/login',
-        tag: 'DEMO',
-      },
-    ],
+    title: 'LGA Oversight Desk',
+    desc: 'Priority transfer queue, attention reasons, and escalations.',
+    href: '/lga',
+  },
+  {
+    title: 'Mobile App & APK',
+    desc: 'Expo Android build download, 3D phone showcase, and walkthroughs.',
+    href: '/app-preview',
+  },
+  {
+    title: 'Workspace Sign In',
+    desc: 'Authenticate into facility and LGA supervisor workflows.',
+    href: '/login',
   },
 ];
 
@@ -328,27 +290,107 @@ export default function Navbar() {
             aria-label="Explore Supplai surfaces"
           >
             <div className={styles.megaGrid}>
-              {MEGA_COLUMNS.map((col) => (
-                <div className={styles.megaColumn} key={col.heading}>
-                  <p className={styles.megaHeading}>{col.heading}</p>
-                  <div className={styles.megaList}>
-                    {col.links.map((entry) => (
-                      <Link
-                        key={entry.title}
-                        href={entry.href}
-                        className={styles.megaCard}
-                        onClick={() => setMegaOpen(false)}
-                      >
-                        <span className={styles.megaTag}>{entry.tag}</span>
-                        <div>
-                          <strong>{entry.title}</strong>
-                          <span>{entry.desc}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+              <div className={styles.megaColumn}>
+                <p className={styles.megaHeading}>Workspace &amp; Platform</p>
+                <div className={styles.megaList}>
+                  {MEGA_LINKS.map((entry) => (
+                    <Link
+                      key={entry.title}
+                      href={entry.href}
+                      className={styles.megaCard}
+                      onClick={() => setMegaOpen(false)}
+                    >
+                      <div>
+                        <strong>{entry.title}</strong>
+                        <span>{entry.desc}</span>
+                      </div>
+                      <span className={styles.megaArrow} aria-hidden="true">
+                        →
+                      </span>
+                    </Link>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              <div className={styles.megaIllustration} aria-hidden="true">
+                <svg
+                  viewBox="0 0 320 260"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={styles.megaSvg}
+                >
+                  <rect
+                    x="10"
+                    y="10"
+                    width="300"
+                    height="240"
+                    rx="18"
+                    fill="#F8FAFE"
+                    stroke="#E2E8F0"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M36 196 H284 M36 156 H284 M36 116 H284"
+                    stroke="#1558C9"
+                    strokeOpacity="0.1"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M72 86 Q135 142 168 134 T252 84"
+                    stroke="#1558C9"
+                    strokeWidth="3"
+                    strokeDasharray="6 6"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="72" cy="86" r="20" fill="#1558C9" />
+                  <path
+                    d="M72 76 V96 M62 86 H82"
+                    stroke="#D4FF24"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                  <circle
+                    cx="166"
+                    cy="134"
+                    r="22"
+                    fill="#D4FF24"
+                    stroke="#030407"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M166 123 V145 M155 134 H177"
+                    stroke="#030407"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="252" cy="84" r="20" fill="#1558C9" />
+                  <path
+                    d="M252 74 V94 M242 84 H262"
+                    stroke="#D4FF24"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                  />
+                  <rect
+                    x="56"
+                    y="194"
+                    width="208"
+                    height="36"
+                    rx="10"
+                    fill="#FFFFFF"
+                    stroke="#030407"
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x="74"
+                    y="216"
+                    fill="#030407"
+                    fontSize="11"
+                    fontWeight="700"
+                  >
+                    PHC-to-PHC Ambient Dispatch
+                  </text>
+                </svg>
+              </div>
             </div>
           </div>
         )}
