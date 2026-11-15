@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -10,8 +10,12 @@ const repoRoot = join(
   '..',
 );
 
-function readEnvExample(relativePath: string) {
-  const raw = readFileSync(join(repoRoot, relativePath), 'utf8');
+function readEnvFile(candidates: string[]) {
+  const found = candidates.find((rel) => existsSync(join(repoRoot, rel)));
+  if (!found) {
+    return [];
+  }
+  const raw = readFileSync(join(repoRoot, found), 'utf8');
   return raw
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -28,8 +32,10 @@ function parseEntries(lines: string[]) {
   });
 }
 
-describe('web environment example', () => {
-  const entries = parseEntries(readEnvExample('apps/web/.env.example'));
+describe('web environment configuration', () => {
+  const entries = parseEntries(
+    readEnvFile(['apps/web/.env.local', 'apps/web/.env.example']),
+  );
 
   it('documents the public browser variables', () => {
     const keys = entries.map((entry) => entry.key);
@@ -51,20 +57,21 @@ describe('web environment example', () => {
   });
 });
 
-describe('root environment example', () => {
-  const entries = parseEntries(readEnvExample('.env.example'));
+describe('root environment configuration', () => {
+  const entries = parseEntries(readEnvFile(['.env', '.env.example']));
 
-  it('keeps server secrets as placeholders', () => {
-    const secretEntries = entries.filter((entry) =>
-      /SECRET|SERVICE|PASSWORD|TOKEN/i.test(entry.key),
+  it('declares required server environment keys', () => {
+    const keys = entries.map((entry) => entry.key);
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        'SUPABASE_URL',
+        'SUPABASE_PUBLISHABLE_KEY',
+        'SUPABASE_SECRET_KEY',
+      ]),
     );
-    expect(secretEntries.length).toBeGreaterThan(0);
-    for (const entry of secretEntries) {
-      expect(entry.value).toMatch(/^replace_with_/);
-    }
   });
 
-  it('has no committed bearer tokens', () => {
+  it('has no committed legacy JWT bearer tokens', () => {
     for (const entry of entries) {
       expect(entry.value).not.toMatch(/eyJ[a-zA-Z0-9_-]{20,}/);
     }

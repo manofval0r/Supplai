@@ -116,6 +116,10 @@ export function OsmMap({
     <View
       style={{
         flex: 1,
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        minHeight: 420,
         backgroundColor: isDark ? '#0b0e15' : '#e8ecf2',
       }}
     >
@@ -124,7 +128,14 @@ export function OsmMap({
         title={`Courier route from ${origin} to ${dest}`}
         srcDoc={source}
         sandbox="allow-scripts"
-        style={{ width: '100%', height: '100%', border: 0 }}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          border: 0,
+          display: 'block',
+        }}
       />
     </View>
   );
