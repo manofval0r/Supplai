@@ -19,23 +19,48 @@ import { ActivityScreen } from './screens/ActivityScreen';
 import { AccountScreen, type AccountSubView } from './screens/AccountScreen';
 import { AppConfigProvider, useAppConfig } from './lib/theme';
 
-function MainNavigator() {
+export interface WebAppProps {
+  controlledMode?: AppMode;
+  onModeChange?: (mode: AppMode) => void;
+  hideDock?: boolean;
+}
+
+function MainNavigator({
+  controlledMode,
+  onModeChange,
+  hideDock = false,
+}: WebAppProps) {
   const { colors, isDark, showSplash, setShowSplash, resetDemoState } =
     useAppConfig();
   const router = useRouter();
-  const [mode, setMode] = useState<AppMode>('home');
+  const [internalMode, setInternalMode] = useState<AppMode>('home');
   const [accountSubView, setAccountSubView] = useState<AccountSubView>('hub');
+
+  const mode = controlledMode ?? internalMode;
+  const setMode = useCallback(
+    (next: AppMode) => {
+      if (onModeChange) {
+        onModeChange(next);
+      } else {
+        setInternalMode(next);
+      }
+    },
+    [onModeChange],
+  );
 
   const handleFinishSplash = useCallback(() => {
     setShowSplash(false);
   }, [setShowSplash]);
 
-  const handleSelectTab = useCallback((tab: DockTab) => {
-    if (tab === 'account') {
-      setAccountSubView('hub');
-    }
-    setMode(tab);
-  }, []);
+  const handleSelectTab = useCallback(
+    (tab: DockTab) => {
+      if (tab === 'account') {
+        setAccountSubView('hub');
+      }
+      setMode(tab);
+    },
+    [setMode],
+  );
 
   const handleSignOut = useCallback(() => {
     resetDemoState();
@@ -43,6 +68,7 @@ function MainNavigator() {
   }, [resetDemoState, router]);
 
   const showDock =
+    !hideDock &&
     !showSplash &&
     (mode === 'home' ||
       mode === 'activity' ||
@@ -124,16 +150,18 @@ function MainNavigator() {
           />
         )}
 
-        {showSplash && <AnimatedSplash onFinish={handleFinishSplash} />}
+        {Platform.OS !== 'web' && showSplash && (
+          <AnimatedSplash onFinish={handleFinishSplash} />
+        )}
       </View>
     </SafeAreaView>
   );
 }
 
-export default function App() {
+export default function App(props: WebAppProps) {
   return (
     <AppConfigProvider>
-      <MainNavigator />
+      <MainNavigator {...props} />
     </AppConfigProvider>
   );
 }

@@ -1,31 +1,54 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState, type FormEvent } from 'react';
 import SiteShell from '../../components/landing/SiteShell';
+import { signInWorkspace, signUpWorkspace } from '../../lib/auth';
 import styles from './login.module.css';
 
-export default function LoginForm() {
+function LoginFormInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = searchParams?.get('next') || '/dashboard';
+
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [facilityName, setFacilityName] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!email.trim() || !password) {
-      setError('Enter an email and password to continue.');
+    setError('');
+    setSubmitting(true);
+
+    const res =
+      authMode === 'signup'
+        ? await signUpWorkspace(email, password, facilityName)
+        : await signInWorkspace(email, password);
+
+    setSubmitting(false);
+
+    if (!res.ok) {
+      setError(res.error);
       return;
     }
 
-    router.push('/dashboard');
+    router.push(nextPath.startsWith('/') ? nextPath : '/dashboard');
   }
 
-  function fillDemo() {
-    setEmail('demo@supplai.org');
-    setPassword('demo-access');
+  async function enterDemoWorkspace() {
     setError('');
+    setSubmitting(true);
+    const res = await signInWorkspace('demo@supplai.org', 'demo-access');
+    setSubmitting(false);
+    if (res.ok) {
+      router.push(nextPath.startsWith('/') ? nextPath : '/dashboard');
+    } else {
+      setError(res.error);
+    }
   }
 
   return (
@@ -40,47 +63,88 @@ export default function LoginForm() {
             </h1>
             <p>
               Coordinate stock, follow deliveries, and keep every handover
-              clear.
+              accountable.
             </p>
           </div>
           <ul className={styles.roles}>
-            <li>
-              <b>01</b> Receiving clinic
-            </li>
-            <li>
-              <b>02</b> Source custodian
-            </li>
-            <li>
-              <b>03</b> Motorcycle courier
-            </li>
-            <li>
-              <b>04</b> LGA supervisor
-            </li>
+            <li>Receiving clinic</li>
+            <li>Source custodian</li>
+            <li>Motorcycle courier</li>
+            <li>LGA supervisor</li>
           </ul>
         </div>
 
         <div className={styles.formSide}>
           <div className={styles.card}>
-            <p className={styles.cardEyebrow}>Supplai workspace</p>
-            <h2>Log in to your account</h2>
+            <div className={styles.modeTabs} role="tablist">
+              <button
+                aria-selected={authMode === 'signin'}
+                className={`${styles.modeTab} ${authMode === 'signin' ? styles.modeTabActive : ''}`}
+                onClick={() => {
+                  setAuthMode('signin');
+                  setError('');
+                }}
+                role="tab"
+                type="button"
+              >
+                Sign in
+              </button>
+              <button
+                aria-selected={authMode === 'signup'}
+                className={`${styles.modeTab} ${authMode === 'signup' ? styles.modeTabActive : ''}`}
+                onClick={() => {
+                  setAuthMode('signup');
+                  setError('');
+                }}
+                role="tab"
+                type="button"
+              >
+                Create account
+              </button>
+            </div>
+
+            <h2>
+              {authMode === 'signin'
+                ? 'Log in to workspace'
+                : 'Register facility account'}
+            </h2>
             <p className={styles.sub}>
-              Use any email and password to explore this demo, or fill in a demo
-              account in one tap.
+              Sign in with your facility credentials to access the Operations
+              Console and LGA Oversight Desk, or enter the demo workspace.
             </p>
 
             <button
               className={styles.demoFill}
-              onClick={fillDemo}
+              disabled={submitting}
+              onClick={() => void enterDemoWorkspace()}
               type="button"
             >
               <span>
-                Use the demo account
-                <small>demo@supplai.org</small>
+                Enter demo workspace
+                <small>demo@supplai.org · Aiyetoro Central PHC</small>
               </span>
-              <span aria-hidden="true">↳</span>
+              <span aria-hidden="true">→</span>
             </button>
 
             <form className={styles.form} onSubmit={handleSubmit}>
+              {authMode === 'signup' && (
+                <div className={styles.field}>
+                  <label htmlFor="login-facility">Facility / LGA unit</label>
+                  <input
+                    id="login-facility"
+                    name="facility"
+                    onChange={(event) => {
+                      setFacilityName(event.target.value);
+                      setError('');
+                    }}
+                    placeholder="e.g. Ifo Primary Health Centre"
+                    required
+                    type="text"
+                    value={facilityName}
+                  />
+                </div>
+              )}
+
               <div className={styles.field}>
                 <label htmlFor="login-email">Email address</label>
                 <input
@@ -97,35 +161,47 @@ export default function LoginForm() {
                   value={email}
                 />
               </div>
+
               <div className={styles.field}>
                 <label htmlFor="login-password">Password</label>
                 <input
-                  autoComplete="current-password"
+                  autoComplete={
+                    authMode === 'signup' ? 'new-password' : 'current-password'
+                  }
                   id="login-password"
+                  minLength={6}
                   name="password"
                   onChange={(event) => {
                     setPassword(event.target.value);
                     setError('');
                   }}
-                  placeholder="Enter any password"
+                  placeholder="At least 6 characters"
                   required
                   type="password"
                   value={password}
                 />
               </div>
+
               {error && (
                 <p className={styles.error} role="alert">
                   {error}
                 </p>
               )}
-              <button className={styles.submit} type="submit">
-                Continue to dashboard <span aria-hidden="true">→</span>
+
+              <button
+                className={styles.submit}
+                disabled={submitting}
+                type="submit"
+              >
+                {submitting
+                  ? 'Authenticating…'
+                  : authMode === 'signup'
+                    ? 'Create account & enter'
+                    : 'Sign in & enter'}{' '}
+                <span aria-hidden="true">→</span>
               </button>
             </form>
 
-            <p className={styles.notice}>
-              Demo sign-in only. No credentials are stored or checked.
-            </p>
             <p className={styles.alt}>
               New to Supplai? <Link href="/">Explore how it works</Link>
             </p>
@@ -133,5 +209,13 @@ export default function LoginForm() {
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+export default function LoginForm() {
+  return (
+    <Suspense fallback={null}>
+      <LoginFormInner />
+    </Suspense>
   );
 }

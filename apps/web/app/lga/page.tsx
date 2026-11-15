@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import AuthGuard from '../../components/AuthGuard';
 import SiteShell from '../../components/landing/SiteShell';
 import LgaDecisionClient from './lga-client';
 
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function LgaPage() {
   return (
     <SiteShell>
-      <LgaDecisionClient />
+      <AuthGuard>
+        <LgaDecisionClient />
+      </AuthGuard>
     </SiteShell>
   );
 }
