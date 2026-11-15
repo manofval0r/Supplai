@@ -58,7 +58,9 @@ export function clearWorkspaceSession(): void {
 export async function signInWorkspace(
   email: string,
   password: string,
-): Promise<{ ok: true; session: WorkspaceSession } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; session: WorkspaceSession } | { ok: false; error: string }
+> {
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail || !cleanEmail.includes('@')) {
     return { ok: false, error: 'Enter a valid facility email address.' };
@@ -125,7 +127,9 @@ export async function signUpWorkspace(
   email: string,
   password: string,
   facilityName: string,
-): Promise<{ ok: true; session: WorkspaceSession } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; session: WorkspaceSession } | { ok: false; error: string }
+> {
   const cleanEmail = email.trim().toLowerCase();
   const cleanFacility = facilityName.trim();
   if (!cleanEmail || !cleanEmail.includes('@')) {

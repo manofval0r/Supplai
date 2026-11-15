@@ -173,7 +173,9 @@ export default function LgaDecisionClient() {
                                 </small>
                               </div>
                             </div>
-                            <span className={`${styles.priorityText} ${badgeTone}`}>
+                            <span
+                              className={`${styles.priorityText} ${badgeTone}`}
+                            >
                               {item.priority} · {item.status}
                             </span>
                           </div>

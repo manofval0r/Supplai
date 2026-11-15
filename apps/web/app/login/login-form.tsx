@@ -126,7 +126,10 @@ function LoginFormInner() {
               <span aria-hidden="true">→</span>
             </button>
 
-            <form className={styles.form} onSubmit={handleSubmit}>
+            <form
+              className={styles.form}
+              onSubmit={(event) => void handleSubmit(event)}
+            >
               {authMode === 'signup' && (
                 <div className={styles.field}>
                   <label htmlFor="login-facility">Facility / LGA unit</label>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import AuthGuard from '../../components/AuthGuard';
-import BrandLogo from '../../components/BrandLogo';
+import { BrandLogo } from '../../components/BrandLogo';
 import type { AppMode } from '../../components/RolePicker';
 import { clearWorkspaceSession, getWorkspaceSession } from '../../lib/auth';
 import MobileClient from '../mobile-client';
@@ -144,7 +144,10 @@ export default function DashboardShell() {
             </div>
           </div>
 
-          <section aria-label="Supplai operations workspace" className={styles.workspace}>
+          <section
+            aria-label="Supplai operations workspace"
+            className={styles.workspace}
+          >
             <MobileClient
               key={resetKey}
               controlledMode={mode}
